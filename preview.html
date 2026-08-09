@@ -1,0 +1,3077 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Լևոն Շանթ շաբաթօրյա դպրոց — Մեխելեն, Բելգիա</title>
+<meta name="description" content="Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց, Մեխելեն, Բելգիա. Nijverheidsstraat 45, 2800 Mechelen.">
+<style>
+/* =========================================================
+   Լևոն Շանթ շաբաթօրյա դպրոց — visual identity (v2, "educative")
+   Palette:  chalkboard green #1F4B3F · pencil yellow #E8B23D
+             apple red #C1443C · notebook paper #F8F4E6
+             ink #20261F · chalk-gold hairline #B98F3B
+   Type:     Noto Serif Armenian (display) / Noto Sans Armenian (body)
+              Fraunces (Latin/Dutch display accents)
+   Signature: interlace "khachkar" divider + faint ruled-notebook texture
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Armenian:wght@400;600;700&family=Noto+Sans+Armenian:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap');
+
+:root{
+  --paper:#F8F4E6;
+  --paper-dim:#EFE6C9;
+  --ink:#20261F;
+  --ink-soft:#4E5A4A;
+  --apricot:#E8B23D;        /* pencil yellow — primary CTA */
+  --apricot-deep:#B4791A;
+  --blue:#1F4B3F;            /* chalkboard green — brand / secondary CTA */
+  --blue-deep:#123027;
+  --pomegranate:#C1443C;     /* apple red — highlights / alerts */
+  --gold:#B98F3B;            /* chalk gold — divider & rules */
+  --line:rgba(32,38,31,0.15);
+  --card:#FFFDF5;
+  --shadow: 0 10px 30px rgba(18,28,20,0.10);
+  --radius: 14px;
+  --focus: 3px solid var(--blue);
+}
+
+/* faint ruled-notebook paper texture, used on alternate sections */
+.ruled{
+  background-image: repeating-linear-gradient(
+    to bottom, transparent 0 31px, rgba(32,38,31,0.055) 31px 32px
+  );
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans Armenian','Fraunces',sans-serif;
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{
+  font-family:'Noto Serif Armenian','Fraunces',serif;
+  font-weight:700;
+  line-height:1.22;
+  margin:0 0 .5em;
+  color:var(--ink);
+}
+h1{font-size:clamp(2.1rem,4.4vw,3.4rem); font-weight:600;}
+h2{font-size:clamp(1.5rem,2.6vw,2.1rem);}
+h3{font-size:1.2rem;}
+p{margin:0 0 1em;}
+a{color:var(--blue); text-decoration:none;}
+a:hover{color:var(--pomegranate);}
+img{max-width:100%; display:block;}
+button, input, textarea, select{font-family:inherit; font-size:1rem;}
+:focus-visible{outline:var(--focus); outline-offset:2px;}
+.container{max-width:1120px; margin:0 auto; padding:0 24px;}
+.eyebrow{
+  font-family:'Fraunces',serif; font-style:italic; font-weight:500;
+  color:var(--pomegranate); letter-spacing:.02em; font-size:.95rem; margin-bottom:.35em;
+  display:block;
+}
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 22px; border-radius:999px; border:1.5px solid var(--ink);
+  background:var(--ink); color:var(--paper); font-weight:600; cursor:pointer;
+  transition:transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.btn:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+.btn.secondary{background:transparent; color:var(--ink);}
+.btn.apricot{background:var(--apricot); border-color:var(--apricot-deep); color:#2A1706;}
+.btn.blue{background:var(--blue); border-color:var(--blue-deep); color:#fff;}
+.btn.ghost{background:transparent; border-color:var(--line); color:var(--ink); font-weight:500;}
+.btn.small{padding:8px 14px; font-size:.85rem;}
+.btn.danger{background:var(--pomegranate); border-color:#7a222e; color:#fff;}
+.btn:disabled{opacity:.5; cursor:not-allowed; transform:none;}
+
+/* ---------- Header ---------- */
+header.site{
+  position:sticky; top:0; z-index:50;
+  background:rgba(251,243,231,0.92); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.nav-row{display:flex; align-items:center; justify-content:space-between; padding:14px 24px; gap:16px;}
+.brand{display:flex; align-items:center; gap:12px; min-width:0;}
+.brand .crest{
+  width:42px; height:42px; border-radius:10px; flex:none;
+  background:linear-gradient(155deg,var(--apricot),var(--pomegranate));
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700;
+  overflow:hidden;
+}
+.brand .crest img{width:100%; height:100%; object-fit:contain; padding:3px; background:#fff;}
+.brand-text{min-width:0;}
+.brand-text strong{display:block; font-family:'Noto Serif Armenian',serif; font-size:1.02rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.brand-text span{display:block; font-size:.72rem; color:var(--ink-soft);}
+nav.main{display:flex; align-items:center; gap:4px; flex-wrap:wrap;}
+nav.main a{
+  padding:8px 12px; border-radius:999px; font-size:.92rem; color:var(--ink); font-weight:500;
+}
+nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
+.nav-actions{display:flex; align-items:center; gap:8px;}
+.lang-toggle{
+  position:relative; display:flex; width:132px; height:34px;
+  border-radius:999px; background:var(--paper-dim); border:1.5px solid var(--line); padding:3px; flex:none;
+  --lang-idx:0;
+}
+.lang-toggle::before{
+  content:""; position:absolute; top:3px; left:3px;
+  width:calc(33.333% - 2px); height:calc(100% - 6px);
+  background:var(--blue); border-radius:999px;
+  transition:transform .22s cubic-bezier(.4,0,.2,1);
+  transform:translateX(calc(var(--lang-idx) * 100%));
+  z-index:0;
+}
+.lang-toggle button{
+  position:relative; z-index:1; flex:1; background:none; border:none;
+  font-size:.72rem; font-weight:700; letter-spacing:.02em; color:var(--ink-soft); cursor:pointer;
+  border-radius:999px; transition:color .22s ease;
+}
+.lang-toggle button.active{ color:#fff; }
+.lang-toggle button:hover:not(.active){ color:var(--ink); }
+.menu-toggle{display:none; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--ink);}
+
+@media (max-width:920px){
+  nav.main{display:none; width:100%; flex-direction:column; align-items:stretch; gap:2px; padding-top:10px; border-top:1px solid var(--line); margin-top:10px;}
+  nav.main.open{display:flex;}
+  .nav-row{flex-wrap:wrap;}
+  .menu-toggle{display:block;}
+}
+
+/* ---------- Hero ---------- */
+.hero{position:relative; overflow:hidden; padding:72px 0 56px; background:
+  radial-gradient(circle at 85% -10%, rgba(232,178,61,.30), transparent 55%),
+  radial-gradient(circle at -5% 110%, rgba(31,75,63,.24), transparent 55%);
+}
+.hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 34px, rgba(32,38,31,0.035) 34px 35px);
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+.hero-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:48px; align-items:center;}
+@media (max-width:860px){.hero-grid{grid-template-columns:1fr;}}
+.hero-grid.single{grid-template-columns:1fr; max-width:760px;}
+.hero h1{margin-bottom:.4em;}
+.hero .lede{font-size:1.12rem; color:var(--ink-soft); max-width:52ch;}
+.hero-cta{display:flex; gap:12px; margin-top:26px; flex-wrap:wrap;}
+.hero-facts{display:flex; gap:22px; margin-top:34px; flex-wrap:wrap;}
+.hero-facts div{border-left:2px solid var(--gold); padding-left:12px;}
+.hero-facts strong{display:block; font-family:'Noto Serif Armenian',serif; font-size:1.3rem;}
+.hero-facts span{font-size:.82rem; color:var(--ink-soft);}
+
+/* ---------- Divider (signature element) ---------- */
+.divider{display:flex; align-items:center; justify-content:center; padding:6px 0 0; opacity:.9;}
+.divider svg{width:220px; height:22px;}
+.divider path{stroke:var(--gold);}
+
+/* ---------- Sections ---------- */
+section{padding:64px 0;}
+section.alt{background:var(--paper-dim);}
+.section-head{max-width:64ch; margin-bottom:36px;}
+.section-head.center{margin-left:auto; margin-right:auto; text-align:center;}
+
+/* About */
+.about-grid{display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;}
+@media (max-width:860px){.about-grid{grid-template-columns:1fr;}}
+.timeline{border-left:2px solid var(--line); padding-left:20px; display:flex; flex-direction:column; gap:22px;}
+.timeline .yr{font-family:'Fraunces',serif; font-style:italic; color:var(--pomegranate); font-size:.95rem;}
+.info-card{background:var(--card); border:1px solid var(--line); border-top:3px solid var(--gold); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);}
+
+
+/* structured/education */
+.dept-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
+@media (max-width:900px){.dept-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:520px){.dept-grid{grid-template-columns:1fr;}}
+.dept-card{background:var(--card); border:1px solid var(--line); border-top:3px solid var(--gold); border-radius:var(--radius); padding:20px; text-align:left;}
+.dept-card .num{font-family:'Noto Serif Armenian',serif; color:var(--apricot-deep); font-size:1.6rem; font-weight:700;}
+
+/* Feed / cards */
+.feed-toolbar{display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;}
+.chip{border:1px solid var(--line); background:var(--card); border-radius:999px; padding:7px 14px; font-size:.85rem; cursor:pointer; color:var(--ink-soft); font-weight:600;}
+.chip.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+@media (max-width:900px){.card-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:620px){.card-grid{grid-template-columns:1fr;}}
+.post-card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column;
+}
+.post-media{aspect-ratio:16/10; background:var(--paper-dim); overflow:hidden; position:relative;}
+.post-media img, .post-media video{width:100%; height:100%; object-fit:cover; object-position:center;}
+.post-media .kind{position:absolute; top:10px; left:10px; background:rgba(36,27,21,.7); color:#fff; font-size:.72rem; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em;}
+.post-body{padding:18px; display:flex; flex-direction:column; gap:8px; flex:1;}
+.post-date{font-size:.78rem; color:var(--ink-soft); font-weight:600; letter-spacing:.02em;}
+.post-body h3{margin:0;}
+.post-body p{color:var(--ink-soft); font-size:.92rem; margin:0; flex:1;}
+.post-foot{display:flex; align-items:center; justify-content:space-between; padding-top:6px; border-top:1px dashed var(--line); font-size:.78rem; color:var(--ink-soft);}
+.post-actions{display:flex; gap:6px;}
+.empty-state{
+  border:1.5px dashed var(--line); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--ink-soft); background:var(--card);
+}
+
+/* History timeline */
+.history-timeline{position:relative; margin-top:12px;}
+.history-timeline::before{
+  content:""; position:absolute; left:19px; top:4px; bottom:4px; width:2px;
+  background:linear-gradient(to bottom, var(--gold), transparent 97%);
+}
+.hist-item{position:relative; padding-left:56px; margin-bottom:28px;}
+.hist-item:last-child{margin-bottom:0;}
+.hist-dot{
+  position:absolute; left:9px; top:2px; width:22px; height:22px; border-radius:50%;
+  background:var(--card); border:3px solid var(--blue); box-shadow:0 0 0 4px var(--paper);
+}
+.hist-year{
+  display:inline-block; font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--blue);
+  background:var(--paper-dim); padding:3px 13px; border-radius:999px; font-size:.82rem; margin-bottom:7px;
+}
+.hist-item h3{margin:0 0 4px; font-size:1.05rem;}
+.hist-item p{margin:0; color:var(--ink-soft); font-size:.92rem;}
+@media (max-width:520px){
+  .hist-item{padding-left:44px;}
+  .history-timeline::before{left:14px;}
+  .hist-dot{left:4px; width:18px; height:18px;}
+}
+/* Yearly calendar overview — month raster (grid of month cards) */
+.year-cal-list{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+@media (max-width:900px){.year-cal-list{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:600px){.year-cal-list{grid-template-columns:1fr;}}
+
+.year-cal-month{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column;}
+.year-cal-month-head{
+  padding:12px 16px; font-family:'Noto Serif Armenian',serif; font-weight:700; color:#fff; font-size:1.02rem;
+  display:flex; align-items:center; gap:8px;
+}
+.year-cal-month-body{padding:14px 16px; display:flex; flex-direction:column; gap:11px; flex:1;}
+.year-cal-month-empty{padding:14px 16px; color:var(--ink-soft); font-size:.85rem; font-style:italic;}
+
+.year-cal-entry{display:flex; gap:10px; align-items:flex-start;}
+.year-cal-day{
+  font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--ink); background:var(--paper-dim);
+  border-radius:7px; min-width:28px; height:26px; display:flex; align-items:center; justify-content:center;
+  font-size:.8rem; flex:none;
+}
+.year-cal-entry-text h4{margin:0; font-size:.85rem; font-weight:600; line-height:1.35;}
+.year-cal-entry-text p{margin:2px 0 0; font-size:.78rem; color:var(--ink-soft);}
+
+/* Teaching staff */
+.staff-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px;}
+@media (max-width:900px){.staff-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:520px){.staff-grid{grid-template-columns:1fr;}}
+.staff-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); text-align:center;}
+.staff-photo{aspect-ratio:3/4; background:var(--paper-dim); overflow:hidden;}
+.staff-photo img{width:100%; height:100%; object-fit:contain; object-position:center;}
+.staff-photo.placeholder{display:flex; align-items:center; justify-content:center; font-family:'Noto Serif Armenian',serif; font-size:1.8rem; color:var(--blue); font-weight:700;}
+.staff-body{padding:14px 12px;}
+.staff-body h3{font-size:.95rem; margin:0 0 4px;}
+.staff-body p{margin:0; font-size:.8rem; color:var(--ink-soft); line-height:1.4;}
+.staff-card .del-btn{margin-top:8px;}
+
+/* Classes & groups list */
+.classes-list{
+  list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:12px;
+}
+@media (max-width:640px){.classes-list{grid-template-columns:1fr;}}
+.classes-list li{
+  background:var(--card); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:10px;
+  padding:13px 16px; font-size:.92rem; font-weight:500;
+}
+
+/* Calendar: schedule + month grid */
+.cal-layout{display:grid; grid-template-columns:.85fr 1.15fr; gap:32px; align-items:start;}
+@media (max-width:900px){.cal-layout{grid-template-columns:1fr;}}
+.cal-layout.single{grid-template-columns:1fr; max-width:640px; margin:0 auto;}
+
+.schedule-panel{background:var(--card); border:1px solid var(--line); border-top:3px solid var(--gold); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);}
+.schedule-panel h3{margin-bottom:14px;}
+.schedule-list{display:flex; flex-direction:column; gap:10px;}
+.schedule-row{
+  display:flex; align-items:center; gap:14px; padding:11px 13px; border:1px solid var(--line); border-radius:10px; background:var(--paper);
+}
+.schedule-time{
+  font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--blue); font-size:.88rem;
+  background:var(--paper-dim); padding:5px 10px; border-radius:8px; white-space:nowrap; flex:none;
+}
+.schedule-course{font-weight:600; font-size:.92rem;}
+.schedule-teacher{font-size:.8rem; color:var(--ink-soft);}
+.schedule-row .del-btn{margin-left:auto;}
+
+.calendar-panel{background:var(--card); border:1px solid var(--line); border-top:3px solid var(--gold); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);}
+.cal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+.cal-header span{font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:1.05rem;}
+.cal-weekdays{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px;}
+.cal-weekdays span{text-align:center; font-size:.72rem; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em;}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+.cal-day{
+  aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  border-radius:9px; font-size:.82rem; cursor:pointer; border:1.5px solid transparent; color:var(--ink);
+  background:var(--paper); transition:border-color .15s ease, background .15s ease;
+}
+.cal-day.empty{background:none; cursor:default;}
+.cal-day:not(.empty):hover{border-color:var(--blue);}
+.cal-day.today{border-color:var(--pomegranate); font-weight:700;}
+.cal-day.selected{background:var(--blue); color:#fff;}
+.dots-wrap{display:flex; gap:3px;}
+.cal-day .dot{width:5px; height:5px; border-radius:50%; background:var(--pomegranate);}
+.cal-day .dot.dot-class{background:var(--gold);}
+.cal-day.selected .dot{background:var(--apricot);}
+.cal-events-list{margin-top:18px; display:flex; flex-direction:column; gap:10px;}
+.cal-event-item{
+  display:flex; gap:12px; align-items:flex-start; padding:11px 13px; border:1px solid var(--line); border-radius:10px; background:var(--paper);
+}
+.cal-event-date{
+  font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--pomegranate); font-size:.8rem;
+  background:var(--paper-dim); padding:4px 9px; border-radius:8px; white-space:nowrap; flex:none;
+}
+.cal-event-date.schedule-time{color:var(--blue);}
+.cal-event-item h4{margin:0 0 2px; font-size:.92rem;}
+.cal-event-item p{margin:0; font-size:.82rem; color:var(--ink-soft);}
+.cal-legend{display:flex; gap:16px; margin-top:10px; font-size:.78rem; color:var(--ink-soft);}
+.cal-legend span{display:flex; align-items:center; gap:6px;}
+.legend-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+.legend-dot.class{background:var(--gold);}
+.legend-dot.event{background:var(--pomegranate);}
+
+.reg-wrap{display:grid; grid-template-columns:.9fr 1.1fr; gap:44px;}
+@media (max-width:900px){.reg-wrap{grid-template-columns:1fr;}}
+form.card-form{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:28px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:16px;}
+.field{display:flex; flex-direction:column; gap:6px;}
+.field label{font-size:.85rem; font-weight:600; color:var(--ink-soft);}
+.field input, .field textarea, .field select{
+  border:1.5px solid var(--line); border-radius:10px; padding:11px 13px; background:#fff; color:var(--ink);
+}
+.field input:focus, .field textarea:focus, .field select:focus{border-color:var(--blue);}
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media (max-width:520px){.field-row{grid-template-columns:1fr;}}
+.field-row-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+@media (max-width:760px){.field-row-3{grid-template-columns:1fr;}}
+
+.choice-group{display:flex; flex-direction:column; gap:8px;}
+.choice-item{
+  display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--line); border-radius:10px;
+  padding:10px 13px; background:#fff; cursor:pointer; font-size:.9rem; line-height:1.4; transition:border-color .15s ease, background .15s ease;
+}
+.choice-item:hover{border-color:var(--blue);}
+.choice-item input{accent-color:var(--blue); width:17px; height:17px; margin-top:2px; flex:none;}
+.choice-item:has(input:checked){border-color:var(--blue); background:var(--paper-dim);}
+.form-msg{font-size:.88rem; padding:10px 12px; border-radius:8px; display:none;}
+.form-msg.show{display:block;}
+.form-msg.ok{background:#E4F0E5; color:#245C33;}
+.form-msg.err{background:#F6DEE0; color:#7a222e;}
+
+/* Contact */
+.contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px;}
+@media (max-width:800px){.contact-grid{grid-template-columns:1fr;}}
+.contact-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px;}
+.contact-list li{display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
+.contact-list .ic{font-size:1.2rem;}
+.map-embed{border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); min-height:280px;}
+.map-embed iframe{width:100%; height:100%; min-height:280px; border:0;}
+
+/* Footer */
+footer.site{background:var(--ink); color:var(--paper); padding:48px 0 26px; margin-top:20px;}
+footer.site a{color:var(--paper-dim);}
+footer.site a:hover{color:var(--apricot);}
+.foot-grid{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:32px;}
+@media (max-width:760px){.foot-grid{grid-template-columns:1fr; gap:24px;}}
+.foot-grid h4{color:var(--paper); font-family:'Fraunces',serif; font-style:italic; font-weight:500;}
+.foot-bottom{margin-top:34px; padding-top:18px; border-top:1px solid rgba(251,243,231,.14); font-size:.8rem; color:var(--paper-dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+.social-row{display:flex; gap:10px;}
+.social-row a{border:1px solid rgba(251,243,231,.3); border-radius:999px; padding:8px 14px; font-size:.82rem;}
+
+/* ---------- Auth / Dashboard ---------- */
+.auth-btn{display:flex; align-items:center; gap:8px;}
+.avatar{width:30px; height:30px; border-radius:50%; background:var(--apricot); color:#2A1706; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.8rem;}
+
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(36,27,21,.55); backdrop-filter:blur(2px);
+  display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
+}
+.modal-backdrop.open{display:flex;}
+.modal{background:var(--card); border-radius:18px; width:100%; max-width:420px; padding:30px; box-shadow:0 30px 60px rgba(0,0,0,.3); position:relative;}
+.modal.wide{max-width:640px;}
+.modal-close{position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--ink-soft);}
+.modal h2{margin-bottom:4px;}
+.modal .sub{color:var(--ink-soft); font-size:.9rem; margin-bottom:20px;}
+.tabs{display:flex; gap:6px; margin-bottom:18px; border-bottom:1px solid var(--line);}
+.tabs button{background:none; border:none; padding:10px 4px; margin-right:16px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent;}
+.tabs button.active{color:var(--ink); border-color:var(--apricot);}
+
+.dash{background:var(--paper-dim); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+.dash-head{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:22px;}
+.role-badge{font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--blue); color:#fff;}
+.role-badge.admin{background:var(--pomegranate);}
+.dash-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
+.dash-panel{display:none;}
+.dash-panel.active{display:block;}
+.table-wrap{overflow-x:auto; background:var(--card); border-radius:var(--radius); border:1px solid var(--line);}
+table{width:100%; border-collapse:collapse; font-size:.88rem;}
+th, td{text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); white-space:nowrap;}
+th{background:var(--paper); font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+tr:last-child td{border-bottom:none;}
+.status-pill{font-size:.72rem; padding:3px 9px; border-radius:999px; background:var(--apricot); color:#2A1706; font-weight:700;}
+
+.helper{font-size:.8rem; color:var(--ink-soft);}
+.banner{border-radius:12px; padding:14px 16px; font-size:.88rem; margin-bottom:20px;}
+.banner.warn{background:#F6EBD2; color:#6b4f14; border:1px solid #e3c877;}
+
+.sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;}
+
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site">
+  <div class="nav-row container">
+    <a class="brand" href="#top" aria-label="Գլխավոր էջ" data-i18n-aria="aria.home">
+      <div class="crest" id="crestBox"><span id="crestInitials">ԼՇ</span></div>
+      <div class="brand-text">
+        <strong data-i18n="brand.title">Լևոն Շանթ շաբաթօրյա դպրոց</strong>
+        <span data-i18n="brand.sub">Համազգայինի Մեխելենի մասնաճյուղ</span>
+      </div>
+    </a>
+    <nav class="main" id="mainNav">
+      <a href="#about" data-i18n="nav.about">Մեր դպրոցը</a>
+      <a href="#hamazkayin" data-i18n="nav.hamazkayin">Համազգային ընկերակցություն</a>
+      <a href="#department" data-i18n="nav.department">Ուսումնական բաժին</a>
+      <a href="#calendar" data-i18n="nav.calendar">Օրացույց</a>
+      <a href="#activities" data-i18n="nav.activities">Միջոցառումներ</a>
+      <a href="#gallery" data-i18n="nav.gallery">Լուսանկարներ/տեսանյութեր</a>
+      <a href="#register" data-i18n="nav.register">Գրանցում</a>
+      <a href="#contact" data-i18n="nav.contact">Կապ</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="lang-toggle" id="langToggle" role="group" aria-label="Language">
+        <button type="button" data-lang="hy" class="active">ՀԱՅ</button>
+        <button type="button" data-lang="nl">NL</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <div id="authArea"></div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Ցանկ" data-i18n-aria="aria.menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="container hero-grid single">
+      <div>
+        <h1 id="cms-hero_title" data-i18n="hero.title">Բարի գալուստ Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց</h1>
+        <p class="lede" id="cms-hero_lede" data-i18n="hero.lede">Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում հայ երեխաներն ու ընտանիքները սովորում են հայոց լեզու, պատմություն և մշակույթ, և մասնակցում մշակութային ու երիտասարդական միջոցառումների՝ ամեն շաբաթ, Մեխելեն քաղաքում։</p>
+        <div class="hero-cta">
+          <a href="#register" class="btn apricot" data-i18n="hero.cta1">Գրանցվել դպրոց</a>
+          <a href="#activities" class="btn ghost" data-i18n="hero.cta2">Տեսնել միջոցառումները</a>
+        </div>
+        <div class="hero-facts">
+          <div><strong>1999</strong><span data-i18n="hero.fact1">հիմնադրման տարեթիվ</span></div>
+          <div><strong>Mechelen</strong><span data-i18n="hero.fact2">Nijverheidsstraat 45</span></div>
+          <div><strong>Hamazkayin</strong><span data-i18n="hero.fact3">հայկական կրթական ցանց</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg>
+  </div>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about">
+    <div class="container about-grid">
+      <div>
+        <span class="eyebrow" data-i18n="about.eyebrow">Մեր դպրոցը</span>
+        <h2 data-i18n="about.title">Պատմություն և հիմնադրում</h2>
+        <p id="cms-about_p1" data-i18n="about.p1">1999–2000 ուսումնական տարում, Բելգիայի ՀՅԴ կուսակցության նախաձեռնությամբ, Մեխելենում հիմնադրվեց Լևոն Շանթի անվան շաբաթօրյա դպրոցը։</p>
+        <p id="cms-about_p2" data-i18n="about.p2">Դպրոցի հիմնադիրներն են եղել Էդիկ Քոթանջյանը և Գրիգոր Ոսկանյանը, որոնցից Գրիգոր Ոսկանյանը այդ տարիներին ստանձնել է նաև դպրոցի տնօրենի պաշտոնը։</p>
+        <p id="cms-about_p3" data-i18n="about.p3">Նրանց ջանքերով դրվեց այն հիմքը, որի վրա դպրոցը տարիների ընթացքում զարգացավ, ընդլայնվեց և հասավ այն ամենին, ինչ ունենք այսօր՝ մի կենդանի հայկական համայնք Մեխելենի սրտում։</p>
+        <button type="button" id="historyToggle" class="btn ghost small" aria-expanded="false" aria-controls="history"></button>
+      </div>
+      <div>
+        <div class="info-card">
+          <h3 data-i18n="about.card1title">Ինչ ենք առաջարկում</h3>
+          <p data-i18n="about.card1text">Հայերենի (խոսակցական և գրական), հայոց պատմության, երգի ու պարի դասընթացներ, ինչպես նաև մշակութային-երիտասարդական միջոցառումներ ողջ ուսումնական տարվա ընթացքում։</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full history timeline (collapsible) -->
+    <div class="container" id="history" style="margin-top:0; display:none;">
+      <div class="section-head" style="margin-top:40px;">
+        <span class="eyebrow" data-i18n="hist.eyebrow">Տարեթվերով</span>
+        <h2 data-i18n="hist.title">Դպրոցի պատմությունը՝ ժամանակագրությամբ</h2>
+        <p data-i18n="hist.lede">Հիմնադրումից մինչև օրս. հիմնական հանգրվանները, մարդիկ և ձեռքբերումները, որոնք կերտել են դպրոցի պատմությունը։</p>
+      </div>
+      <div class="history-timeline" id="historyTimeline"></div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ HAMAZKAYIN ============ -->
+  <section id="hamazkayin" class="alt ruled">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="hz.eyebrow">Մեր ցանցը</span>
+        <h2 data-i18n="hz.title">Համազգային Հայ Կրթական և Մշակութային Միություն</h2>
+        <p id="cms-hz_p1" data-i18n="hz.p1">1928 թ. մայիսի 28-ին ինը հայ մտավորականներ՝ գրող և մանկավարժ Լևոն Շանթը, պատմաբան Նիկոլ Աղբալյանը, Հայաստանի Առաջին Հանրապետության վարչապետ Համո Օհանջանյանը, բեմադրիչ Գասպար Իփեկյանը և ուրիշներ, Կահիրեում հիմնադրեցին «Համազգային Հայ Կրթական և Մշակութային Ընկերակցությունը»։</p>
+        <p id="cms-hz_p2" data-i18n="hz.p2">«Համազգայինի» նպատակն էր հայրենիքից դուրս մեծացող նոր սերնդին տալ ոչ միայն ընդհանուր կրթություն, այլև հայեցի դաստիարակություն՝ պահպանելու ազգային ինքնագիտակցությունն ու մշակութային ավանդույթները։ Այսօր «Համազգայինը» գործում է որպես ոչ-առևտրային կազմակերպություն՝ մասնաճյուղերով Մերձավոր Արևելքում, Եվրոպայում, ԱՄՆ-ում, Կանադայում, Հարավային Ամերիկայում և Ավստրալիայում. Մեխելենի դպրոցը այս ցանցի մի մասնիկն է։</p>
+        <a href="https://hamazkayin.com" target="_blank" rel="noopener" class="btn secondary" data-i18n="hz.cta">Իմանալ ավելին hamazkayin.com-ում ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEPARTMENT ============ -->
+  <section id="department">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="dept.eyebrow">Կառուցվածք</span>
+        <h2 data-i18n="dept.title">Ուսումնական բաժին</h2>
+        <p id="cms-dept_lede" data-i18n="dept.lede">Դասընթացները կազմակերպված են տարիքային խմբերով և անցկացվում են ամեն շաբաթ առավոտյան։ Ուսուցչական կազմի, ժամանակացույցի և տոնական օրերի մասին մանրամասների համար կապվեք դպրոցի հետ։</p>
+      </div>
+      <div class="dept-grid">
+        <a class="dept-card" href="#staff" style="text-decoration:none; color:inherit;"><div class="num">01</div><h3 data-i18n="dept.c1t">Ուսուցչական կազմ</h3><p class="helper" data-i18n="dept.c1d">Ծանոթացեք ուսուցիչներին ↓</p></a>
+        <a class="dept-card" href="#classes" style="text-decoration:none; color:inherit;"><div class="num">02</div><h3 data-i18n="dept.c2t">Դասարաններ և խմբակներ</h3><p class="helper" data-i18n="dept.c2d">Տես ամբողջական ցանկը ↓</p></a>
+        <a class="dept-card" href="#calendar" style="text-decoration:none; color:inherit;"><div class="num">03</div><h3 data-i18n="dept.c3t">Դասաժամեր</h3><p class="helper" data-i18n="dept.c3d">Տես ամբողջական ժամանակացույցը ստորև ↓</p></a>
+        <a class="dept-card" href="#yearcalendar" style="text-decoration:none; color:inherit;"><div class="num">04</div><h3 data-i18n="dept.c4t">Օրացույց</h3><p class="helper" data-i18n="dept.c4d">Ուսումնական տարվա օրացույցը մեկ հայացքով ↓</p></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ TEACHING STAFF ============ -->
+  <section id="staff">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="staff.eyebrow">Ուսուցչական կազմ</span>
+        <h2 data-i18n="staff.title">Ծանոթացեք մեր ուսուցիչներին</h2>
+        <p data-i18n="staff.lede">Փորձառու և նվիրված ուսուցիչներ՝ լեզվի, պատմության, արվեստի և պարի ոլորտներից։</p>
+      </div>
+      <div class="staff-grid" id="staffGrid">
+        <div class="empty-state" data-i18n="staff.loading">Բեռնվում է…</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ CLASSES & GROUPS ============ -->
+  <section id="classes" class="alt ruled">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="classes.eyebrow">Դասարաններ և խմբակներ</span>
+        <h2 data-i18n="classes.title">Բոլոր դասընթացները մեկ ցանկում</h2>
+        <p data-i18n="classes.lede">Ամբողջական ցանկը, ըստ տարիքային խմբերի և ուղղությունների։</p>
+      </div>
+      <ul class="classes-list" id="classesList"></ul>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ CALENDAR: weekly schedule + events month view ============ -->
+  <section id="calendar" class="alt ruled">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="cal.eyebrow">Ժամանակացույց</span>
+        <h2 data-i18n="cal.title">Դասացուցակ և միջոցառումների օրացույց</h2>
+        <p data-i18n="cal.lede">Տեսեք, թե երբ է անցկացվում յուրաքանչյուր դասընթաց, և հետևեք առաջիկա միջոցառումներին ամսացույցի տեսքով։</p>
+      </div>
+      <div class="cal-layout single">
+        <div class="calendar-panel">
+          <div class="cal-header">
+            <button type="button" class="btn ghost small" id="calPrev" aria-label="Նախորդ ամիս" data-i18n-aria="aria.prevMonth">‹</button>
+            <span id="calMonthLabel"></span>
+            <button type="button" class="btn ghost small" id="calNext" aria-label="Հաջորդ ամիս" data-i18n-aria="aria.nextMonth">›</button>
+          </div>
+          <div class="cal-weekdays" id="calWeekdays"></div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-legend">
+            <span><i class="legend-dot class"></i> <span data-i18n="cal.legendClass">Դասեր</span></span>
+            <span><i class="legend-dot event"></i> <span data-i18n="cal.legendEvent">Միջոցառում</span></span>
+          </div>
+          <div class="cal-events-list" id="calEventsList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ YEARLY CALENDAR OVERVIEW ============ -->
+  <section id="yearcalendar">
+    <div class="container">
+      <div class="section-head center">
+        <span class="eyebrow" data-i18n="yearcal.eyebrow">Ուսումնական տարի</span>
+        <h2 data-i18n="yearcal.title">Ուսումնական տարվա օրացույցը մեկ հայացքով</h2>
+        <p data-i18n="yearcal.lede">Արձակուրդներ, տոնական օրեր և կարևոր ամսաթվեր ողջ ուսումնական տարվա ընթացքում։</p>
+      </div>
+      <div class="cal-header" id="yearCalNav" style="max-width:320px; margin:0 auto 22px;">
+        <button type="button" class="btn ghost small" id="yearCalPrev" aria-label="Նախորդ ուսումնական տարի" data-i18n-aria="aria.prevYear">‹</button>
+        <span id="yearCalYearLabel"></span>
+        <button type="button" class="btn ghost small" id="yearCalNext" aria-label="Հաջորդ ուսումնական տարի" data-i18n-aria="aria.nextYear">›</button>
+      </div>
+      <div class="year-cal-list" id="yearCalList" style="display:none;"></div>
+      <div class="info-card" id="yearCalImageWrap" style="max-width:760px; margin:0 auto; padding:14px;">
+        <img id="yearCalImg" src="https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1799032c-8a4e-45a5-8fa9-80f415039687/%D4%BC%D6%87%D5%B8%D5%B6+%D5%87%D5%A1%D5%B6%D5%A9%D5%AB+%D5%95%D6%80%D5%A1%D6%81%D5%B8%D6%82%D5%B5%D6%81.png" alt="Ուսումնական տարվա օրացույց" data-i18n-alt="yearcal.imgAlt" style="width:100%; max-height:640px; object-fit:contain; border-radius:10px; display:block; margin:0 auto; background:var(--paper);">
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ ACTIVITIES / NEWS FEED ============ -->
+  <section id="activities" class="alt ruled">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="feed.eyebrow">Թարմ լուրեր</span>
+        <h2 data-i18n="feed.title">Մշակութային-երիտասարդական միջոցառումներ և հայտարարություններ</h2>
+        <p data-i18n="feed.lede">Այս բաժինը թարմացվում է դպրոցի անձնակազմի կողմից՝ ուղղակիորեն կայքից։</p>
+      </div>
+      <div class="feed-toolbar" id="feedFilters">
+        <button class="chip active" data-filter="all" data-i18n="feed.all">Բոլորը</button>
+        <button class="chip" data-filter="event" data-i18n="feed.eventsf">Միջոցառումներ</button>
+        <button class="chip" data-filter="news" data-i18n="feed.newsf">Հայտարարություններ</button>
+      </div>
+      <div class="card-grid" id="activitiesFeed">
+        <div class="empty-state" data-i18n="feed.loading">Բեռնվում է…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GALLERY ============ -->
+  <section id="gallery">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="gal.eyebrow">Խաղ և գիտելիք</span>
+        <h2 data-i18n="gal.title">Լուսանկարներ և տեսանյութեր</h2>
+        <p data-i18n="gal.lede">Դասադասընթացների և միջոցառումների պատկերներ, որոնք հրապարակվում են դպրոցի անձնակազմի կողմից։</p>
+      </div>
+      <div class="card-grid" id="galleryFeed">
+        <div class="empty-state" data-i18n="gal.loading">Բեռնվում է…</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ REGISTRATION ============ -->
+  <section id="register" class="alt ruled">
+    <div class="container reg-wrap">
+      <div>
+        <span class="eyebrow" data-i18n="reg.eyebrow">ԳՐԱՆՑՈՒՄՆԵՐ</span>
+        <h2 data-i18n="reg.title">Գրանցվեք դպրոց</h2>
+        <p data-i18n="reg.lede">Լրացրեք ձևը, և դպրոցի պատասխանատուն կապ կհաստատի Ձեզ հետ գրանցումը հաստատելու համար։ Ձեր տվյալները տեսանելի են միայն դպրոցի ադմինիստրատորին։</p>
+        <div class="info-card">
+          <h3 data-i18n="reg.needt">Ի՞նչ է անհրաժեշտ</h3>
+          <ul style="margin:0; padding-left:18px; color:var(--ink-soft);">
+            <li data-i18n="reg.need1">Անձնական տվյալներ (անուն, ծննդյան տարեթիվ, հասցե)</li>
+            <li data-i18n="reg.need2">Ծնողների կոնտակտային տվյալները (երեխաների գրանցման համար)</li>
+            <li data-i18n="reg.need3">Նախընտրելի դասընթաց(ներ)ը</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="feed-toolbar" id="regTypeToggle" role="tablist">
+          <button class="chip active" data-regtype="child" type="button" data-i18n="reg.tabChild">👶 Երեխայի գրանցում</button>
+          <button class="chip" data-regtype="adult" type="button" data-i18n="reg.tabAdult">🧑 Մեծահասակի գրանցում</button>
+        </div>
+
+        <!-- ===== Child registration form ===== -->
+        <form class="card-form" id="childRegForm" data-regform="child">
+          <div class="field"><label for="c_childName" data-i18n="reg.c.childName">Երեխայի անուն, ազգանուն, հայրանուն</label><input id="c_childName" required></div>
+          <div class="field-row">
+            <div class="field"><label for="c_childDob" data-i18n="reg.c.childDob">Ծննդյան տարեթիվ</label><input id="c_childDob" type="date" required></div>
+            <div class="field"><label data-i18n="reg.c.gender">Սեռ</label>
+              <div class="choice-group">
+                <label class="choice-item"><input type="radio" name="c_gender" value="Արական" required> <span data-i18n="reg.male">Արական</span></label>
+                <label class="choice-item"><input type="radio" name="c_gender" value="Իգական"> <span data-i18n="reg.female">Իգական</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="field"><label for="c_address" data-i18n="reg.c.address">Հասցե (լատինատառ)</label><input id="c_address" required></div>
+          <div class="field-row">
+            <div class="field"><label for="c_nationality" data-i18n="reg.c.nationality">Ազգություն</label><input id="c_nationality"></div>
+            <div class="field"><label for="c_nativeLang" data-i18n="reg.c.nativeLang">Մայրենի լեզու</label><input id="c_nativeLang" required></div>
+          </div>
+          <div class="field"><label for="c_email" data-i18n="reg.c.email">Էլեկտրոնային հասցե</label><input id="c_email" type="email"></div>
+          <div class="field-row">
+            <div class="field"><label for="c_mother" data-i18n="reg.c.mother">Մայր (անուն, ազգանուն) և հեռախոսահամար</label><input id="c_mother" required></div>
+            <div class="field"><label for="c_father" data-i18n="reg.c.father">Հայր (անուն, ազգանուն) և հեռախոսահամար</label><input id="c_father" required></div>
+          </div>
+          <div class="field">
+            <label data-i18n="reg.courses">Նշել դասընթացի անուն(ներ)ը</label>
+            <div class="choice-group" id="c_courses">
+              <label class="choice-item"><input type="checkbox" value="Նախադպրոցական"> <span data-i18n="reg.crs.preschool">Նախադպրոցական</span></label>
+              <label class="choice-item"><input type="checkbox" value="Այբբենարան"> <span data-i18n="reg.crs.abc">Այբբենարան</span></label>
+              <label class="choice-item"><input type="checkbox" value="Մայրենի"> <span data-i18n="reg.crs.mayreni">Մայրենի</span></label>
+              <label class="choice-item"><input type="checkbox" value="Գրականություն"> <span data-i18n="reg.crs.literature">Գրականություն</span></label>
+              <label class="choice-item"><input type="checkbox" value="Ես և շրջակա միջավայրը"> <span data-i18n="reg.crs.environment">Ես և շրջակա միջավայրը</span></label>
+              <label class="choice-item"><input type="checkbox" value="Հայրենագիտություն"> <span data-i18n="reg.crs.homeland">Հայրենագիտություն</span></label>
+              <label class="choice-item"><input type="checkbox" value="Պատմություն"> <span data-i18n="reg.crs.history">Պատմություն</span></label>
+              <label class="choice-item"><input type="checkbox" value="Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար"> <span data-i18n="reg.crs.armForeign">Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար</span></label>
+              <label class="choice-item"><input type="checkbox" value="Ժողովրդական պար"> <span data-i18n="reg.crs.folkDance">Ժողովրդական պար</span></label>
+              <label class="choice-item"><input type="checkbox" value="Ավանդական երգ ու պար"> <span data-i18n="reg.crs.tradDance">Ավանդական երգ ու պար</span></label>
+              <label class="choice-item"><input type="checkbox" value="Դաշնամուր"> <span data-i18n="reg.crs.piano">Դաշնամուր</span></label>
+              <label class="choice-item"><input type="checkbox" value="Շախմատ"> <span data-i18n="reg.crs.chess">Շախմատ</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label data-i18n="reg.consentQ">Համաձա՞յն եք, որպեսզի դպրոցական միջոցառումների և դասապրոցեսի ընթացքում արված լուսանկարներն ու տեսանյութերը, որոնցում պատկերված է Ձեր երեխան, տեղադրվեն դպրոցի պաշտոնական կայքում և սոցիալական էջերում (Facebook և այլն)</label>
+            <div class="choice-group">
+              <label class="choice-item"><input type="radio" name="c_consent" value="Այո, համաձայն եմ" required> <span data-i18n="reg.consentYes">Այո, համաձայն եմ</span></label>
+              <label class="choice-item"><input type="radio" name="c_consent" value="Ոչ, համաձայն չեմ"> <span data-i18n="reg.consentNo">Ոչ, համաձայն չեմ</span></label>
+            </div>
+          </div>
+          <button class="btn apricot" type="submit" data-i18n="reg.submit">Ուղարկել գրանցումը</button>
+          <div class="form-msg" id="childRegMsg"></div>
+        </form>
+
+        <!-- ===== Adult registration form ===== -->
+        <form class="card-form" id="adultRegForm" data-regform="adult" style="display:none;">
+          <div class="field"><label for="a_name" data-i18n="reg.a.name">Անուն, ազգանուն, հայրանուն</label><input id="a_name" required></div>
+          <div class="field-row">
+            <div class="field"><label data-i18n="reg.a.gender">Սեռ</label>
+              <div class="choice-group">
+                <label class="choice-item"><input type="radio" name="a_gender" value="Արական" required> <span data-i18n="reg.male">Արական</span></label>
+                <label class="choice-item"><input type="radio" name="a_gender" value="Իգական"> <span data-i18n="reg.female">Իգական</span></label>
+              </div>
+            </div>
+            <div class="field"><label for="a_dob" data-i18n="reg.a.dob">Ծննդյան տարեթիվ</label><input id="a_dob" type="date" required></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="a_nationality" data-i18n="reg.a.nationality">Ազգություն</label><input id="a_nationality" required></div>
+            <div class="field"><label for="a_nativeLang" data-i18n="reg.a.nativeLang">Մայրենի լեզու</label><input id="a_nativeLang" required></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="a_email" data-i18n="reg.a.email">Էլեկտրոնային հասցե</label><input id="a_email" type="email" required></div>
+            <div class="field"><label for="a_phone" data-i18n="reg.a.phone">Հեռախոսահամար</label><input id="a_phone" type="tel" required></div>
+          </div>
+          <div class="field"><label for="a_address" data-i18n="reg.a.address">Հասցե (լատինատառ)</label><input id="a_address" required></div>
+          <div class="field">
+            <label data-i18n="reg.courses">Նշել դասընթացի անուն(ներ)ը</label>
+            <div class="choice-group" id="a_courses">
+              <label class="choice-item"><input type="checkbox" value="Տառաուսուցում"> <span data-i18n="reg.crs.literacy">Տառաուսուցում</span></label>
+              <label class="choice-item"><input type="checkbox" value="Հայերենը որպես երկրորդ լեզու"> <span data-i18n="reg.crs.armSecond">Հայերենը որպես երկրորդ լեզու</span></label>
+              <label class="choice-item"><input type="checkbox" value="Ժողովրդական պար"> <span data-i18n="reg.crs.folkDance">Ժողովրդական պար</span></label>
+              <label class="choice-item"><input type="checkbox" value="Ավանդական երգ ու պար"> <span data-i18n="reg.crs.tradDance">Ավանդական երգ ու պար</span></label>
+              <label class="choice-item"><input type="checkbox" value="Դաշնամուր"> <span data-i18n="reg.crs.piano">Դաշնամուր</span></label>
+              <label class="choice-item"><input type="checkbox" value="Շախմատ"> <span data-i18n="reg.crs.chess">Շախմատ</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label data-i18n="reg.levelQ">Ինչպիսի՞ն է Ձեր հայերենի ներկայիս մակարդակը</label>
+            <div class="choice-group">
+              <label class="choice-item"><input type="radio" name="a_level" value="Սկսնակ" required> <span data-i18n="reg.lvl.beginner">Սկսնակ — չունեմ նախնական գիտելիքներ</span></label>
+              <label class="choice-item"><input type="radio" name="a_level" value="Տարրական"> <span data-i18n="reg.lvl.elementary">Տարրական — կարողանում եմ գրել և կարդալ</span></label>
+              <label class="choice-item"><input type="radio" name="a_level" value="Միջին"> <span data-i18n="reg.lvl.intermediate">Միջին — կարողանում եմ բառերը կապակցել և պարզ նախադասություններով արտահայտվել</span></label>
+              <label class="choice-item"><input type="radio" name="a_level" value="Բարձր (Առաջադեմ)"> <span data-i18n="reg.lvl.advanced">Բարձր (Առաջադեմ) — կարողանում եմ ազատ կազմել նախադասություններ</span></label>
+              <label class="choice-item"><input type="radio" name="a_level" value="Ավելի բարձր (Գերազանց)"> <span data-i18n="reg.lvl.excellent">Ավելի բարձր (Գերազանց) — կարողանում եմ սահուն հաղորդակցվել</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label data-i18n="reg.consentQAdult">Համաձա՞յն եք, որպեսզի դպրոցական միջոցառումների ընթացքում արված լուսանկարներն ու տեսանյութերը, որոնցում պատկերված եք Դուք, տեղադրվեն դպրոցի պաշտոնական կայքում և սոցիալական էջերում (Facebook և այլն)</label>
+            <div class="choice-group">
+              <label class="choice-item"><input type="radio" name="a_consent" value="Այո, համաձայն եմ" required> <span data-i18n="reg.consentYes">Այո, համաձայն եմ</span></label>
+              <label class="choice-item"><input type="radio" name="a_consent" value="Ոչ, համաձայն չեմ"> <span data-i18n="reg.consentNo">Ոչ, համաձայն չեմ</span></label>
+            </div>
+          </div>
+          <button class="btn apricot" type="submit" data-i18n="reg.submit">Ուղարկել գրանցումը</button>
+          <div class="form-msg" id="adultRegMsg"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="contact.eyebrow">Կոնտակտային տվյալներ</span>
+        <h2 data-i18n="contact.title">Կապվեք մեզ հետ</h2>
+      </div>
+      <div class="contact-grid">
+        <ul class="contact-list">
+          <li><span class="ic">📍</span><div><strong data-i18n="contact.addr">Հասցե</strong><br>Nijverheidsstraat 45, 2800 Mechelen, België</div></li>
+          <li><span class="ic">✉️</span><div><strong data-i18n="contact.email">Էլ. փոստ</strong><br><a href="mailto:levon.shant.dproc@gmail.com">levon.shant.dproc@gmail.com</a></div></li>
+          <li><span class="ic">📞</span><div><strong data-i18n="contact.phone">Հեռախոս</strong><br><a href="tel:+32487534061">+32 487 53 40 61</a></div></li>
+          <li><span class="ic">📘</span><div><strong>Facebook</strong><br><a href="https://www.facebook.com/groups/1419295908284023" target="_blank" rel="noopener" data-i18n="contact.fbGroup">Դպրոցի Facebook խումբ ↗</a></div></li>
+          <li><span class="ic">📸</span><div><strong>Instagram</strong><br><a href="https://www.instagram.com/reel/DQe6DquiJK9/?igsh=dmo2dzB3cWQ3NXB0" target="_blank" rel="noopener">Instagram ↗</a></div></li>
+          <li><span class="ic">📰</span><div><strong>Blog</strong><br><a href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">armeniandiasporaschool.wordpress.com ↗</a></div></li>
+        </ul>
+        <div class="map-embed">
+          <iframe title="map" loading="lazy" src="https://maps.google.com/maps?q=Nijverheidsstraat%2045%2C%202800%20Mechelen%2C%20Belgi%C3%AB&z=15&output=embed"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAFF DASHBOARD (hidden unless signed in) ============ -->
+  <section id="dashboard" class="dash" style="display:none;">
+    <div class="container" style="padding-top:44px; padding-bottom:56px;">
+      <div class="dash-head">
+        <div>
+          <span class="eyebrow">Կառավարման վահանակ</span>
+          <h2 style="margin-bottom:0;">Բարի գալուստ, <span id="dashName">—</span> <span class="role-badge" id="dashRole">—</span></h2>
+        </div>
+        <button class="btn ghost small" id="signOutBtn">Դուրս գալ</button>
+      </div>
+
+      <div class="dash-tabs" id="dashTabs">
+        <button class="chip active" data-panel="panel-publish">✍️ Հրապարակել</button>
+        <button class="chip" data-panel="panel-schedule">🗓️ Դասացուցակ</button>
+        <button class="chip" data-panel="panel-staff">🧑‍🏫 Անձնակազմ</button>
+        <button class="chip" data-panel="panel-yearcal">📅 Տարեկան օրացույց</button>
+        <button class="chip" data-panel="panel-manage">🗂️ Իմ հրապարակումները</button>
+        <button class="chip" data-panel="panel-reg" data-admin-only="1">📋 Գրանցումներ</button>
+        <button class="chip" data-panel="panel-users" data-admin-only="1">👤 Հաշիվներ</button>
+        <button class="chip" data-panel="panel-content" data-admin-only="1">📝 Կայքի բովանդակություն</button>
+      </div>
+
+      <!-- Publish -->
+      <div class="dash-panel active" id="panel-publish">
+        <form class="card-form" id="postForm" style="max-width:760px;">
+          <div class="field-row">
+            <div class="field"><label for="postType">Տեսակ</label>
+              <select id="postType">
+                <option value="news">Հայտարարություն</option>
+                <option value="event">Միջոցառում</option>
+                <option value="gallery">Լուսանկար/տեսանյութ (միայն պատկերասրահ)</option>
+              </select>
+            </div>
+            <div class="field"><label for="postDate">Ամսաթիվ</label><input type="date" id="postDate"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="postTitle">Վերնագիր — ՀԱՅ</label><input id="postTitle" required></div>
+            <div class="field"><label for="postTitle_nl">Titel — NL (ոչ պարտադիր)</label><input id="postTitle_nl"></div>
+            <div class="field"><label for="postTitle_en">Title — EN (ոչ պարտադիր)</label><input id="postTitle_en"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="postBody">Նկարագրություն — ՀԱՅ</label><textarea id="postBody" rows="4"></textarea></div>
+            <div class="field"><label for="postBody_nl">Omschrijving — NL</label><textarea id="postBody_nl" rows="4"></textarea></div>
+            <div class="field"><label for="postBody_en">Description — EN</label><textarea id="postBody_en" rows="4"></textarea></div>
+          </div>
+          <div class="field"><label for="postFile">Նկար կամ տեսանյութ (ոչ պարտադիր)</label><input type="file" id="postFile" accept="image/*,video/*"></div>
+          <div class="field"><label for="postMediaUrl">...կամ նկարի/YouTube հղում</label><input id="postMediaUrl" placeholder="https://..."></div>
+          <button class="btn apricot" type="submit">Հրապարակել</button>
+          <div class="form-msg" id="postMsg"></div>
+        </form>
+        <p class="helper" style="margin-top:10px;">💡 Միջոցառում ընտրելիս, ամսաթիվը ցուցադրվում է ստորև՝ «Օրացույց» բաժնի ամսացույցում։ NL/EN դաշտերը դատարկ թողնելու դեպքում կցուցադրվի հայերեն տարբերակը։</p>
+      </div>
+
+      <!-- Weekly schedule -->
+      <div class="dash-panel" id="panel-schedule">
+        <form class="card-form" id="scheduleForm" style="max-width:760px; margin-bottom:24px;">
+          <div class="field-row">
+            <div class="field"><label for="s_start">Ժամ (սկիզբ)</label><input type="time" id="s_start" required></div>
+            <div class="field"><label for="s_end">Ժամ (ավարտ)</label><input type="time" id="s_end" required></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="s_course_hy">Դասընթաց — ՀԱՅ</label><input id="s_course_hy" required></div>
+            <div class="field"><label for="s_course_nl">Vak — NL</label><input id="s_course_nl"></div>
+            <div class="field"><label for="s_course_en">Class — EN</label><input id="s_course_en"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="s_teacher">Ուսուցիչ / սենյակ — ՀԱՅ (ոչ պարտադիր)</label><input id="s_teacher"></div>
+            <div class="field"><label for="s_teacher_latin">Teacher name in Latin letters (NL/EN)</label><input id="s_teacher_latin" placeholder="e.g. Arpine Hovhannisyan"></div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn blue" type="submit">Ավելացնել դասացուցակում</button>
+            <button class="btn ghost" type="button" id="scheduleCancelEdit" style="display:none;">Չեղարկել խմբագրումը</button>
+          </div>
+          <div class="form-msg" id="scheduleMsg"></div>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ցուցադրել</th><th>Ժամ</th><th>Դասընթաց (ՀԱՅ)</th><th>Vak (NL)</th><th>Class (EN)</th><th>Ուսուցիչ (ՀԱՅ)</th><th>Teacher (Latin)</th><th></th></tr></thead>
+            <tbody id="scheduleAdminBody"><tr><td colspan="8">Բեռնվում է…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Teaching staff -->
+      <div class="dash-panel" id="panel-staff">
+        <form class="card-form" id="staffForm" style="max-width:760px; margin-bottom:24px;">
+          <div class="field-row">
+            <div class="field"><label for="st_name">Անուն, ազգանուն — ՀԱՅ</label><input id="st_name" required></div>
+            <div class="field"><label for="st_name_latin">Name in Latin letters (NL/EN)</label><input id="st_name_latin" placeholder="e.g. Liana Melkonyan"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="st_role_hy">Պաշտոն / դասընթաց — ՀԱՅ</label><input id="st_role_hy" required placeholder="օր.՝ Այբբենարանի ուսուցչուհի"></div>
+            <div class="field"><label for="st_role_nl">Functie / vak — NL</label><input id="st_role_nl" placeholder="bv. Lerares alfabetklas"></div>
+            <div class="field"><label for="st_role_en">Role / subject — EN</label><input id="st_role_en" placeholder="e.g. Alphabet class teacher"></div>
+          </div>
+          <div class="field"><label for="st_photoFile">Լուսանկար (ոչ պարտադիր)</label><input type="file" id="st_photoFile" accept="image/*"></div>
+          <div class="field"><label for="st_photoUrl">...կամ լուսանկարի հղում</label><input id="st_photoUrl" placeholder="https://..."></div>
+          <button class="btn blue" type="submit">Ավելացնել անձնակազմում</button>
+          <div class="form-msg" id="staffMsg"></div>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Անուն (ՀԱՅ)</th><th>Name (Latin)</th><th>Պաշտոն (ՀԱՅ)</th><th>Functie (NL)</th><th>Role (EN)</th><th></th></tr></thead>
+            <tbody id="staffAdminBody"><tr><td colspan="6">Բեռնվում է…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Yearly academic calendar (dynamic entries) -->
+      <div class="dash-panel" id="panel-yearcal">
+        <div class="banner warn">Այս ցանկը փոխարինում է վերևի պատկերին, հենց որ գոնե մեկ գիծ ավելացվի։ Դատարկ ցանկի դեպքում այցելուները կտեսնեն սկզբնական պատկերը։ Յուրաքանչյուր գիծ ունի հայերեն, հոլանդերեն և անգլերեն անվանում։ Այստեղ ավելացրած տոներն ու կարևոր օրերը, ինչպես նաև «✍️ Հրապարակել»-ից ավելացրած միջոցառումները, միասին երևում են և° այստեղ, և° վերևի ամսացույցում («Օրացույց» բաժնում)։</div>
+        <form class="card-form" id="yearCalEntryForm" style="max-width:760px; margin-bottom:24px;">
+          <div class="field-row">
+            <div class="field"><label for="yce_start">Ամսաթիվ (սկիզբ)</label><input type="date" id="yce_start" required></div>
+            <div class="field"><label for="yce_end">Ամսաթիվ (ավարտ, ոչ պարտադիր)</label><input type="date" id="yce_end"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="yce_label_hy">Անվանում — ՀԱՅ</label><input id="yce_label_hy" required placeholder="օր.՝ Աշնանային արձակուրդ"></div>
+            <div class="field"><label for="yce_label_nl">Titel — NL</label><input id="yce_label_nl" placeholder="bv. Herfstvakantie"></div>
+            <div class="field"><label for="yce_label_en">Title — EN</label><input id="yce_label_en" placeholder="e.g. Autumn break"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="yce_notes_hy">Նշումներ — ՀԱՅ (ոչ պարտադիր)</label><input id="yce_notes_hy"></div>
+            <div class="field"><label for="yce_notes_nl">Notities — NL (optioneel)</label><input id="yce_notes_nl"></div>
+            <div class="field"><label for="yce_notes_en">Notes — EN (optional)</label><input id="yce_notes_en"></div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn blue" type="submit">Ավելացնել</button>
+            <button class="btn ghost" type="button" id="yearCalEntryCancelEdit" style="display:none;">Չեղարկել խմբագրումը</button>
+          </div>
+          <div class="form-msg" id="yearCalEntryMsg"></div>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ամսաթիվ</th><th>Անվանում (ՀԱՅ)</th><th>Titel (NL)</th><th>Title (EN)</th><th></th></tr></thead>
+            <tbody id="yearCalAdminBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Manage own posts -->
+      <div class="dash-panel" id="panel-manage">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Վերնագիր</th><th>Տեսակ</th><th>Ամսաթիվ</th><th>Հեղինակ</th><th></th></tr></thead>
+            <tbody id="managePostsBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Registrations (admin only) -->
+      <div class="dash-panel" id="panel-reg">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Տեսակ</th><th>Անուն</th><th>Ծնունդ</th><th>Կապ</th><th>Դասընթացներ</th><th>Ուղարկվել է</th></tr></thead>
+            <tbody id="regBody"><tr><td colspan="6">Բեռնվում է…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users (admin only) -->
+      <div class="dash-panel" id="panel-users">
+        <div class="banner warn">Նոր անձնակազմը գրանցվում է ինքնուրույն («Անձնակազմի մուտք» → «Գրանցվել որպես անձնակազմ»)՝ ընտրելով սեփական email և գաղտնաբառ։ Ստորև Դուք հաստատում եք հայտը՝ նշանակելով դեր (Admin կամ SMM)։ Առանց դերի հաշիվները մուտք գործել չեն կարող։</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Անուն</th><th>Email</th><th>Ընթացիկ դեր</th><th>Նոր դեր</th><th></th></tr></thead>
+            <tbody id="usersBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="form-msg" id="userMsg" style="margin-top:14px;"></div>
+      </div>
+      <!-- Site content (admin only) -->
+      <div class="dash-panel" id="panel-content">
+        <div class="banner warn">Այստեղ խմբագրվում է կայքի հիմնական տեքստը (Hero, Մեր դպրոցը, Համազգային, Ուսումնական բաժին, Դասարանների ցանկ)՝ երկու լեզուներով։ Դատարկ դաշտերը կպահպանեն ընթացիկ տեքստը։</div>
+        <form class="card-form" id="contentForm" style="max-width:760px;">
+          <div id="contentFields"></div>
+          <button class="btn blue" type="submit">Պահպանել փոփոխությունները</button>
+          <div class="form-msg" id="contentMsg"></div>
+        </form>
+
+        <h3 style="margin-top:32px;">🏫 Դպրոցի լոգո</h3>
+        <form class="card-form" id="logoForm" style="max-width:520px;">
+          <div class="field"><label for="logo_file">Վերբեռնել նոր լոգո</label><input type="file" id="logo_file" accept="image/*"></div>
+          <div class="field"><label for="logo_url">...կամ պատկերի հղում</label><input id="logo_url" placeholder="https://..."></div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn blue" type="submit">Պահպանել լոգոն</button>
+            <button class="btn ghost" type="button" id="logoRemoveBtn">Հեռացնել լոգոն (վերադառնալ սկզբնականին)</button>
+          </div>
+          <div class="form-msg" id="logoMsg"></div>
+        </form>
+
+        <h3 style="margin-top:32px;">🗓️ Ուսումնական տարվա օրացույցի պատկեր</h3>
+        <form class="card-form" id="yearCalForm" style="max-width:520px;">
+          <div class="field"><label for="yc_file">Վերբեռնել նոր պատկեր</label><input type="file" id="yc_file" accept="image/*"></div>
+          <div class="field"><label for="yc_url">...կամ նկարի հղում</label><input id="yc_url" placeholder="https://..."></div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn blue" type="submit">Թարմացնել օրացույցի պատկերը</button>
+            <button class="btn ghost" type="button" id="yearCalRemoveBtn">Հեռացնել (վերադառնալ սկզբնականին)</button>
+          </div>
+          <div class="form-msg" id="yearCalMsg"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site">
+  <div class="container foot-grid">
+    <div>
+      <h4 data-i18n="foot.name">Լևոն Շանթ շաբաթօրյա դպրոց</h4>
+      <p style="color:var(--paper-dim); font-size:.9rem;" data-i18n="foot.blurb">Համազգայինի Մեխելենի (Բելգիա) մասնաճյուղ։ Հայերեն, պատմություն, մշակույթ։</p>
+      <div class="social-row">
+        <a href="https://www.facebook.com/groups/1419295908284023" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/reel/DQe6DquiJK9/?igsh=dmo2dzB3cWQ3NXB0" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">Blog</a>
+      </div>
+    </div>
+    <div>
+      <h4 data-i18n="foot.linksTitle">Ցանց</h4>
+      <p>
+        <a href="#about" data-i18n="nav.about">Մեր դպրոցը</a><br>
+        <a href="#department" data-i18n="nav.department">Ուսումնական բաժին</a><br>
+        <a href="#calendar" data-i18n="nav.calendar">Օրացույց</a><br>
+        <a href="#activities" data-i18n="nav.activities">Միջոցառումներ</a><br>
+        <a href="#register" data-i18n="nav.register">Գրանցում</a>
+      </p>
+    </div>
+    <div>
+      <h4 data-i18n="contact.title2">Կապ</h4>
+      <p>Nijverheidsstraat 45<br>2800 Mechelen, België<br><a href="mailto:levon.shant.dproc@gmail.com">levon.shant.dproc@gmail.com</a><br><a href="tel:+32487534061">+32 487 53 40 61</a></p>
+    </div>
+  </div>
+  <div class="container foot-bottom">
+    <span>© <span id="year"></span> <span data-i18n="foot.copyright">Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց</span></span>
+    <span>Mechelen, Belgium</span>
+  </div>
+</footer>
+
+<!-- ============ LOGIN / SIGN-UP MODAL ============ -->
+<div class="modal-backdrop" id="loginBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="closeLogin" aria-label="Փակել" data-i18n-aria="aria.close">✕</button>
+    <h2 data-i18n="auth.modalTitle">Անձնակազմի հաշիվ</h2>
+    <p class="sub" data-i18n="auth.modalSub">Admin և SMM հաշիվների համար։ Ծնողները հաշիվ պետք չէ գրանցման ձևը լրացնելու համար։</p>
+    <div class="tabs">
+      <button type="button" class="active" data-authtab="signin" data-i18n="auth.tabSignin">Մուտք</button>
+      <button type="button" data-authtab="signup" data-i18n="auth.tabSignup">Գրանցվել որպես անձնակազմ</button>
+    </div>
+
+    <form id="loginForm">
+      <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" required></div>
+      <div class="field" style="margin-top:12px;"><label for="loginPass" data-i18n="auth.passwordLabel">Գաղտնաբառ</label><input id="loginPass" type="password" required></div>
+      <button class="btn apricot" type="submit" style="margin-top:18px; width:100%; justify-content:center;" data-i18n="auth.submitSignin">Մուտք</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </form>
+
+    <form id="signupForm" style="display:none;">
+      <p class="helper" style="margin-bottom:14px;" data-i18n="auth.signupHelper">Ընտրեք Ձեր անունը, email-ը և գաղտնաբառը։ Հաշիվը կակտիվանա միայն այն բանից հետո, երբ ադմինիստրատորը հաստատի այն և նշանակի Ձեր դերը (Admin կամ SMM)։</p>
+      <div class="field"><label for="signupName" data-i18n="auth.nameLabel">Անուն, ազգանուն</label><input id="signupName" required></div>
+      <div class="field" style="margin-top:12px;"><label for="signupEmail">Email</label><input id="signupEmail" type="email" required></div>
+      <div class="field" style="margin-top:12px;"><label for="signupPass" data-i18n="auth.passwordMinLabel">Գաղտնաբառ (առնվազն 6 նիշ)</label><input id="signupPass" type="password" minlength="6" required></div>
+      <button class="btn blue" type="submit" style="margin-top:18px; width:100%; justify-content:center;" data-i18n="auth.submitSignup">Ուղարկել հայտը</button>
+      <div class="form-msg" id="signupMsg"></div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="module">
+/* =========================================================
+   Լևոն Շանթ շաբաթօրյա դպրոց — app.js (Supabase edition)
+   Handles: language toggle, Supabase auth (sign-up + admin
+   approval → admin/smm roles), Postgres CRUD for posts/
+   registrations/schedule/staff/site content/yearly events,
+   Storage uploads, and the events calendar.
+
+   >>> SETUP REQUIRED: paste your Supabase project URL + anon key
+   below. See README.md for step-by-step instructions.
+   ========================================================= */
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// ---------------------------------------------------------
+// 1. SUPABASE CONFIG — replace with your own project's values
+//    (Supabase dashboard → Project Settings → API)
+// ---------------------------------------------------------
+const supabaseConfig = {
+  url: "YOUR_SUPABASE_URL",
+  anonKey: "YOUR_SUPABASE_ANON_KEY"
+};
+
+const SUPABASE_READY = supabaseConfig.url !== "YOUR_SUPABASE_URL";
+
+let supabase;
+if (SUPABASE_READY) {
+  supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+} else {
+  console.warn("Supabase is not configured yet — the site is running in demo/preview mode. See README.md.");
+}
+
+let currentUser = null;   // Supabase auth user
+let currentRole = null;   // 'admin' | 'smm' | null
+
+// ---------------------------------------------------------
+// 1b. EMAILJS CONFIG — sends the school an organized email every time
+//     someone submits the child or adult registration form, in addition
+//     to it being saved for the dashboard. Free, no backend needed.
+//     See README.md for the 5-minute setup (emailjs.com).
+// ---------------------------------------------------------
+const emailjsConfig = {
+  publicKey: "YOUR_EMAILJS_PUBLIC_KEY",
+  serviceId: "YOUR_EMAILJS_SERVICE_ID",
+  templateId: "YOUR_EMAILJS_TEMPLATE_ID"
+};
+const EMAILJS_READY = emailjsConfig.publicKey !== "YOUR_EMAILJS_PUBLIC_KEY" && typeof window.emailjs !== "undefined";
+if (EMAILJS_READY) {
+  window.emailjs.init({ publicKey: emailjsConfig.publicKey });
+} else {
+  console.warn("EmailJS is not configured yet — registration emails to the school won't be sent. See README.md.");
+}
+
+// ---------------------------------------------------------
+// 2. i18n — Armenian (default) / Dutch
+// ---------------------------------------------------------
+const i18n = {
+  hy: {}, // Armenian text already lives in the HTML as the default
+  nl: {
+    "brand.title": "Levon Shant Zaterdagschool",
+    "brand.sub": "Hamazkayin-afdeling Mechelen",
+    "nav.about": "Onze school",
+    "nav.hamazkayin": "Hamazkayin",
+    "nav.department": "Onderwijsafdeling",
+    "nav.calendar": "Kalender",
+    "nav.activities": "Activiteiten",
+    "nav.gallery": "Foto's/video's",
+    "nav.register": "Inschrijven",
+    "nav.contact": "Contact",
+    "hero.title": "Welkom bij de Hamazkayin Levon Shant Zaterdagschool",
+    "hero.lede": "Op de Hamazkayin Levon Shant Zaterdagschool leren Armeense kinderen en gezinnen de Armeense taal, geschiedenis en cultuur, en nemen ze elke week deel aan culturele en jongerenevenementen in Mechelen.",
+    "hero.cta1": "Inschrijven",
+    "hero.cta2": "Bekijk activiteiten",
+    "hero.fact1": "oprichtingsjaar",
+    "hero.fact2": "Nijverheidsstraat 45",
+    "hero.fact3": "Armeens onderwijsnetwerk",
+    "about.eyebrow": "Onze school",
+    "about.title": "Geschiedenis en oprichting",
+    "about.p1": "In het schooljaar 1999–2000 werd, op initiatief van de Belgische ARF-partij, de Levon Shant Zaterdagschool opgericht in Mechelen.",
+    "about.p2": "De school werd opgericht door Edik Kotanjian en Grigor Voskanian; Voskanian was in die beginjaren ook directeur van de school.",
+    "about.p3": "Dankzij hun inzet werd de basis gelegd waarop de school door de jaren heen groeide, uitbreidde en werd wat ze vandaag is: een levendige Armeense gemeenschap in het hart van Mechelen.",
+    "about.card1title": "Wat wij aanbieden",
+    "about.card1text": "Lessen Armeens (spreek- en schrijftaal), Armeense geschiedenis, zang en dans, en culturele en jongerenevenementen gedurende het hele schooljaar.",
+    "about.tlLink": "Bekijk de volledige tijdlijn ↓",
+    "hist.eyebrow": "In jaartallen",
+    "hist.title": "De geschiedenis van de school, jaar per jaar",
+    "hist.lede": "Van de oprichting tot vandaag: de belangrijkste mijlpalen, mensen en verwezenlijkingen die de school hebben gevormd.",
+    "hz.eyebrow": "Ons netwerk",
+    "hz.title": "Hamazkayin Armeense Educatieve en Culturele Vereniging",
+    "hz.p1": "Op 28 mei 1928 richtte een groep van negen Armeense intellectuelen — onder wie schrijver en pedagoog Levon Shant, historicus Nikol Aghbalian, oud-premier Hamo Ohanjanian en regisseur Gaspar Ipekian — in Caïro de \u201CHamazkayin Armeense Educatieve en Culturele Vereniging\u201D op.",
+    "hz.p2": "Hamazkayin wilde nieuwe generaties buiten Armenië niet alleen algemene vorming, maar ook een Armeense opvoeding geven, om de nationale identiteit en culturele tradities levend te houden. Vandaag is Hamazkayin een vzw met afdelingen in het Midden-Oosten, Europa, de VS, Canada, Zuid-Amerika en Australië — en de school in Mechelen maakt deel uit van dat netwerk.",
+    "hz.cta": "Meer info op hamazkayin.com ↗",
+    "dept.eyebrow": "Structuur",
+    "dept.title": "Onderwijsafdeling",
+    "dept.lede": "De lessen zijn georganiseerd per leeftijdsgroep en vinden elke zaterdagochtend plaats. Neem contact op met de school voor het lerarenteam, het rooster en de feestdagen.",
+    "dept.c1t": "Lerarenteam", "dept.c1d": "Maak kennis met de leerkrachten ↓",
+    "dept.c2t": "Klassen en groepen", "dept.c2d": "Bekijk de volledige lijst ↓",
+    "dept.c3t": "Lesuren", "dept.c3d": "Bekijk het volledige rooster hieronder ↓",
+    "dept.c4t": "Kalender", "dept.c4d": "De jaarkalender in één overzicht ↓",
+    "staff.eyebrow": "Lerarenteam",
+    "staff.title": "Maak kennis met onze leerkrachten",
+    "staff.lede": "Ervaren en toegewijde leerkrachten in taal, geschiedenis, kunst en dans.",
+    "staff.loading": "Laden…",
+    "classes.eyebrow": "Klassen en groepen",
+    "classes.title": "Alle vakken in één lijst",
+    "classes.lede": "De volledige lijst, per leeftijdsgroep en richting.",
+    "cal.eyebrow": "Rooster",
+    "cal.title": "Lesrooster en activiteitenkalender",
+    "cal.lede": "Bekijk wanneer elke les plaatsvindt, en volg aankomende activiteiten in kalendervorm.",
+    "cal.scheduleTitle": "📖 Lesrooster (zaterdag)",
+    "cal.loading": "Laden…",
+    "cal.legendClass": "Lessen",
+    "cal.legendEvent": "Activiteit",
+    "yearcal.eyebrow": "Schooljaar",
+    "yearcal.title": "De jaarkalender in één overzicht",
+    "yearcal.lede": "Vakanties, feestdagen en belangrijke data doorheen het hele schooljaar.",
+    "feed.eyebrow": "Laatste nieuws",
+    "feed.title": "Culturele en jongerenevenementen & mededelingen",
+    "feed.lede": "Dit onderdeel wordt rechtstreeks bijgewerkt door het schoolteam.",
+    "feed.all": "Alles", "feed.eventsf": "Evenementen", "feed.newsf": "Mededelingen", "feed.loading": "Laden…",
+    "gal.eyebrow": "Spel en kennis",
+    "gal.title": "Foto's en video's",
+    "gal.lede": "Beelden van lessen en evenementen, gepubliceerd door het schoolteam.",
+    "gal.loading": "Laden…",
+    "reg.eyebrow": "INSCHRIJVINGEN",
+    "reg.title": "Schrijf u in bij de school",
+    "reg.lede": "Vul het formulier in en de schoolverantwoordelijke neemt contact met u op om de inschrijving te bevestigen. Uw gegevens zijn alleen zichtbaar voor de beheerder.",
+    "reg.needt": "Wat heb je nodig",
+    "reg.need1": "Persoonlijke gegevens (naam, geboortedatum, adres)",
+    "reg.need2": "Contactgegevens van de ouders (voor inschrijving van kinderen)",
+    "reg.need3": "Gewenste vak(ken)",
+    "reg.tabChild": "👶 Inschrijving kind",
+    "reg.tabAdult": "🧑 Inschrijving volwassene",
+    "reg.submit": "Inschrijving versturen",
+    "reg.male": "Man", "reg.female": "Vrouw",
+    "reg.courses": "Selecteer de gewenste vak(ken)",
+    "reg.consentQ": "Gaat u ermee akkoord dat foto's en video's van schoolactiviteiten en lessen waarop uw kind te zien is, worden geplaatst op de officiële website en sociale media (Facebook e.d.) van de school?",
+    "reg.consentQAdult": "Gaat u ermee akkoord dat foto's en video's van schoolactiviteiten waarop u te zien bent, worden geplaatst op de officiële website en sociale media (Facebook e.d.) van de school?",
+    "reg.consentYes": "Ja, ik ga akkoord",
+    "reg.consentNo": "Nee, ik ga niet akkoord",
+    "reg.levelQ": "Wat is uw huidige niveau Armeens?",
+    "reg.c.childName": "Voor-, achter- en patroniemnaam van het kind",
+    "reg.c.childDob": "Geboortedatum",
+    "reg.c.gender": "Geslacht",
+    "reg.c.address": "Adres (in Latijnse letters)",
+    "reg.c.nationality": "Nationaliteit",
+    "reg.c.nativeLang": "Moedertaal",
+    "reg.c.email": "E-mailadres",
+    "reg.c.mother": "Naam moeder en telefoonnummer",
+    "reg.c.father": "Naam vader en telefoonnummer",
+    "reg.a.name": "Voor-, achter- en patroniemnaam",
+    "reg.a.gender": "Geslacht",
+    "reg.a.dob": "Geboortedatum",
+    "reg.a.nationality": "Nationaliteit",
+    "reg.a.nativeLang": "Moedertaal",
+    "reg.a.email": "E-mailadres",
+    "reg.a.phone": "Telefoonnummer",
+    "reg.a.address": "Adres (in Latijnse letters)",
+    "reg.crs.preschool": "Kleuterklas",
+    "reg.crs.abc": "Alfabet (beginners)",
+    "reg.crs.mayreni": "Moedertaal — taalles",
+    "reg.crs.literature": "Literatuur",
+    "reg.crs.environment": "Ik en mijn omgeving",
+    "reg.crs.homeland": "Vaderlandkunde",
+    "reg.crs.history": "Geschiedenis",
+    "reg.crs.armForeign": "Armeens voor anderstalige kinderen en volwassenen",
+    "reg.crs.folkDance": "Volksdans",
+    "reg.crs.tradDance": "Traditionele zang en dans",
+    "reg.crs.piano": "Piano",
+    "reg.crs.chess": "Schaken",
+    "reg.crs.literacy": "Alfabetisering (lezen en schrijven)",
+    "reg.crs.armSecond": "Armeens als tweede taal",
+    "reg.lvl.beginner": "Beginner — geen voorkennis",
+    "reg.lvl.elementary": "Elementair — ik kan lezen en schrijven",
+    "reg.lvl.intermediate": "Gemiddeld — ik kan woorden verbinden en eenvoudige zinnen vormen",
+    "reg.lvl.advanced": "Gevorderd — ik kan vlot zinnen vormen",
+    "reg.lvl.excellent": "Uitstekend — ik kan vloeiend communiceren",
+    "contact.eyebrow": "Contactgegevens",
+    "contact.title": "Neem contact met ons op",
+    "contact.title2": "Contact",
+    "contact.addr": "Adres", "contact.email": "E-mail", "contact.phone": "Telefoon",
+    "contact.fbGroup": "Facebook-groep van de school ↗",
+    "foot.name": "Levon Shant Zaterdagschool",
+    "foot.blurb": "Hamazkayin-afdeling Mechelen (België). Armeense taal, geschiedenis en cultuur.",
+    "foot.linksTitle": "Snel naar",
+    "foot.copyright": "Hamazkayin Levon Shant Zaterdagschool",
+    "auth.signin": "Personeel aanmelden",
+    "auth.signout": "Afmelden",
+    "auth.modalTitle": "Personeelsaccount",
+    "auth.modalSub": "Voor Admin- en SMM-accounts. Ouders hebben geen account nodig om het inschrijvingsformulier in te vullen.",
+    "auth.tabSignin": "Aanmelden",
+    "auth.tabSignup": "Registreren als personeel",
+    "auth.passwordLabel": "Wachtwoord",
+    "auth.submitSignin": "Aanmelden",
+    "auth.signupHelper": "Kies uw naam, e-mailadres en wachtwoord. Het account wordt pas actief nadat de beheerder het heeft goedgekeurd en uw rol heeft toegewezen (Admin of SMM).",
+    "auth.nameLabel": "Naam",
+    "auth.passwordMinLabel": "Wachtwoord (minstens 6 tekens)",
+    "auth.submitSignup": "Aanvraag versturen",
+    "aria.home": "Startpagina",
+    "aria.menu": "Menu",
+    "aria.prevMonth": "Vorige maand",
+    "aria.nextMonth": "Volgende maand",
+    "aria.prevYear": "Vorig schooljaar",
+    "aria.nextYear": "Volgend schooljaar",
+    "aria.close": "Sluiten",
+    "yearcal.imgAlt": "Jaarkalender van het schooljaar"
+  },
+  en: {
+    "brand.title": "Levon Shant Saturday School",
+    "brand.sub": "Hamazkayin Mechelen branch",
+    "nav.about": "Our school",
+    "nav.hamazkayin": "Hamazkayin",
+    "nav.department": "Education department",
+    "nav.calendar": "Calendar",
+    "nav.activities": "Activities",
+    "nav.gallery": "Photos/videos",
+    "nav.register": "Register",
+    "nav.contact": "Contact",
+    "hero.title": "Welcome to the Hamazkayin Levon Shant Saturday School",
+    "hero.lede": "At the Hamazkayin Levon Shant Saturday School, Armenian children and families learn the Armenian language, history, and culture, and take part every week in cultural and youth activities in Mechelen.",
+    "hero.cta1": "Register",
+    "hero.cta2": "See activities",
+    "hero.fact1": "founding year",
+    "hero.fact2": "Nijverheidsstraat 45",
+    "hero.fact3": "Armenian education network",
+    "about.eyebrow": "Our school",
+    "about.title": "History and founding",
+    "about.p1": "In the 1999–2000 school year, on the initiative of the Belgian ARF party, the Levon Shant Saturday School was founded in Mechelen.",
+    "about.p2": "The school was founded by Edik Kotanjian and Grigor Voskanian; Voskanian was also director of the school in those early years.",
+    "about.p3": "Thanks to their efforts, the foundation was laid on which the school grew, expanded, and became what it is today: a vibrant Armenian community in the heart of Mechelen.",
+    "about.card1title": "What we offer",
+    "about.card1text": "Armenian language lessons (spoken and written), Armenian history, singing and dance, and cultural and youth activities throughout the school year.",
+    "about.tlLink": "See the full timeline ↓",
+    "hist.eyebrow": "Year by year",
+    "hist.title": "The school's history, year by year",
+    "hist.lede": "From founding to today: the key milestones, people, and achievements that shaped the school.",
+    "hz.eyebrow": "Our network",
+    "hz.title": "Hamazkayin Armenian Educational and Cultural Society",
+    "hz.p1": "On May 28, 1928, a group of nine Armenian intellectuals — including writer and educator Levon Shant, historian Nikol Aghbalian, former prime minister Hamo Ohanjanian, and director Gaspar Ipekian — founded the \u201CHamazkayin Armenian Educational and Cultural Society\u201D in Cairo.",
+    "hz.p2": "Hamazkayin wanted to give new generations outside Armenia not just a general education, but an Armenian upbringing as well, to keep national identity and cultural traditions alive. Today Hamazkayin is a non-profit with branches across the Middle East, Europe, the US, Canada, South America, and Australia — and the school in Mechelen is part of that network.",
+    "hz.cta": "More at hamazkayin.com ↗",
+    "dept.eyebrow": "Structure",
+    "dept.title": "Education department",
+    "dept.lede": "Classes are organized by age group and take place every Saturday morning. Contact the school for the teaching staff, schedule, and holidays.",
+    "dept.c1t": "Teaching staff", "dept.c1d": "Meet the teachers ↓",
+    "dept.c2t": "Classes and groups", "dept.c2d": "See the full list ↓",
+    "dept.c3t": "Class hours", "dept.c3d": "See the full schedule below ↓",
+    "dept.c4t": "Calendar", "dept.c4d": "The school year calendar at a glance ↓",
+    "staff.eyebrow": "Teaching staff",
+    "staff.title": "Meet our teachers",
+    "staff.lede": "Experienced and dedicated teachers in language, history, art, and dance.",
+    "staff.loading": "Loading…",
+    "classes.eyebrow": "Classes and groups",
+    "classes.title": "Every class in one list",
+    "classes.lede": "The full list, by age group and subject.",
+    "cal.eyebrow": "Schedule",
+    "cal.title": "Class schedule and activities calendar",
+    "cal.lede": "See when each class takes place, and follow upcoming activities in calendar form.",
+    "cal.scheduleTitle": "📖 Class schedule (Saturday)",
+    "cal.loading": "Loading…",
+    "cal.legendClass": "Classes",
+    "cal.legendEvent": "Activity",
+    "yearcal.eyebrow": "School year",
+    "yearcal.title": "The school year calendar at a glance",
+    "yearcal.lede": "Holidays, celebrations, and important dates throughout the school year.",
+    "feed.eyebrow": "Latest news",
+    "feed.title": "Cultural and youth activities & announcements",
+    "feed.lede": "This section is updated directly by the school team.",
+    "feed.all": "All", "feed.eventsf": "Activities", "feed.newsf": "Announcements", "feed.loading": "Loading…",
+    "gal.eyebrow": "Play and knowledge",
+    "gal.title": "Photos and videos",
+    "gal.lede": "Images from classes and activities, published by the school team.",
+    "gal.loading": "Loading…",
+    "reg.eyebrow": "REGISTRATION",
+    "reg.title": "Register with the school",
+    "reg.lede": "Fill in the form and the school coordinator will contact you to confirm the registration. Your details are only visible to the administrator.",
+    "reg.needt": "What you'll need",
+    "reg.need1": "Personal details (name, date of birth, address)",
+    "reg.need2": "Parents' contact details (for registering children)",
+    "reg.need3": "Preferred class(es)",
+    "reg.tabChild": "👶 Child registration",
+    "reg.tabAdult": "🧑 Adult registration",
+    "reg.submit": "Submit registration",
+    "reg.male": "Male", "reg.female": "Female",
+    "reg.courses": "Select the preferred class(es)",
+    "reg.consentQ": "Do you agree that photos and videos from school activities and classes featuring your child may be posted on the school's official website and social media (Facebook, etc.)?",
+    "reg.consentQAdult": "Do you agree that photos and videos from school activities featuring you may be posted on the school's official website and social media (Facebook, etc.)?",
+    "reg.consentYes": "Yes, I agree",
+    "reg.consentNo": "No, I do not agree",
+    "reg.levelQ": "What is your current level of Armenian?",
+    "reg.c.childName": "Child's full name (first, last, patronymic)",
+    "reg.c.childDob": "Date of birth",
+    "reg.c.gender": "Gender",
+    "reg.c.address": "Address (in Latin letters)",
+    "reg.c.nationality": "Nationality",
+    "reg.c.nativeLang": "Native language",
+    "reg.c.email": "Email address",
+    "reg.c.mother": "Mother's name and phone number",
+    "reg.c.father": "Father's name and phone number",
+    "reg.a.name": "Full name (first, last, patronymic)",
+    "reg.a.gender": "Gender",
+    "reg.a.dob": "Date of birth",
+    "reg.a.nationality": "Nationality",
+    "reg.a.nativeLang": "Native language",
+    "reg.a.email": "Email address",
+    "reg.a.phone": "Phone number",
+    "reg.a.address": "Address (in Latin letters)",
+    "reg.crs.preschool": "Preschool group",
+    "reg.crs.abc": "Alphabet (beginners)",
+    "reg.crs.mayreni": "Native language class",
+    "reg.crs.literature": "Literature",
+    "reg.crs.environment": "Me and my surroundings",
+    "reg.crs.homeland": "Homeland studies",
+    "reg.crs.history": "History",
+    "reg.crs.armForeign": "Armenian for non-Armenian-speaking children and adults",
+    "reg.crs.folkDance": "Folk dance",
+    "reg.crs.tradDance": "Traditional song and dance",
+    "reg.crs.piano": "Piano",
+    "reg.crs.chess": "Chess",
+    "reg.crs.literacy": "Literacy (reading and writing)",
+    "reg.crs.armSecond": "Armenian as a second language",
+    "reg.lvl.beginner": "Beginner — no prior knowledge",
+    "reg.lvl.elementary": "Elementary — I can read and write",
+    "reg.lvl.intermediate": "Intermediate — I can connect words and form simple sentences",
+    "reg.lvl.advanced": "Advanced — I can form sentences fluently",
+    "reg.lvl.excellent": "Excellent — I can communicate fluently",
+    "contact.eyebrow": "Contact details",
+    "contact.title": "Get in touch",
+    "contact.title2": "Contact",
+    "contact.addr": "Address", "contact.email": "Email", "contact.phone": "Phone",
+    "contact.fbGroup": "School's Facebook group ↗",
+    "foot.name": "Levon Shant Saturday School",
+    "foot.blurb": "Hamazkayin Mechelen branch (Belgium). Armenian language, history, and culture.",
+    "foot.linksTitle": "Quick links",
+    "foot.copyright": "Hamazkayin Levon Shant Saturday School",
+    "auth.signin": "Staff sign in",
+    "auth.signout": "Sign out",
+    "auth.modalTitle": "Staff account",
+    "auth.modalSub": "For Admin and SMM accounts. Parents don't need an account to fill in the registration form.",
+    "auth.tabSignin": "Sign in",
+    "auth.tabSignup": "Register as staff",
+    "auth.passwordLabel": "Password",
+    "auth.submitSignin": "Sign in",
+    "auth.signupHelper": "Choose your name, email, and password. The account will only become active once the administrator has approved it and assigned your role (Admin or SMM).",
+    "auth.nameLabel": "Full name",
+    "auth.passwordMinLabel": "Password (at least 6 characters)",
+    "auth.submitSignup": "Submit request",
+    "aria.home": "Home page",
+    "aria.menu": "Menu",
+    "aria.prevMonth": "Previous month",
+    "aria.nextMonth": "Next month",
+    "aria.prevYear": "Previous school year",
+    "aria.nextYear": "Next school year",
+    "aria.close": "Close",
+    "yearcal.imgAlt": "School year calendar"
+  }
+};
+let currentLang = "hy";
+const SUPPORTED_LANGS = ["hy", "nl", "en"];
+
+let contentOverrides = {}; // filled from site_content, keyed by field key: {hy, nl, en}
+
+// ---------------------------------------------------------
+// School history timeline — bilingual, rendered into #historyTimeline
+// ---------------------------------------------------------
+const TIMELINE = [
+  { year:"1999–2000",
+    hy:{ title:"Դպրոցի հիմնադրում", body:"Բելգիայի ՀՅԴ կուսակցության որոշմամբ Մեխելենում հիմնադրվեց Լևոն Շանթի անվան դպրոցը՝ Էդիկ Քոթանջյանի և Գրիգոր Ոսկանյանի ջանքերով։ Ոսկանյանը դարձավ նաև դպրոցի առաջին տնօրենը։" },
+    nl:{ title:"Oprichting van de school", body:"Op initiatief van de Belgische ARF-partij werd de Levon Shant-school opgericht in Mechelen door Edik Kotanjian en Grigor Voskanian; Voskanian werd meteen ook de eerste directeur." },
+    en:{ title:"Founding of the school", body:"On the initiative of the Belgian ARF party, the Levon Shant school was founded in Mechelen by Edik Kotanjian and Grigor Voskanian; Voskanian also became the school's first director." } },
+  { year:"2000",
+    hy:{ title:"Առաջին ուսուցիչները", body:"Արուսյակ Մովսիսյանը մի քանի ամիս դասավանդեց, ապա տեղափոխվեց Անտվերպենի դպրոց. նրա հետ դասավանդում էր նաև Զարինե Մեջլումյանը՝ դպրոցի առաջին ուսուցիչները։" },
+    nl:{ title:"De eerste leerkrachten", body:"Arusyak Movsisyan gaf enkele maanden les voor ze naar de school in Antwerpen verhuisde; samen met Zarine Mejlumyan waren zij de eerste leerkrachten van de school." },
+    en:{ title:"The first teachers", body:"Arusyak Movsisyan taught for a few months before moving to the school in Antwerp; together with Zarine Mejlumyan, they were the school's first teachers." } },
+  { year:"2006",
+    hy:{ title:"Շուշանիկ Մովսիսյանի գալուստը", body:"Հայաստանից ժամանած վաստակավոր մանկավարժ Շուշանիկ Մովսիսյանը միացավ դպրոցին, և նրա գործունեությունը դարձավ բեկումնային դպրոցի կյանքում։" },
+    nl:{ title:"Shushanik Movsisyan sluit aan", body:"De ervaren pedagoge Shushanik Movsisyan kwam uit Armenië naar de school — een keerpunt in het bestaan van de school." },
+    en:{ title:"Shushanik Movsisyan joins", body:"The experienced educator Shushanik Movsisyan arrived from Armenia to join the school — a turning point in the school's history." } },
+  { year:"2009",
+    hy:{ title:"Դպրոցը միանում է Համազգայինին", body:"Համազգային Հայ Կրթական և Մշակութային Միությունը վերամիավորվեց Արմեն Արսլանյանի նախագահությամբ, և դպրոցը փոխանցվեց Համազգայինին՝ մշակույթի ու կրթության հարցերով պատասխանատու Սամվել Սարկիսյանի գլխավորությամբ։" },
+    nl:{ title:"De school wordt deel van Hamazkayin", body:"Hamazkayin hereenigde zich onder voorzitter Armen Arslanian, en de school werd overgedragen aan Hamazkayin, onder leiding van Samvel Sarkisian voor onderwijs en cultuur." },
+    en:{ title:"The school joins Hamazkayin", body:"Hamazkayin reunified under chairman Armen Arslanian, and the school was transferred to Hamazkayin, led by Samvel Sarkisian for education and culture." } },
+  { year:"2009–2011",
+    hy:{ title:"Տնօրեն՝ Հասմիկ Յագմուրյան", body:"Այս տարիներին դպրոցի տնօրենի պաշտոնը ստանձնեց Հասմիկ Յագմուրյանը։" },
+    nl:{ title:"Directeur Hasmik Yagmuryan", body:"In deze jaren was Hasmik Yagmuryan directeur van de school." },
+    en:{ title:"Director Hasmik Yagmuryan", body:"In these years, Hasmik Yagmuryan served as director of the school." } },
+  { year:"2010",
+    hy:{ title:"«Հայ ասպետ» և այց Արցախ", body:"Դպրոցի սաները մասնակցեցին «Հայ ասպետ» հեռուստախաղին և այցելեցին Արցախ՝ ծանոթանալով նրա մշակույթին։" },
+    nl:{ title:"'Hay Aspet' en een reis naar Artsach", body:"Leerlingen namen deel aan het tv-programma 'Hay Aspet' en reisden naar Artsach om er kennis te maken met de cultuur." },
+    en:{ title:"'Hay Aspet' and a trip to Artsakh", body:"Students took part in the TV show 'Hay Aspet' and traveled to Artsakh to experience its culture firsthand." } },
+  { year:"2011",
+    hy:{ title:"Լիանա Մելքոնյանը՝ կազմակերպչական պատասխանատու", body:"Լիանա Մելքոնյանը նշանակվեց դպրոցի կազմակերպչական հարցերով պատասխանատու՝ պաշտոն, որը ստանձնեց մինչ օրս։" },
+    nl:{ title:"Liana Melkonian wordt verantwoordelijk", body:"Liana Melkonian werd verantwoordelijk voor de organisatie van de school — een rol die ze sindsdien behoudt." },
+    en:{ title:"Liana Melkonian becomes responsible", body:"Liana Melkonian was appointed responsible for the school's organizational matters — a role she has held ever since." } },
+  { year:"2014",
+    hy:{ title:"Բացվում է նախադպրոցական խումբը", body:"Բացվեց նախադպրոցական խումբը՝ իր տեսակով առաջինը Բելգիայում։" },
+    nl:{ title:"De kleuterklas gaat open", body:"De kleuterklas opende — de eerste in zijn soort in België." },
+    en:{ title:"The preschool group opens", body:"The preschool group opened — the first of its kind in Belgium." } },
+  { year:"2024",
+    hy:{ title:"Լիանա Մելքոնյանը՝ դպրոցի տնօրեն", body:"Կազմակերպչական պատասխանատվության կողքին, Լիանա Մելքոնյանը ստանձնեց նաև դպրոցի տնօրենի պաշտոնը։" },
+    nl:{ title:"Liana Melkonian wordt directeur", body:"Naast haar organisatorische rol werd Liana Melkonian ook directeur van de school." },
+    en:{ title:"Liana Melkonian becomes director", body:"Alongside her organizational role, Liana Melkonian also took on the position of school director." } },
+  { year:"Այսօր / Vandaag / Today",
+    hy:{ title:"Այսօր", body:"Դպրոցում գործում են նկարչության, ասեղնագործության և դաշնամուրի խմբակներ, պարի խմբակները տարիների աշխատանքով վերածվել են պրոֆեսիոնալ պարախմբերի, և կանոնավոր կազմակերպվում են բարեգործական միջոցառումներ ու ծրագրեր։" },
+    nl:{ title:"Vandaag", body:"De school heeft clubs voor tekenen, borduren en piano; de dansgroepen zijn na jaren werk uitgegroeid tot professionele ensembles, en er worden regelmatig liefdadigheidsevenementen georganiseerd." },
+    en:{ title:"Today", body:"The school runs clubs for drawing, embroidery, and piano; the dance groups have grown, after years of work, into professional ensembles, and charitable events and programs are held regularly." } }
+];
+
+function renderTimeline(lang){
+  const el = document.getElementById("historyTimeline");
+  if (!el) return;
+  el.innerHTML = TIMELINE.map(item=>{
+    const t = item[lang] || item.hy;
+    return `<div class="hist-item">
+      <span class="hist-dot" aria-hidden="true"></span>
+      <span class="hist-year">${item.year}</span>
+      <h3>${escapeHtml(t.title)}</h3>
+      <p>${escapeHtml(t.body)}</p>
+    </div>`;
+  }).join("");
+}
+
+const DEFAULT_CLASSES = {
+  hy: [
+    "Նախադպրոցական խումբ","Այբբենարանի դասարան","Մայրենի 1-ին դասարան","Մայրենի 2-րդ դասարան",
+    "Մայրենի 3-րդ դասարան","Մայրենի 4-րդ դասարան","Գրականության դասարան","Ես և շրջակա աշխարհը",
+    "Հայրենագիտության դասարան","Պատմության դասարան","Օտարախոս երեխաների և մեծահասակների հայերենի դասարան",
+    "Ավանդական երգ ու պարի խումբ","Ժողովրդական պարի խումբ","Դաշնամուրի անհատական դասեր","Շախմատի խմբակ"
+  ].join("\n"),
+  nl: [
+    "Kleutergroep","Alfabetklas","Moedertaal 1","Moedertaal 2","Moedertaal 3","Moedertaal 4",
+    "Literatuurklas","Ik en de wereld om mij heen","Vaderlandkunde","Geschiedenis",
+    "Armeens voor anderstalige kinderen en volwassenen","Traditionele zang- en dansgroep",
+    "Volksdansgroep","Individuele pianolessen","Schaakclub"
+  ].join("\n"),
+  en: [
+    "Preschool group","Alphabet class","Native language 1","Native language 2",
+    "Native language 3","Native language 4","Literature class","Me and my surroundings",
+    "Homeland studies class","History class","Armenian for non-Armenian-speaking children and adults",
+    "Traditional song and dance group","Folk dance group","Individual piano lessons","Chess club"
+  ].join("\n")
+};
+
+function renderClassesList(lang){
+  const el = document.getElementById("classesList");
+  if (!el) return;
+  const override = contentOverrides["classes.list"];
+  const text = (override && override[lang]) || DEFAULT_CLASSES[lang] || DEFAULT_CLASSES.hy;
+  const items = text.split("\n").map(s=>s.trim()).filter(Boolean);
+  el.innerHTML = items.map(i=>`<li>${escapeHtml(i)}</li>`).join("");
+}
+
+function applyLang(lang){
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n");
+    const override = contentOverrides[key];
+    if (override && override[lang]) { el.textContent = override[lang]; return; }
+    if (lang === "hy") {
+      if (el.dataset.orig) el.textContent = el.dataset.orig;
+      return;
+    }
+    if (i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-aria");
+    if (lang === "hy") { if (el.dataset.origAria) el.setAttribute("aria-label", el.dataset.origAria); return; }
+    if (i18n[lang] && i18n[lang][key]) el.setAttribute("aria-label", i18n[lang][key]);
+  });
+  document.querySelectorAll("[data-i18n-alt]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-alt");
+    if (lang === "hy") { if (el.dataset.origAlt) el.setAttribute("alt", el.dataset.origAlt); return; }
+    if (i18n[lang] && i18n[lang][key]) el.setAttribute("alt", i18n[lang][key]);
+  });
+  document.querySelectorAll(".lang-toggle button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.lang === lang);
+  });
+  const toggleEl = document.getElementById("langToggle");
+  if (toggleEl){
+    const idx = SUPPORTED_LANGS.indexOf(lang);
+    toggleEl.style.setProperty("--lang-idx", idx >= 0 ? idx : 0);
+  }
+  renderTimeline(lang);
+  renderClassesList(lang);
+  renderCalendar();
+  loadSchedule();
+  loadYearCalDisplay();
+  loadStaff();
+  loadFeed();
+  loadGallery();
+  updateHistoryToggleLabel();
+  renderAuthArea();
+}
+document.querySelectorAll("[data-i18n]").forEach(el=> el.dataset.orig = el.textContent);
+document.querySelectorAll("[data-i18n-aria]").forEach(el=> el.dataset.origAria = el.getAttribute("aria-label"));
+document.querySelectorAll("[data-i18n-alt]").forEach(el=> el.dataset.origAlt = el.getAttribute("alt"));
+document.querySelectorAll(".lang-toggle button").forEach(btn=>{
+  btn.addEventListener("click", ()=> applyLang(btn.dataset.lang));
+});
+
+// History timeline show/hide toggle (bilingual label)
+const HISTORY_TOGGLE_LABEL = {
+  hy: { closed:"Տեսնել ամբողջ ժամանակագրությունը ↓", open:"Թաքցնել ժամանակագրությունը ↑" },
+  nl: { closed:"Bekijk de volledige tijdlijn ↓", open:"Verberg de tijdlijn ↑" },
+  en: { closed:"See the full timeline ↓", open:"Hide the timeline ↑" }
+};
+let historyOpen = false;
+function updateHistoryToggleLabel(){
+  const btn = document.getElementById("historyToggle");
+  if (!btn) return;
+  const set = HISTORY_TOGGLE_LABEL[currentLang] || HISTORY_TOGGLE_LABEL.hy;
+  btn.textContent = historyOpen ? set.open : set.closed;
+  btn.setAttribute("aria-expanded", String(historyOpen));
+}
+document.getElementById("historyToggle").addEventListener("click", ()=>{
+  historyOpen = !historyOpen;
+  document.getElementById("history").style.display = historyOpen ? "" : "none";
+  updateHistoryToggleLabel();
+  if (historyOpen) document.getElementById("history").scrollIntoView({ behavior:"smooth", block:"start" });
+});
+
+// mobile nav toggle
+const menuToggle = document.getElementById("menuToggle");
+const mainNav = document.getElementById("mainNav");
+menuToggle.addEventListener("click", ()=>{
+  const open = mainNav.classList.toggle("open");
+  menuToggle.setAttribute("aria-expanded", open);
+});
+document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click", ()=> mainNav.classList.remove("open")));
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// ---------------------------------------------------------
+// Demo data (shown when Supabase isn't configured yet)
+// ---------------------------------------------------------
+const demoPosts = [
+  { id:"d1", type:"event", title:"2025–2026 ուսումնական տարվա բացում", title_nl:"Opening van het schooljaar 2025–2026", title_en:"Opening of the 2025–2026 school year",
+    body:"Հրավիրում ենք բոլոր ընտանիքներին դպրոցի բացման արարողությանը։", body_nl:"We nodigen alle gezinnen uit voor de openingsceremonie van de school.", body_en:"We invite all families to the school's opening ceremony.",
+    date:"2025-09-06", media_type:"image", media_url:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097689632-5S0MPFQDE2YO0RWDIIF4/Schermafbeelding+2025-10-19+112541.png", author_name:"Դպրոց" },
+  { id:"d2", type:"news", title:"Գրանցումները բացվեցին", title_nl:"De inschrijvingen zijn geopend", title_en:"Registration is now open",
+    body:"2025–2026 ուսումնական տարվա գրանցումներն այժմ բաց են բոլոր տարիքային խմբերի համար։", body_nl:"De inschrijvingen voor het schooljaar 2025–2026 zijn nu open voor alle leeftijdsgroepen.", body_en:"Registration for the 2025–2026 school year is now open for all age groups.",
+    date:"2025-08-20", media_type:null, media_url:null, author_name:"Դպրոց" }
+];
+
+// ---------------------------------------------------------
+// 3. Auth UI (sign in / sign up / dashboard)
+// ---------------------------------------------------------
+const authArea = document.getElementById("authArea");
+const loginBackdrop = document.getElementById("loginBackdrop");
+const dashboard = document.getElementById("dashboard");
+
+function renderAuthArea(){
+  authArea.innerHTML = "";
+  const t = (hy, key) => (currentLang !== "hy" && i18n[currentLang] && i18n[currentLang][key]) ? i18n[currentLang][key] : hy;
+  if (!currentUser) {
+    const btn = document.createElement("button");
+    btn.className = "btn ghost small";
+    btn.textContent = t("Անձնակազմի մուտք", "auth.signin");
+    btn.addEventListener("click", ()=> loginBackdrop.classList.add("open"));
+    authArea.appendChild(btn);
+    dashboard.style.display = "none";
+    return;
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "auth-btn";
+  wrap.innerHTML = `<div class="avatar">${(currentUser.email||"?")[0].toUpperCase()}</div>`;
+  authArea.appendChild(wrap);
+  dashboard.style.display = "block";
+  document.getElementById("dashName").textContent = currentUser.email;
+  document.getElementById("signOutBtn").textContent = t("Դուրս գալ", "auth.signout");
+  const roleBadge = document.getElementById("dashRole");
+  roleBadge.textContent = currentRole === "admin" ? "Admin" : "SMM";
+  roleBadge.classList.toggle("admin", currentRole === "admin");
+  document.querySelectorAll('[data-admin-only]').forEach(el=>{
+    el.style.display = currentRole === "admin" ? "" : "none";
+  });
+  loadManagePosts();
+  loadScheduleAdmin();
+  loadStaffAdmin();
+  loadYearCalAdmin();
+  if (currentRole === "admin") { loadRegistrations(); loadUsers(); renderContentForm(); }
+}
+
+document.getElementById("closeLogin").addEventListener("click", ()=> loginBackdrop.classList.remove("open"));
+loginBackdrop.addEventListener("click", (e)=>{ if (e.target === loginBackdrop) loginBackdrop.classList.remove("open"); });
+
+// sign-in / sign-up tab switching within the modal
+document.querySelectorAll('.tabs button[data-authtab]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tabs button[data-authtab]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.authtab;
+    document.getElementById('loginForm').style.display = tab === 'signin' ? '' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? '' : 'none';
+  });
+});
+
+document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("loginMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին. տես README.md ֆայլը կարգավորման համար։";
+    msg.classList.add("show","err"); return;
+  }
+  const email = document.getElementById("loginEmail").value.trim();
+  const pass = document.getElementById("loginPass").value;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  if (error){
+    msg.textContent = "Մուտքը ձախողվեց՝ " + error.message;
+    msg.classList.add("show","err"); return;
+  }
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
+  if (!profile || !profile.role){
+    await supabase.auth.signOut();
+    msg.textContent = "Ձեր հաշիվը դեռ սպասում է ադմինիստրատորի հաստատմանը։";
+    msg.classList.add("show","err"); return;
+  }
+  loginBackdrop.classList.remove("open");
+  e.target.reset();
+});
+
+document.getElementById("signupForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("signupMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին. տես README.md ֆայլը կարգավորման համար։";
+    msg.classList.add("show","err"); return;
+  }
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const pass = document.getElementById("signupPass").value;
+  const { error } = await supabase.auth.signUp({ email, password: pass, options: { data: { name } } });
+  if (error){
+    msg.textContent = "Սխալ՝ " + error.message;
+    msg.classList.add("show","err"); return;
+  }
+  msg.textContent = "Հայտն ուղարկվեց ✔ Սպասեք ադմինիստրատորի հաստատմանը, ապա մուտք գործեք «Մուտք» ներդիրից։";
+  msg.classList.add("show","ok");
+  e.target.reset();
+});
+
+document.getElementById("signOutBtn").addEventListener("click", ()=> supabase.auth.signOut());
+
+async function handleAuthChange(session){
+  if (!session){
+    currentUser = null; currentRole = null;
+    renderAuthArea();
+    return;
+  }
+  currentUser = session.user;
+  try{
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
+    currentRole = profile ? profile.role : null;
+  }catch(err){
+    currentRole = null;
+  }
+  if (!currentRole){
+    // signed in but not yet approved by an admin — don't show the dashboard
+    currentUser = null;
+    renderAuthArea();
+    return;
+  }
+  renderAuthArea();
+}
+
+if (SUPABASE_READY){
+  supabase.auth.onAuthStateChange((_event, session) => { handleAuthChange(session); });
+} else {
+  renderAuthArea();
+}
+
+// dashboard tabs
+document.querySelectorAll("#dashTabs .chip").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("#dashTabs .chip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".dash-panel").forEach(p=>p.classList.remove("active"));
+    document.getElementById(btn.dataset.panel).classList.add("active");
+  });
+});
+
+// ---------------------------------------------------------
+// 4. Posts: publish (admin + smm), read (public), delete (own or admin)
+// ---------------------------------------------------------
+document.getElementById("postForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("postMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY || !currentUser){
+    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
+    msg.classList.add("show","err"); return;
+  }
+  const type = document.getElementById("postType").value;
+  const title = document.getElementById("postTitle").value.trim();
+  const titleNl = document.getElementById("postTitle_nl").value.trim();
+  const titleEn = document.getElementById("postTitle_en").value.trim();
+  const body = document.getElementById("postBody").value.trim();
+  const bodyNl = document.getElementById("postBody_nl").value.trim();
+  const bodyEn = document.getElementById("postBody_en").value.trim();
+  const date = document.getElementById("postDate").value || new Date().toISOString().slice(0,10);
+  const file = document.getElementById("postFile").files[0];
+  let mediaUrl = document.getElementById("postMediaUrl").value.trim();
+  let mediaType = mediaUrl ? (mediaUrl.match(/\.(mp4|webm|mov)$/i) ? "video" : (mediaUrl.includes("youtube")||mediaUrl.includes("youtu.be") ? "youtube" : "image")) : null;
+
+  try{
+    if (file){
+      const path = `${currentUser.id}/${Date.now()}_${file.name}`;
+      const { error: upErr } = await supabase.storage.from("posts").upload(path, file);
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("posts").getPublicUrl(path);
+      mediaUrl = pub.publicUrl;
+      mediaType = file.type.startsWith("video") ? "video" : "image";
+    }
+    const { error } = await supabase.from("posts").insert({
+      type, title, title_nl: titleNl || null, title_en: titleEn || null,
+      body, body_nl: bodyNl || null, body_en: bodyEn || null,
+      date, media_url: mediaUrl || null, media_type: mediaType,
+      author_id: currentUser.id, author_name: currentUser.email
+    });
+    if (error) throw error;
+    msg.textContent = "Հրապարակվեց ✔";
+    msg.classList.add("show","ok");
+    e.target.reset();
+    loadFeed(); loadGallery(); loadManagePosts(); renderCalendar(); loadYearCalDisplay();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message;
+    msg.classList.add("show","err");
+  }
+});
+
+async function fetchPosts(){
+  if (!SUPABASE_READY) return demoPosts;
+  const { data, error } = await supabase.from("posts").select("*").order("created_at", { ascending:false });
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+function postTitle(p, lang){
+  const key = lang === "nl" ? "title_nl" : lang === "en" ? "title_en" : "title";
+  return p[key] || p.title || p.title_nl || p.title_en || "";
+}
+function postBody(p, lang){
+  const key = lang === "nl" ? "body_nl" : lang === "en" ? "body_en" : "body";
+  return p[key] || p.body || p.body_nl || p.body_en || "";
+}
+
+function postCardHTML(p){
+  const kindLabel = pickLang({
+    hy: p.type === "event" ? "Միջոցառում" : p.type === "gallery" ? "Պատկեր" : "Հայտարարություն",
+    nl: p.type === "event" ? "Activiteit" : p.type === "gallery" ? "Foto" : "Mededeling",
+    en: p.type === "event" ? "Activity" : p.type === "gallery" ? "Photo" : "Announcement"
+  });
+  const title = postTitle(p, currentLang);
+  const body = postBody(p, currentLang);
+  let media = "";
+  if (p.media_type === "video") media = `<video src="${p.media_url}" controls></video>`;
+  else if (p.media_type === "youtube") {
+    const idm = p.media_url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
+    const vid = idm ? idm[1] : "";
+    media = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
+  } else if (p.media_url) media = `<img src="${p.media_url}" alt="${title}">`;
+  else media = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.85rem;">${pickLang({hy:"Առանց պատկերի", nl:"Geen afbeelding", en:"No image"})}</div>`;
+
+  return `<article class="post-card">
+    <div class="post-media">${media}<span class="kind">${kindLabel}</span></div>
+    <div class="post-body">
+      <span class="post-date">${p.date || ""}</span>
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(body)}</p>
+      <div class="post-foot"><span>${escapeHtml(p.author_name||"")}</span></div>
+    </div>
+  </article>`;
+}
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function pickLang(dict){ return dict[currentLang] || dict.hy; }
+
+let allPostsCache = [];
+async function loadFeed(){
+  const el = document.getElementById("activitiesFeed");
+  try{
+    allPostsCache = await fetchPosts();
+    renderFeed("all");
+  }catch(err){
+    el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել տվյալները։ (${err.message})</div>`;
+  }
+}
+function renderFeed(filter){
+  const el = document.getElementById("activitiesFeed");
+  const items = allPostsCache.filter(p=> p.type !== "gallery" && (filter==="all" || p.type===filter));
+  el.innerHTML = items.length ? items.map(postCardHTML).join("") : `<div class="empty-state">Դեռ հրապարակումներ չկան։</div>`;
+}
+document.querySelectorAll("#feedFilters .chip").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("#feedFilters .chip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    renderFeed(btn.dataset.filter);
+  });
+});
+
+async function loadGallery(){
+  const el = document.getElementById("galleryFeed");
+  try{
+    const posts = await fetchPosts();
+    const items = posts.filter(p=> p.type==="gallery" || p.media_url);
+    el.innerHTML = items.length ? items.map(postCardHTML).join("") : `<div class="empty-state">Դեռ նկարներ/տեսանյութեր չկան։</div>`;
+  }catch(err){
+    el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
+  }
+}
+
+async function loadManagePosts(){
+  const body = document.getElementById("managePostsBody");
+  try{
+    const posts = await fetchPosts();
+    const mine = currentRole === "admin" ? posts : posts.filter(p=>p.author_id === currentUser.id);
+    body.innerHTML = mine.length ? mine.map(p=>`
+      <tr>
+        <td>${escapeHtml(p.title||"")}</td>
+        <td>${p.type}</td>
+        <td>${p.date||""}</td>
+        <td>${escapeHtml(p.author_name||"")}</td>
+        <td><button class="btn danger small" data-del="${p.id}">Ջնջել</button></td>
+      </tr>`).join("") : `<tr><td colspan="5">Հրապարակումներ չկան։</td></tr>`;
+    body.querySelectorAll("[data-del]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս հրապարակումը։")) return;
+        await supabase.from("posts").delete().eq("id", b.dataset.del);
+        loadManagePosts(); loadFeed(); loadGallery(); renderCalendar(); loadYearCalDisplay();
+      });
+    });
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// 5. Registrations: public write, admin-only read
+// ---------------------------------------------------------
+document.querySelectorAll('#regTypeToggle .chip').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#regTypeToggle .chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const type = btn.dataset.regtype;
+    document.getElementById('childRegForm').style.display = type === 'child' ? '' : 'none';
+    document.getElementById('adultRegForm').style.display = type === 'adult' ? '' : 'none';
+  });
+});
+
+function checkedValues(containerId){
+  return Array.from(document.querySelectorAll(`#${containerId} input:checked`)).map(i=>i.value);
+}
+function radioValue(name){
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : "";
+}
+
+function toRegistrationRow(p){
+  if (p.type === "child"){
+    return {
+      type: "child", child_name: p.childName, child_dob: p.childDob || null, gender: p.gender,
+      address: p.address, nationality: p.nationality, native_lang: p.nativeLang, email: p.email,
+      mother: p.mother, father: p.father, courses: p.courses, photo_consent: p.photoConsent
+    };
+  }
+  return {
+    type: "adult", name: p.name, gender: p.gender, dob: p.dob || null, nationality: p.nationality,
+    native_lang: p.nativeLang, email: p.email, phone: p.phone, address: p.address,
+    courses: p.courses, level: p.level, photo_consent: p.photoConsent
+  };
+}
+
+async function submitRegistration(payload, msgEl, formEl){
+  msgEl.className = "form-msg"; msgEl.textContent = "";
+  if (!SUPABASE_READY){
+    msgEl.textContent = "Կայքը դեռ միացված չէ տվյալների բազային. տես README.md։";
+    msgEl.classList.add("show","err"); return;
+  }
+  try{
+    const { error } = await supabase.from("registrations").insert(toRegistrationRow(payload));
+    if (error) throw error;
+    msgEl.textContent = "Շնորհակալություն, ձեր դիմումն ուղարկվեց ✔";
+    msgEl.classList.add("show","ok");
+    formEl.reset();
+    sendRegistrationEmail(payload); // best-effort; never blocks the confirmation above
+  }catch(err){
+    msgEl.textContent = "Սխալ՝ " + err.message;
+    msgEl.classList.add("show","err");
+  }
+}
+
+// Builds a clearly organized, labeled summary and emails it to the school
+// (levon.shant.dproc@gmail.com — set as the fixed "To" address in the
+// EmailJS template itself, not passed from the browser). Silently does
+// nothing if EmailJS hasn't been configured yet — the database is still
+// the source of truth either way, visible in the dashboard's "Գրանցումներ" tab.
+function buildRegistrationEmail(payload){
+  const today = new Date().toLocaleDateString("hy-AM");
+  if (payload.type === "child"){
+    const lines = [
+      `Նոր գրանցում՝ ԵՐԵԽԱ  (ուղարկվել է ${today})`,
+      "—".repeat(32),
+      `Երեխայի անուն, ազգանուն, հայրանուն.  ${payload.childName || "—"}`,
+      `Ծննդյան տարեթիվ.  ${payload.childDob || "—"}`,
+      `Սեռ.  ${payload.gender || "—"}`,
+      `Հասցե.  ${payload.address || "—"}`,
+      `Ազգություն.  ${payload.nationality || "—"}`,
+      `Մայրենի լեզու.  ${payload.nativeLang || "—"}`,
+      `Էլ. հասցե.  ${payload.email || "—"}`,
+      "",
+      `Մայր (անուն, հեռախոս).  ${payload.mother || "—"}`,
+      `Հայր (անուն, հեռախոս).  ${payload.father || "—"}`,
+      "",
+      `Ընտրված դասընթացներ.`,
+      ...(payload.courses && payload.courses.length ? payload.courses.map(c=>`  • ${c}`) : ["  —"]),
+      "",
+      `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${payload.photoConsent || "—"}`
+    ];
+    return { subject: `Նոր գրանցում (Երեխա) — ${payload.childName || "անանուն"}`, message: lines.join("\n"), replyTo: payload.email || "" };
+  }
+  const lines = [
+    `Նոր գրանցում՝ ՄԵԾԱՀԱՍԱԿ  (ուղարկվել է ${today})`,
+    "—".repeat(32),
+    `Անուն, ազգանուն, հայրանուն.  ${payload.name || "—"}`,
+    `Սեռ.  ${payload.gender || "—"}`,
+    `Ծննդյան տարեթիվ.  ${payload.dob || "—"}`,
+    `Ազգություն.  ${payload.nationality || "—"}`,
+    `Մայրենի լեզու.  ${payload.nativeLang || "—"}`,
+    `Էլ. հասցե.  ${payload.email || "—"}`,
+    `Հեռախոսահամար.  ${payload.phone || "—"}`,
+    `Հասցե.  ${payload.address || "—"}`,
+    "",
+    `Ընտրված դասընթացներ.`,
+    ...(payload.courses && payload.courses.length ? payload.courses.map(c=>`  • ${c}`) : ["  —"]),
+    "",
+    `Հայերենի ներկայիս մակարդակ.  ${payload.level || "—"}`,
+    `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${payload.photoConsent || "—"}`
+  ];
+  return { subject: `Նոր գրանցում (Մեծահասակ) — ${payload.name || "անանուն"}`, message: lines.join("\n"), replyTo: payload.email || "" };
+}
+
+async function sendRegistrationEmail(payload){
+  if (!EMAILJS_READY) return;
+  const { subject, message, replyTo } = buildRegistrationEmail(payload);
+  try{
+    await window.emailjs.send(emailjsConfig.serviceId, emailjsConfig.templateId, {
+      subject, message, reply_to: replyTo
+    });
+  }catch(err){
+    console.warn("Registration email could not be sent (saved regardless):", err.message || err);
+  }
+}
+
+document.getElementById("childRegForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const payload = {
+    type: "child",
+    childName: document.getElementById("c_childName").value.trim(),
+    childDob: document.getElementById("c_childDob").value,
+    gender: radioValue("c_gender"),
+    address: document.getElementById("c_address").value.trim(),
+    nationality: document.getElementById("c_nationality").value.trim(),
+    nativeLang: document.getElementById("c_nativeLang").value.trim(),
+    email: document.getElementById("c_email").value.trim(),
+    mother: document.getElementById("c_mother").value.trim(),
+    father: document.getElementById("c_father").value.trim(),
+    courses: checkedValues("c_courses"),
+    photoConsent: radioValue("c_consent")
+  };
+  await submitRegistration(payload, document.getElementById("childRegMsg"), e.target);
+});
+
+document.getElementById("adultRegForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const payload = {
+    type: "adult",
+    name: document.getElementById("a_name").value.trim(),
+    gender: radioValue("a_gender"),
+    dob: document.getElementById("a_dob").value,
+    nationality: document.getElementById("a_nationality").value.trim(),
+    nativeLang: document.getElementById("a_nativeLang").value.trim(),
+    email: document.getElementById("a_email").value.trim(),
+    phone: document.getElementById("a_phone").value.trim(),
+    address: document.getElementById("a_address").value.trim(),
+    courses: checkedValues("a_courses"),
+    level: radioValue("a_level"),
+    photoConsent: radioValue("a_consent")
+  };
+  await submitRegistration(payload, document.getElementById("adultRegMsg"), e.target);
+});
+
+async function loadRegistrations(){
+  const body = document.getElementById("regBody");
+  try{
+    const { data, error } = await supabase.from("registrations").select("*").order("submitted_at", { ascending:false });
+    if (error) throw error;
+    const rows = data || [];
+    body.innerHTML = rows.length ? rows.map(r=>{
+      const isChild = r.type === "child";
+      const name = isChild ? r.child_name : r.name;
+      const dob = isChild ? r.child_dob : r.dob;
+      const contact = isChild
+        ? `Մայր՝ ${escapeHtml(r.mother||"")}<br>Հայր՝ ${escapeHtml(r.father||"")}`
+        : `${escapeHtml(r.phone||"")}<br>${escapeHtml(r.email||"")}`;
+      const courses = (r.courses||[]).join(", ");
+      const submitted = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "";
+      return `<tr>
+        <td><span class="status-pill">${isChild ? "Երեխա" : "Մեծահասակ"}</span></td>
+        <td>${escapeHtml(name||"")}</td>
+        <td>${dob||""}</td>
+        <td>${contact}</td>
+        <td>${escapeHtml(courses)}</td>
+        <td>${submitted}</td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="6">Դեռ գրանցումներ չկան։</td></tr>`;
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="6">Սխալ (միայն admin-ը կարող է տեսնել)՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// 6. Admin: approve pending sign-ups and assign roles
+// ---------------------------------------------------------
+async function loadUsers(){
+  const body = document.getElementById("usersBody");
+  try{
+    const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending:false });
+    if (error) throw error;
+    const rows = data || [];
+    body.innerHTML = rows.length ? rows.map(u=>`
+      <tr>
+        <td>${escapeHtml(u.name||"")}</td>
+        <td>${escapeHtml(u.email||"")}</td>
+        <td>${u.role ? `<span class="status-pill">${u.role}</span>` : `<span class="helper">Սպասում է</span>`}</td>
+        <td>
+          <select data-roleselect="${u.id}">
+            <option value="" ${!u.role ? "selected" : ""}>— (առանց հասանելիության)</option>
+            <option value="smm" ${u.role==='smm' ? "selected" : ""}>SMM</option>
+            <option value="admin" ${u.role==='admin' ? "selected" : ""}>Admin</option>
+          </select>
+        </td>
+        <td>${u.id !== currentUser.id ? `<button class="btn blue small" data-saverole="${u.id}">Պահպանել</button>` : `<span class="helper">Դուք</span>`}</td>
+      </tr>`).join("") : `<tr><td colspan="5">Հաշիվներ չկան։</td></tr>`;
+    body.querySelectorAll("[data-saverole]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const id = b.dataset.saverole;
+        const select = body.querySelector(`select[data-roleselect="${id}"]`);
+        const newRole = select.value || null;
+        const msg = document.getElementById("userMsg");
+        msg.className = "form-msg";
+        const { error } = await supabase.from("profiles").update({ role: newRole }).eq("id", id);
+        if (error){ msg.textContent = "Սխալ՝ " + error.message; msg.classList.add("show","err"); }
+        else { msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok"); loadUsers(); }
+      });
+    });
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// 7. Site content editor (admin only)
+// ---------------------------------------------------------
+const CONTENT_FIELDS = [
+  { key:"hero.title", label:"Hero — վերնագիր / titel" },
+  { key:"hero.lede",  label:"Hero — նկարագրություն / omschrijving", area:true },
+  { key:"about.p1", label:"Մեր դպրոցը — պարբերություն 1", area:true },
+  { key:"about.p2", label:"Մեր դպրոցը — պարբերություն 2", area:true },
+  { key:"about.p3", label:"Մեր դպրոցը — պարբերություն 3", area:true },
+  { key:"hz.p1", label:"Համազգային — պարբերություն 1", area:true },
+  { key:"hz.p2", label:"Համազգային — պարբերություն 2", area:true },
+  { key:"dept.lede", label:"Ուսումնական բաժին — նկարագրություն", area:true },
+  { key:"classes.list", label:"Դասարանների ցանկ (մեկ տողում մեկ դասարան)", area:true }
+];
+
+function currentTextFor(key){
+  const el = document.querySelector(`[data-i18n="${key}"]`);
+  const override = contentOverrides[key];
+  if (key === "classes.list"){
+    return {
+      hy: override?.hy || DEFAULT_CLASSES.hy,
+      nl: override?.nl || DEFAULT_CLASSES.nl,
+      en: override?.en || DEFAULT_CLASSES.en
+    };
+  }
+  return {
+    hy: override?.hy || el?.dataset.orig || "",
+    nl: override?.nl || i18n.nl[key] || "",
+    en: override?.en || i18n.en[key] || ""
+  };
+}
+
+function renderContentForm(){
+  const wrap = document.getElementById("contentFields");
+  wrap.innerHTML = CONTENT_FIELDS.map(f=>{
+    const cur = currentTextFor(f.key);
+    const field = (lang, labelText, value) => `
+        <div class="field">
+          <label>${f.label} — ${labelText}</label>
+          ${f.area
+            ? `<textarea rows="3" data-field="${f.key}" data-lang="${lang}">${escapeHtml(value)}</textarea>`
+            : `<input data-field="${f.key}" data-lang="${lang}" value="${escapeHtml(value)}">`}
+        </div>`;
+    return `
+      <div class="field-row-3" style="margin-bottom:14px; align-items:start;">
+        ${field("hy", "ՀԱՅ", cur.hy)}
+        ${field("nl", "NL", cur.nl)}
+        ${field("en", "EN", cur.en)}
+      </div>`;
+  }).join("");
+}
+
+document.getElementById("contentForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("contentMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
+    msg.classList.add("show","err"); return;
+  }
+  const rows = CONTENT_FIELDS.map(f=>{
+    const hyVal = document.querySelector(`[data-field="${f.key}"][data-lang="hy"]`).value.trim();
+    const nlVal = document.querySelector(`[data-field="${f.key}"][data-lang="nl"]`).value.trim();
+    const enVal = document.querySelector(`[data-field="${f.key}"][data-lang="en"]`).value.trim();
+    const existing = currentTextFor(f.key);
+    return { key: f.key, value_hy: hyVal || existing.hy, value_nl: nlVal || existing.nl, value_en: enVal || existing.en };
+  });
+  try{
+    const { error } = await supabase.from("site_content").upsert(rows);
+    if (error) throw error;
+    rows.forEach(r=>{ contentOverrides[r.key] = { hy:r.value_hy, nl:r.value_nl, en:r.value_en }; });
+    applyLang(currentLang);
+    msg.textContent = "Պահպանվեց ✔";
+    msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message;
+    msg.classList.add("show","err");
+  }
+});
+
+async function loadSiteContent(){
+  if (!SUPABASE_READY) return;
+  try{
+    const { data, error } = await supabase.from("site_content").select("*");
+    if (error) throw error;
+    contentOverrides = {};
+    (data || []).forEach(row=>{ contentOverrides[row.key] = { hy: row.value_hy, nl: row.value_nl, en: row.value_en }; });
+    applyLang(currentLang);
+    if (contentOverrides.yearCalImage && contentOverrides.yearCalImage.hy){
+      const img = document.getElementById("yearCalImg");
+      if (img) img.src = contentOverrides.yearCalImage.hy;
+    }
+    if (contentOverrides.logoUrl && contentOverrides.logoUrl.hy){
+      applyLogo(contentOverrides.logoUrl.hy);
+    }
+  }catch(err){ console.warn("Could not load site content overrides:", err.message); }
+}
+
+// ---------------------------------------------------------
+// 8. Weekly lesson schedule ("Դասացուցակ") — shared, staff-editable.
+// ---------------------------------------------------------
+const demoSchedule = [
+  { id:"s1",  start:"08:00", end:"09:00", course:"Հայերեն՝ օտարախոս մեծահասակների համար", courseNl:"Armeens voor anderstalige volwassenen", courseEn:"Armenian for non-Armenian-speaking adults", teacher:"Արփինե Հովհաննիսյան", teacherLatin:"Arpine Hovhannisyan" },
+  { id:"s2",  start:"09:00", end:"10:00", course:"Հայերեն՝ մեծահասակների համար", courseNl:"Armeens voor volwassenen", courseEn:"Armenian for adults", teacher:"Արփինե Հովհաննիսյան", teacherLatin:"Arpine Hovhannisyan" },
+  { id:"s3",  start:"09:00", end:"12:00", course:"Նախադպրոցական խումբ", courseNl:"Kleutergroep", courseEn:"Preschool group", teacher:"Գայանե Մովսիսյան, Քրիստինե Կիրակոսյան, Անուշ Ասատրյան", teacherLatin:"Gayane Movsisyan, Kristine Kirakosyan, Anush Asatryan" },
+  { id:"s4",  start:"09:00", end:"09:45", course:"Ժողովրդական պար (նոր խումբ)", courseNl:"Volksdans (nieuwe groep)", courseEn:"Folk dance (new group)", teacher:"Մերի Կարապետյան", teacherLatin:"Meri Karapetyan" },
+  { id:"s5",  start:"09:15", end:"10:30", course:"Գրականություն", courseNl:"Literatuur", courseEn:"Literature", teacher:"Գայանե Գրիգորյան", teacherLatin:"Gayane Grigoryan" },
+  { id:"s6",  start:"09:45", end:"10:45", course:"Ժողովրդական պար (փոքրիկներ)", courseNl:"Volksdans (kleintjes)", courseEn:"Folk dance (little ones)", teacher:"Մերի Կարապետյան", teacherLatin:"Meri Karapetyan" },
+  { id:"s7",  start:"10:00", end:"11:00", course:"Դասապատրաստում", courseNl:"Lesvoorbereiding", courseEn:"Lesson preparation", teacher:"Արփինե Հովհաննիսյան", teacherLatin:"Arpine Hovhannisyan" },
+  { id:"s8",  start:"10:15", end:"11:15", course:"Այբբենարան", courseNl:"Alfabetklas", courseEn:"Alphabet class", teacher:"Անահիտ Աղաբաբյան", teacherLatin:"Anahit Aghababyan" },
+  { id:"s9",  start:"10:45", end:"12:00", course:"Ժողովրդական պար (միջին խումբ)", courseNl:"Volksdans (middengroep)", courseEn:"Folk dance (middle group)", teacher:"Մերի Կարապետյան", teacherLatin:"Meri Karapetyan" },
+  { id:"s10", start:"11:00", end:"12:00", course:"Ես և շրջակա միջավայրը", courseNl:"Ik en mijn omgeving", courseEn:"Me and my surroundings", teacher:"Անուշ Ասատրյան", teacherLatin:"Anush Asatryan" },
+  { id:"s11", start:"11:00", end:"12:00", course:"Մայրենի 4", courseNl:"Moedertaal 4", courseEn:"Native language 4", teacher:"Գայանե Գրիգորյան", teacherLatin:"Gayane Grigoryan" },
+  { id:"s12", start:"11:00", end:"12:00", course:"Այբբենարան", courseNl:"Alfabetklas", courseEn:"Alphabet class", teacher:"Արփինե Հովհաննիսյան", teacherLatin:"Arpine Hovhannisyan" },
+  { id:"s13", start:"11:15", end:"12:15", course:"Մայրենի 1", courseNl:"Moedertaal 1", courseEn:"Native language 1", teacher:"Անահիտ Աղաբաբյան", teacherLatin:"Anahit Aghababyan" },
+  { id:"s14", start:"12:00", end:"13:30", course:"Ժողովրդական պար (մեծերի խումբ)", courseNl:"Volksdans (grote groep)", courseEn:"Folk dance (senior group)", teacher:"Մերի Կարապետյան", teacherLatin:"Meri Karapetyan" },
+  { id:"s15", start:"12:10", end:"13:10", course:"Պատմություն", courseNl:"Geschiedenis", courseEn:"History", teacher:"Գայանե Գրիգորյան", teacherLatin:"Gayane Grigoryan" },
+  { id:"s16", start:"12:15", end:"13:15", course:"Ես և շրջակա միջավայրը", courseNl:"Ik en mijn omgeving", courseEn:"Me and my surroundings", teacher:"Անուշ Ասատրյան", teacherLatin:"Anush Asatryan" },
+  { id:"s17", start:"12:15", end:"13:15", course:"Հայերեն՝ մեծահասակների համար", courseNl:"Armeens voor volwassenen", courseEn:"Armenian for adults", teacher:"Արփինե Հովհաննիսյան", teacherLatin:"Arpine Hovhannisyan" },
+  { id:"s18", start:"13:30", end:"14:30", course:"Ավանդական պար (փոքրիկներ)", courseNl:"Traditionele dans (kleintjes)", courseEn:"Traditional dance (little ones)", teacher:"Լիանա Եղունյան", teacherLatin:"Liana Yeghunyan" },
+  { id:"s19", start:"13:45", end:"15:00", course:"Ժողովրդական պար", courseNl:"Volksdans", courseEn:"Folk dance", teacher:"Մոնիկա Թովմասյան", teacherLatin:"Monika Tovmasyan" },
+  { id:"s20", start:"14:30", end:"16:00", course:"Ավանդական պար (միջին խումբ)", courseNl:"Traditionele dans (middengroep)", courseEn:"Traditional dance (middle group)", teacher:"Լիանա Եղունյան", teacherLatin:"Liana Yeghunyan" },
+  { id:"s21", start:"16:00", end:"18:00", course:"Ավանդական պար (մեծերի խումբ)", courseNl:"Traditionele dans (grote groep)", courseEn:"Traditional dance (senior group)", teacher:"Լիանա Եղունյան", teacherLatin:"Liana Yeghunyan" },
+  { id:"s22", start:"", end:"", course:"Ավանդական երգ", courseNl:"Traditionele zang", courseEn:"Traditional singing", teacher:"Անուշ Տերտերյան", teacherLatin:"Anush Terteryan" },
+  { id:"s23", start:"", end:"", course:"Դաշնամուր", courseNl:"Piano", courseEn:"Piano", teacher:"Անահիտ Փանոսյան", teacherLatin:"Anahit Panosyan" }
+];
+
+function timeLabel(t){ return t || ""; }
+function activeOnly(rows){ return rows.filter(r => r.active !== false); }
+function scheduleCourse(r, lang){
+  const key = lang === "nl" ? "courseNl" : lang === "en" ? "courseEn" : "course";
+  return r[key] || r.course || r.courseNl || r.courseEn || "";
+}
+function scheduleTeacher(r, lang){
+  return (lang !== "hy" && r.teacherLatin) ? r.teacherLatin : (r.teacher || r.teacherLatin || "");
+}
+
+async function fetchSchedule(){
+  if (!SUPABASE_READY) return demoSchedule;
+  const { data, error } = await supabase.from("schedule").select("*").order("start_time");
+  if (error){ console.warn(error.message); return []; }
+  return (data || []).map(r=>({ id:r.id, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
+}
+
+async function loadSchedule(){
+  // The standalone weekly-schedule list next to the calendar was removed as a
+  // duplicate — the schedule now only appears when a Saturday is clicked in
+  // the calendar itself (see renderCalendar). Kept as a harmless no-op.
+  const el = document.getElementById("scheduleList");
+  if (!el) return;
+  try{
+    const rows = activeOnly(await fetchSchedule());
+    el.innerHTML = rows.length ? rows.map(r=>`
+      <div class="schedule-row">
+        <span class="schedule-time">${timeLabel(r.start)}–${timeLabel(r.end)}</span>
+        <div>
+          <div class="schedule-course">${escapeHtml(scheduleCourse(r, currentLang))}</div>
+          ${r.teacher ? `<div class="schedule-teacher">${escapeHtml(scheduleTeacher(r, currentLang))}</div>` : ""}
+        </div>
+      </div>`).join("") : `<div class="empty-state">${pickLang({hy:"Դասացուցակը դեռ լրացված չէ։", nl:"Het lesrooster is nog niet ingevuld.", en:"The schedule hasn't been filled in yet."})}</div>`;
+  }catch(err){
+    el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
+  }
+}
+
+let editingScheduleId = null;
+function setScheduleFormMode(editing){
+  const btn = document.querySelector('#scheduleForm button[type="submit"]');
+  const cancelBtn = document.getElementById("scheduleCancelEdit");
+  btn.textContent = editing ? "Պահպանել փոփոխությունը" : "Ավելացնել դասացուցակում";
+  cancelBtn.style.display = editing ? "" : "none";
+}
+
+document.getElementById("scheduleForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("scheduleMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY || !currentUser){
+    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
+    msg.classList.add("show","err"); return;
+  }
+  const payload = {
+    start_time: document.getElementById("s_start").value,
+    end_time: document.getElementById("s_end").value,
+    course: document.getElementById("s_course_hy").value.trim(),
+    course_nl: document.getElementById("s_course_nl").value.trim(),
+    course_en: document.getElementById("s_course_en").value.trim(),
+    teacher: document.getElementById("s_teacher").value.trim(),
+    teacher_latin: document.getElementById("s_teacher_latin").value.trim() || null,
+    added_by: currentUser.email
+  };
+  try{
+    if (editingScheduleId){
+      const { error } = await supabase.from("schedule").update(payload).eq("id", editingScheduleId);
+      if (error) throw error;
+      msg.textContent = "Թարմացվեց ✔";
+      editingScheduleId = null;
+      setScheduleFormMode(false);
+    } else {
+      const { error } = await supabase.from("schedule").insert(payload);
+      if (error) throw error;
+      msg.textContent = "Ավելացվեց ✔";
+    }
+    msg.classList.add("show","ok");
+    e.target.reset();
+    loadSchedule(); loadScheduleAdmin(); renderCalendar();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+document.getElementById("scheduleCancelEdit").addEventListener("click", ()=>{
+  editingScheduleId = null;
+  document.getElementById("scheduleForm").reset();
+  setScheduleFormMode(false);
+});
+
+async function loadScheduleAdmin(){
+  const body = document.getElementById("scheduleAdminBody");
+  if (!body) return;
+  try{
+    const rows = await fetchSchedule();
+    body.innerHTML = rows.length ? rows.map(r=>`
+      <tr>
+        <td><label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+          <input type="checkbox" data-toggleactive="${r.id}" ${r.active !== false ? "checked" : ""}>
+          <span class="helper">${r.active !== false ? "Ցուցադրվում է" : "Թաքցված է"}</span>
+        </label></td>
+        <td>${timeLabel(r.start)}–${timeLabel(r.end)}</td>
+        <td>${escapeHtml(r.course||"")}</td>
+        <td>${escapeHtml(r.courseNl||"")}</td>
+        <td>${escapeHtml(r.courseEn||"")}</td>
+        <td>${escapeHtml(r.teacher||"")}</td>
+        <td>${escapeHtml(r.teacherLatin||"")}</td>
+        <td style="display:flex; gap:6px;">
+          <button class="btn ghost small" data-editsched="${r.id}">Խմբագրել</button>
+          <button class="btn danger small" data-delsched="${r.id}">Ջնջել</button>
+        </td>
+      </tr>`).join("") : `<tr><td colspan="8">Դասացուցակը դատարկ է։</td></tr>`;
+    body.querySelectorAll("[data-toggleactive]").forEach(cb=>{
+      cb.addEventListener("change", async ()=>{
+        await supabase.from("schedule").update({ active: cb.checked }).eq("id", cb.dataset.toggleactive);
+        loadSchedule(); loadScheduleAdmin(); renderCalendar();
+      });
+    });
+    body.querySelectorAll("[data-delsched]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս գիծը դասացուցակից։")) return;
+        await supabase.from("schedule").delete().eq("id", b.dataset.delsched);
+        loadSchedule(); loadScheduleAdmin(); renderCalendar();
+      });
+    });
+    body.querySelectorAll("[data-editsched]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const rows2 = await fetchSchedule();
+        const row = rows2.find(r=>r.id === b.dataset.editsched);
+        if (!row) return;
+        document.getElementById("s_start").value = row.start || "";
+        document.getElementById("s_end").value = row.end || "";
+        document.getElementById("s_course_hy").value = row.course || "";
+        document.getElementById("s_course_nl").value = row.courseNl || "";
+        document.getElementById("s_course_en").value = row.courseEn || "";
+        document.getElementById("s_teacher").value = row.teacher || "";
+        document.getElementById("s_teacher_latin").value = row.teacherLatin || "";
+        editingScheduleId = row.id;
+        setScheduleFormMode(true);
+        document.getElementById("scheduleForm").scrollIntoView({ behavior:"smooth", block:"center" });
+      });
+    });
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="8">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// 9. Events calendar — month grid, synchronized with the yearly
+//    overview raster via a single shared events source (see fetchAllEvents).
+// ---------------------------------------------------------
+const CAL_WEEKDAYS = { hy:["Երկ","Երք","Չրք","Հնգ","Ուրբ","Շբթ","Կիր"], nl:["Ma","Di","Wo","Do","Vr","Za","Zo"], en:["Mo","Tu","We","Th","Fr","Sa","Su"] };
+const CAL_MONTHS = {
+  hy:["Հունվար","Փետրվար","Մարտ","Ապրիլ","Մայիս","Հունիս","Հուլիս","Օգոստոս","Սեպտեմբեր","Հոկտեմբեր","Նոյեմբեր","Դեկտեմբեր"],
+  nl:["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"],
+  en:["January","February","March","April","May","June","July","August","September","October","November","December"]
+};
+let calViewDate = new Date();
+let calSelectedDate = null;
+
+function pad2(n){ return String(n).padStart(2,"0"); }
+function isoDate(y,m,d){ return `${y}-${pad2(m+1)}-${pad2(d)}`; }
+
+async function fetchCalendarEvents(){
+  const posts = await fetchPosts();
+  return posts.filter(p=> p.type === "event" && p.date);
+}
+
+// Unified event source: published "event" posts + the yearly holiday/important-date
+// list, normalized into one shape so both the monthly calendar and the yearly month
+// raster always show the same thing, however an entry was added.
+async function fetchAllEvents(){
+  const posts = (await fetchCalendarEvents()).map(p=>({
+    start:p.date, end:p.date,
+    labelHy:p.title, labelNl:p.title_nl || p.title, labelEn:p.title_en || p.title,
+    notesHy:p.body, notesNl:p.body_nl || p.body, notesEn:p.body_en || p.body,
+    source:"post", id:p.id
+  }));
+  const holidays = (await fetchYearCalEntries()).map(e=>({ ...e, source:"holiday" }));
+  return [...posts, ...holidays];
+}
+
+function expandDateRange(start, end){
+  const days = [];
+  if (!start) return days;
+  const last = new Date((end || start) + "T00:00:00");
+  let cur = new Date(start + "T00:00:00");
+  let guard = 0;
+  while (cur <= last && guard < 366){
+    days.push(isoDate(cur.getFullYear(), cur.getMonth(), cur.getDate()));
+    cur.setDate(cur.getDate() + 1);
+    guard++;
+  }
+  return days;
+}
+
+async function renderCalendar(){
+  const grid = document.getElementById("calGrid");
+  const weekdaysEl = document.getElementById("calWeekdays");
+  const label = document.getElementById("calMonthLabel");
+  const listEl = document.getElementById("calEventsList");
+  if (!grid) return;
+
+  weekdaysEl.innerHTML = CAL_WEEKDAYS[currentLang].map(d=>`<span>${d}</span>`).join("");
+
+  const year = calViewDate.getFullYear();
+  const month = calViewDate.getMonth();
+  label.textContent = `${CAL_MONTHS[currentLang][month]} ${year}`;
+
+  let events = [];
+  try{ events = await fetchAllEvents(); }catch(err){ console.warn(err.message); }
+  const eventsByDate = {};
+  events.forEach(ev=>{
+    expandDateRange(ev.start, ev.end).forEach(d=>{ (eventsByDate[d] ||= []).push(ev); });
+  });
+
+  let scheduleRows = [];
+  try{ scheduleRows = activeOnly(await fetchSchedule()); }catch(err){ console.warn(err.message); }
+
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Monday-first offset
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayIso = isoDate(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+
+  let cells = "";
+  for (let i=0;i<firstDay;i++) cells += `<div class="cal-day empty"></div>`;
+  for (let d=1; d<=daysInMonth; d++){
+    const iso = isoDate(year, month, d);
+    const dow = new Date(year, month, d).getDay();
+    const isClassSaturday = dow === 6 && scheduleRows.length > 0;
+    const hasEvents = !!eventsByDate[iso];
+    const classes = ["cal-day"];
+    if (iso === todayIso) classes.push("today");
+    if (iso === calSelectedDate) classes.push("selected");
+    const dots = `${isClassSaturday ? '<span class="dot dot-class"></span>' : ''}${hasEvents ? '<span class="dot"></span>' : ''}`;
+    cells += `<div class="${classes.join(' ')}" data-date="${iso}">${d}${dots ? `<span class="dots-wrap">${dots}</span>` : ''}</div>`;
+  }
+  grid.innerHTML = cells;
+
+  grid.querySelectorAll(".cal-day:not(.empty)").forEach(cell=>{
+    cell.addEventListener("click", ()=>{
+      calSelectedDate = calSelectedDate === cell.dataset.date ? null : cell.dataset.date;
+      renderCalendar();
+    });
+  });
+
+  const monthPrefix = `${year}-${pad2(month+1)}`;
+  let html = "";
+
+  if (calSelectedDate){
+    const [sy,sm,sd] = calSelectedDate.split("-").map(Number);
+    const dow = new Date(sy, sm-1, sd).getDay();
+    if (dow === 6 && scheduleRows.length){
+      html += scheduleRows.map(r=>`
+        <div class="cal-event-item">
+          <span class="cal-event-date schedule-time">${timeLabel(r.start)}${r.end ? "–"+timeLabel(r.end) : ""}</span>
+          <div><h4>${escapeHtml(scheduleCourse(r, currentLang))}</h4>${r.teacher ? `<p>${escapeHtml(scheduleTeacher(r, currentLang))}</p>` : ""}</div>
+        </div>`).join("");
+    }
+    const dayEvents = eventsByDate[calSelectedDate] || [];
+    html += dayEvents.map(ev=>`
+      <div class="cal-event-item">
+        <span class="cal-event-date">${formatDateRange(ev.start, ev.end)}</span>
+        <div><h4>${escapeHtml(yearCalLabel(ev, currentLang))}</h4>${yearCalNotes(ev, currentLang) ? `<p>${escapeHtml(yearCalNotes(ev, currentLang))}</p>` : ""}</div>
+      </div>`).join("");
+
+    if (!html){
+      html = `<div class="empty-state">${pickLang({hy:"Այս օրը ոչինչ պլանավորված չէ։", nl:"Geen activiteit op deze dag.", en:"Nothing planned on this day."})}</div>`;
+    }
+  } else {
+    const monthEvents = events
+      .filter(ev => expandDateRange(ev.start, ev.end).some(d => d.startsWith(monthPrefix)))
+      .sort((a,b)=>a.start.localeCompare(b.start));
+    html = monthEvents.length ? monthEvents.map(ev=>`
+      <div class="cal-event-item">
+        <span class="cal-event-date">${formatDateRange(ev.start, ev.end)}</span>
+        <div><h4>${escapeHtml(yearCalLabel(ev, currentLang))}</h4>${yearCalNotes(ev, currentLang) ? `<p>${escapeHtml(yearCalNotes(ev, currentLang))}</p>` : ""}</div>
+      </div>`).join("") : `<div class="empty-state">${pickLang({
+        hy:"Այս ամսում այլ միջոցառում չկա։ Սեղմեք շաբաթ օրվա վրա՝ դասացուցակը տեսնելու համար։",
+        nl:"Geen activiteit deze maand. Klik op een zaterdag voor het lesrooster.",
+        en:"No other activities this month. Click a Saturday to see the class schedule."
+      })}</div>`;
+  }
+
+  listEl.innerHTML = html;
+}
+
+document.getElementById("calPrev").addEventListener("click", ()=>{
+  calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()-1, 1);
+  calSelectedDate = null;
+  renderCalendar();
+});
+document.getElementById("calNext").addEventListener("click", ()=>{
+  calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()+1, 1);
+  calSelectedDate = null;
+  renderCalendar();
+});
+
+// ---------------------------------------------------------
+// 10. Teaching staff ("Ուսուցչական կազմ") — shared, staff-editable.
+// ---------------------------------------------------------
+const demoStaff = [
+  { id:"t1", name:"Լիանա Մելքոնյան", nameLatin:"Liana Melkonyan", role:"Դպրոցի տնօրեն և կազմակերպչական հարցերով պատասխանատու", roleNl:"Directeur van de school en verantwoordelijke voor de organisatie", roleEn:"School director and organizational coordinator", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697864-NL580EKUOR71WL9QFDHJ/Afbeelding+van+WhatsApp+op+2025-11-16+om+21.17.07_2f78111a.jpg" },
+  { id:"t2", name:"Գայանե Մովսիսյան", nameLatin:"Gayane Movsisyan", role:"Նախադպրոցական խմբի ուսուցչուհի", roleNl:"Lerares kleutergroep", roleEn:"Preschool group teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697890-9UIVKPYZ7LJERK48ALZB/WhatsApp+Image+2026-01-31+at+19.41.56.jpeg" },
+  { id:"t3", name:"Քրիստինե Կիրակոսյան", nameLatin:"Kristine Kirakosyan", role:"Նախադպրոցական խմբի ուսուցչուհի", roleNl:"Lerares kleutergroep", roleEn:"Preschool group teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697923-A2GNKUOU23OZBLCVATLC/Afbeelding+van+WhatsApp+op+2025-11-16+om+21.17.38_7e8fbe21.jpg" },
+  { id:"t4", name:"Անահիտ Աղաբաբյան", nameLatin:"Anahit Aghababyan", role:"Այբբենարանի ուսուցչուհի", roleNl:"Lerares alfabetklas", roleEn:"Alphabet class teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697873-TJ4SE0Y18Y8CES6WCKEP/Afbeelding+van+WhatsApp+op+2025-11-16+om+21.17.52_8be250e0.jpg" },
+  { id:"t5", name:"Գայանե Գրիգորյան", nameLatin:"Gayane Grigoryan", role:"Մայրենի լեզվի, գրականության և պատմության ուսուցչուհի", roleNl:"Lerares moedertaal, literatuur en geschiedenis", roleEn:"Native language, literature, and history teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697898-299S4Y0XIP1X86E636UZ/Afbeelding+van+WhatsApp+op+2025-11-16+om+21.15.48_341f1355.jpg" },
+  { id:"t6", name:"Անուշ Ասատրյան", nameLatin:"Anush Asatryan", role:"Մենթոր վերապատրաստող և «Ես և շրջակա միջավայրը» ուսուցչուհի", roleNl:"Mentor-opleider en lerares 'Ik en mijn omgeving'", roleEn:"Mentor trainer and 'Me and my surroundings' teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697931-OCKZQ4VFOW6RBFLOVA93/Afbeelding+van+WhatsApp+op+2025-11-16+om+21.21.18_b63d236e.jpg" },
+  { id:"t7", name:"Արփինե Հովհաննիսյան", nameLatin:"Arpine Hovhannisyan", role:"Հայերենի ուսուցում օտարախոսների համար և այբբենարանի ուսուցչուհի", roleNl:"Armeens voor anderstaligen en lerares alfabetklas", roleEn:"Armenian for non-Armenian-speakers and alphabet class teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697907-VTTURBSFGTAOJWBIZ6OV/Afbeelding+van+WhatsApp+op+2025-11-16+om+21.25.30_11aef00b.jpg" },
+  { id:"t8", name:"Անահիտ Փանոսյան", nameLatin:"Anahit Panosyan", role:"Դաշնամուրի ուսուցչուհի", roleNl:"Pianolerares", roleEn:"Piano teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697915-24CLQUD0WYK0K793UZL0/Afbeelding+van+WhatsApp+op+2025-11-16+om+21.18.09_ec4ec8b4.jpg" },
+  { id:"t9", name:"Նարեկ Առաքելյան", nameLatin:"Narek Arakelyan", role:"Շախմատի ուսուցիչ", roleNl:"Schaakleraar", roleEn:"Chess teacher", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/e580ecdd-a091-423a-884c-0edd8163c728/WhatsApp+Image+2026-02-22+at+12.24.47.jpeg" },
+  { id:"t10", name:"Մերի Կարապետյան", nameLatin:"Meri Karapetyan", role:"Ժողովրդական պարի պարուսույց", roleNl:"Volksdanslerares", roleEn:"Folk dance instructor", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697856-NF18MICA3QZR7HPEYBSD/WhatsApp+Image+2026-02-07+at+20.11.42.jpeg" },
+  { id:"t11", name:"Լիանա Եղունյան", nameLatin:"Liana Yeghunyan", role:"Ավանդական պարի պարուսույց", roleNl:"Lerares traditionele dans", roleEn:"Traditional dance instructor", photoUrl:"https://images.squarespace-cdn.com/content/v1/6990ce3dc5ac547efa5211aa/1771097697882-KVST7B75VF2ZWKAKS81G/WhatsApp+Image+2026-01-31+at+19.43.50.jpeg" }
+];
+
+async function fetchStaff(){
+  if (!SUPABASE_READY) return demoStaff;
+  const { data, error } = await supabase.from("staff").select("*").order("created_at");
+  if (error){ console.warn(error.message); return []; }
+  return (data || []).map(t=>({ id:t.id, name:t.name, nameLatin:t.name_latin, role:t.role, roleNl:t.role_nl, roleEn:t.role_en, photoUrl:t.photo_url }));
+}
+
+function staffRole(t, lang){
+  const key = lang === "nl" ? "roleNl" : lang === "en" ? "roleEn" : "role";
+  return t[key] || t.role || t.roleNl || t.roleEn || "";
+}
+
+// Armenian-script names aren't readable to most Dutch/English visitors, so
+// non-Armenian languages show the Latin transliteration when one is set.
+function staffName(t, lang){
+  return (lang !== "hy" && t.nameLatin) ? t.nameLatin : (t.name || t.nameLatin || "");
+}
+
+function staffInitials(name){
+  return (name||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+}
+
+async function loadStaff(){
+  const el = document.getElementById("staffGrid");
+  try{
+    const rows = await fetchStaff();
+    el.innerHTML = rows.length ? rows.map(t=>{
+      const displayName = staffName(t, currentLang);
+      return `
+      <div class="staff-card">
+        <div class="staff-photo${t.photoUrl ? "" : " placeholder"}">
+          ${t.photoUrl ? `<img src="${t.photoUrl}" alt="${escapeHtml(displayName)}">` : staffInitials(displayName)}
+        </div>
+        <div class="staff-body">
+          <h3>${escapeHtml(displayName)}</h3>
+          <p>${escapeHtml(staffRole(t, currentLang))}</p>
+        </div>
+      </div>`;
+    }).join("") : `<div class="empty-state">${pickLang({hy:"Անձնակազմի տվյալները դեռ լրացված չեն։", nl:"De personeelsgegevens zijn nog niet ingevuld.", en:"Staff details haven't been filled in yet."})}</div>`;
+  }catch(err){
+    el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
+  }
+}
+
+document.getElementById("staffForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("staffMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY || !currentUser){
+    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const file = document.getElementById("st_photoFile").files[0];
+    let photoUrl = document.getElementById("st_photoUrl").value.trim();
+    if (file){
+      const path = `${Date.now()}_${file.name}`;
+      const { error: upErr } = await supabase.storage.from("staff").upload(path, file);
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("staff").getPublicUrl(path);
+      photoUrl = pub.publicUrl;
+    }
+    const { error } = await supabase.from("staff").insert({
+      name: document.getElementById("st_name").value.trim(),
+      name_latin: document.getElementById("st_name_latin").value.trim() || null,
+      role: document.getElementById("st_role_hy").value.trim(),
+      role_nl: document.getElementById("st_role_nl").value.trim(),
+      role_en: document.getElementById("st_role_en").value.trim(),
+      photo_url: photoUrl || null,
+      added_by: currentUser.email
+    });
+    if (error) throw error;
+    msg.textContent = "Ավելացվեց ✔"; msg.classList.add("show","ok");
+    e.target.reset();
+    loadStaff(); loadStaffAdmin();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+async function loadStaffAdmin(){
+  const body = document.getElementById("staffAdminBody");
+  if (!body) return;
+  try{
+    const rows = await fetchStaff();
+    body.innerHTML = rows.length ? rows.map(t=>`
+      <tr>
+        <td>${escapeHtml(t.name||"")}</td>
+        <td>${escapeHtml(t.nameLatin||"")}</td>
+        <td>${escapeHtml(t.role||"")}</td>
+        <td>${escapeHtml(t.roleNl||"")}</td>
+        <td>${escapeHtml(t.roleEn||"")}</td>
+        <td><button class="btn danger small" data-delstaff="${t.id}">Ջնջել</button></td>
+      </tr>`).join("") : `<tr><td colspan="6">Անձնակազմի ցանկը դատարկ է։</td></tr>`;
+    body.querySelectorAll("[data-delstaff]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս անձնակազմի անդամին։")) return;
+        await supabase.from("staff").delete().eq("id", b.dataset.delstaff);
+        loadStaff(); loadStaffAdmin();
+      });
+    });
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="6">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// 11. Yearly academic calendar — dynamic, staff-editable, bilingual
+//     month raster. Seeded with the school's real 2025–2026 calendar.
+// ---------------------------------------------------------
+function formatDateRange(start, end){
+  if (!start) return "";
+  if (!end || end === start) return start;
+  return `${start} → ${end}`;
+}
+
+const demoYearCal = [
+  { start:"2025-09-05", end:"2025-09-05", labelHy:"ARMO Get Together միջոցառում", labelNl:"ARMO Get Together-evenement", labelEn:"ARMO Get Together event" },
+  { start:"2025-09-06", end:"2025-09-06", labelHy:"Վերապատրաստման դասընթաց ուսուցիչների համար", labelNl:"Bijscholing voor leerkrachten", labelEn:"Training course for teachers" },
+  { start:"2025-09-13", end:"2025-09-13", labelHy:"Նոր ուսումնական տարվա առաջին օր", labelNl:"Eerste dag van het nieuwe schooljaar", labelEn:"First day of the new school year" },
+  { start:"2025-09-21", end:"2025-09-21", labelHy:"ՀՀ անկախության օր", labelNl:"Onafhankelijkheidsdag van Armenië", labelEn:"Independence Day of Armenia" },
+  { start:"2025-10-05", end:"2025-10-05", labelHy:"Ուսուցչի տոն", labelNl:"Dag van de leerkracht", labelEn:"Teacher's Day" },
+  { start:"2025-10-11", end:"2025-10-11", labelHy:"Երևանի օր", labelNl:"Dag van Jerevan", labelEn:"Yerevan Day" },
+  { start:"2025-10-13", end:"2025-10-13", labelHy:"Թարգմանչաց տոն", labelNl:"Feest van de Heilige Vertalers", labelEn:"Feast of the Holy Translators" },
+  { start:"2025-10-26", end:"2025-10-26", labelHy:"«Հոգու մեղեդի» միջոցառում", labelNl:"Evenement 'Hogu Meghedi' (Melodie van de ziel)", labelEn:"'Hogu Meghedi' event (Melody of the Soul)" },
+  { start:"2025-11-16", end:"2025-11-16", labelHy:"Հանդուրժողականության միջազգային օր", labelNl:"Internationale Dag van de Verdraagzaamheid", labelEn:"International Day of Tolerance" },
+  { start:"2025-11-22", end:"2025-11-22", labelHy:"«Երեք խորհրդանիշները» ներկայացում՝ նախադպրոցական խմբի համար", labelNl:"Voorstelling 'Drie symbolen' voor de kleutergroep", labelEn:"'Three Symbols' performance for the preschool group" },
+  { start:"2025-12-14", end:"2025-12-14", labelHy:"Բաց դասընթաց ծնողների համար", labelNl:"Open les voor ouders", labelEn:"Open class for parents" },
+  { start:"2025-12-20", end:"2025-12-20", labelHy:"Ամանորյա հանդես (նախադպրոցական և այբբենարանի դասարանների համար)", labelNl:"Nieuwjaarsfeest (voor de kleutergroep en de alfabetklas)", labelEn:"New Year celebration (for the preschool group and alphabet class)" },
+  { start:"2025-12-27", end:"2025-12-27", labelHy:"Տարեվերջյան վերջին դասը", labelNl:"Laatste les van het jaar", labelEn:"Last class of the year" },
+  { start:"2026-01-01", end:"2026-01-01", labelHy:"Նոր տարի", labelNl:"Nieuwjaar", labelEn:"New Year" },
+  { start:"2026-01-03", end:"2026-01-03", labelHy:"Հանգստյան օր", labelNl:"Vrije dag", labelEn:"No class" },
+  { start:"2026-01-06", end:"2026-01-06", labelHy:"Սուրբ Ծնունդ", labelNl:"Kerstmis (Armeens-Apostolisch)", labelEn:"Christmas (Armenian Apostolic)" },
+  { start:"2026-01-10", end:"2026-01-10", labelHy:"Սահադաշտ (ուսումնական այց)", labelNl:"Schaatsbaan (uitstap)", labelEn:"Ice rink (school outing)" },
+  { start:"2026-01-27", end:"2026-01-27", labelHy:"44-օրյա պատերազմի զոհերի հիշատակի օր", labelNl:"Herdenkingsdag slachtoffers van de 44-daagse oorlog", labelEn:"Remembrance Day for the 44-Day War victims" },
+  { start:"2026-01-28", end:"2026-01-28", labelHy:"Բանակի օր", labelNl:"Legerdag", labelEn:"Army Day" },
+  { start:"2026-02-19", end:"2026-02-19", labelHy:"Գիրք նվիրելու օր", labelNl:"Dag van het boeken cadeau geven", labelEn:"Book Gifting Day" },
+  { start:"2026-02-21", end:"2026-02-21", labelHy:"Մայրենի լեզվի միջազգային օր", labelNl:"Internationale Moedertaaldag", labelEn:"International Mother Language Day" },
+  { start:"2026-03-08", end:"2026-03-08", labelHy:"Կանանց և աղջիկների տոն", labelNl:"Dag van de Vrouw en het Meisje", labelEn:"Women's and Girls' Day" },
+  { start:"2026-04-04", end:"2026-04-04", labelHy:"Զատիկ", labelNl:"Pasen", labelEn:"Easter" },
+  { start:"2026-04-07", end:"2026-04-07", labelHy:"Մայրության և գեղեցկության օր", labelNl:"Dag van het Moederschap en de Schoonheid", labelEn:"Motherhood and Beauty Day" },
+  { start:"2026-04-11", end:"2026-04-11", labelHy:"Հանգստյան օր", labelNl:"Vrije dag", labelEn:"No class" },
+  { start:"2026-04-24", end:"2026-04-24", labelHy:"Հայոց ցեղասպանության զոհերի հիշատակի օր", labelNl:"Herdenkingsdag Armeense Genocide", labelEn:"Armenian Genocide Remembrance Day" },
+  { start:"2026-05-15", end:"2026-05-15", labelHy:"Ավանդական երգ ու պարի համույթի ելույթ", labelNl:"Optreden van de traditionele zang- en dansgroep", labelEn:"Traditional song and dance ensemble performance" },
+  { start:"2026-05-16", end:"2026-05-16", labelHy:"«Տիեզերքից մինչև իմ հայրենի աշխարհը» դաս-միջոցառում", labelNl:"Les-evenement 'Van het heelal tot mijn thuisland'", labelEn:"'From the universe to my homeland' class event" },
+  { start:"2026-05-23", end:"2026-05-23", labelHy:"«Փոքրիկ հայրենասեր» ինտելեկտուալ խաղ", labelNl:"Intellectueel spel 'Kleine vaderlander'", labelEn:"'Little Patriot' quiz game" },
+  { start:"2026-06-01", end:"2026-06-01", labelHy:"Երեխաների պաշտպանության միջազգային օր", labelNl:"Internationale Dag van het Kind", labelEn:"International Children's Day" },
+  { start:"2026-06-06", end:"2026-06-06", labelHy:"Այբբենարանի ավարտական հանդես", labelNl:"Eindfeest van de alfabetklas", labelEn:"Alphabet class graduation celebration" },
+  { start:"2026-07-01", end:"2026-07-01", labelHy:"Ամառային արձակուրդի սկիզբ", labelNl:"Start van de zomervakantie", labelEn:"Start of summer break" },
+  { start:"2026-08-31", end:"2026-08-31", labelHy:"Ամառային արձակուրդի ավարտ", labelNl:"Einde van de zomervakantie", labelEn:"End of summer break" }
+];
+
+async function fetchYearCalEntries(){
+  if (!SUPABASE_READY) return demoYearCal;
+  const { data, error } = await supabase.from("yearly_events").select("*").order("start_date");
+  if (error){ console.warn(error.message); return []; }
+  return (data || []).map(e=>({
+    id:e.id, start:e.start_date, end:e.end_date || e.start_date,
+    labelHy:e.label_hy, labelNl:e.label_nl, labelEn:e.label_en,
+    notesHy:e.notes_hy, notesNl:e.notes_nl, notesEn:e.notes_en
+  }));
+}
+
+function yearCalLabel(e, lang){
+  const key = lang === "nl" ? "labelNl" : lang === "en" ? "labelEn" : "labelHy";
+  return e[key] || e.labelHy || e.labelNl || e.labelEn || "";
+}
+function yearCalNotes(e, lang){
+  const key = lang === "nl" ? "notesNl" : lang === "en" ? "notesEn" : "notesHy";
+  return e[key] || "";
+}
+
+const YEAR_CAL_MONTH_COLORS = [
+  "var(--blue)", "var(--pomegranate)", "var(--apricot-deep)", "var(--blue-deep)",
+  "var(--pomegranate)", "var(--blue)", "var(--apricot-deep)", "var(--blue-deep)",
+  "var(--pomegranate)", "var(--blue)", "var(--apricot-deep)", "var(--blue-deep)"
+];
+const ACADEMIC_MONTH_ORDER = [8,9,10,11,0,1,2,3,4,5,6,7];
+const MONTH_NAME = {
+  hy: ["Հունվար","Փետրվար","Մարտ","Ապրիլ","Մայիս","Հունիս","Հուլիս","Օգոստոս","Սեպտեմբեր","Հոկտեմբեր","Նոյեմբեր","Դեկտեմբեր"],
+  nl: ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"],
+  en: ["January","February","March","April","May","June","July","August","September","October","November","December"]
+};
+
+function dayNum(iso){ return iso ? parseInt(iso.split("-")[2], 10) : ""; }
+
+// Academic year runs September→August. Computed purely from each entry's date,
+// so admin never has to tag anything by year — adding a date in Sept 2026 or
+// later automatically lands in the "2026–2027" year.
+function academicStartYearOf(iso){
+  const [y, m] = iso.split("-").map(Number);
+  return m >= 9 ? y : y - 1;
+}
+function academicYearLabel(startYear){ return `${startYear}–${startYear + 1}`; }
+function defaultAcademicStartYear(){
+  const now = new Date();
+  return now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+}
+let yearCalViewStartYear = defaultAcademicStartYear();
+
+document.getElementById("yearCalPrev").addEventListener("click", ()=>{
+  yearCalViewStartYear--;
+  loadYearCalDisplay();
+});
+document.getElementById("yearCalNext").addEventListener("click", ()=>{
+  yearCalViewStartYear++;
+  loadYearCalDisplay();
+});
+
+async function loadYearCalDisplay(){
+  const listEl = document.getElementById("yearCalList");
+  const imgWrap = document.getElementById("yearCalImageWrap");
+  const yearLabelEl = document.getElementById("yearCalYearLabel");
+  if (yearLabelEl) yearLabelEl.textContent = academicYearLabel(yearCalViewStartYear);
+  try{
+    const allEntries = await fetchAllEvents();
+    if (allEntries.length){
+      const entries = allEntries.filter(e => e.start && academicStartYearOf(e.start) === yearCalViewStartYear);
+      const byMonth = {};
+      entries.forEach(e=>{
+        if (!e.start) return;
+        const m = parseInt(e.start.split("-")[1], 10) - 1;
+        (byMonth[m] ||= []).push(e);
+      });
+      Object.values(byMonth).forEach(list => list.sort((a,b)=> a.start.localeCompare(b.start)));
+
+      listEl.innerHTML = ACADEMIC_MONTH_ORDER.map(m=>{
+        const list = byMonth[m] || [];
+        const monthLabel = MONTH_NAME[currentLang][m];
+        const bg = YEAR_CAL_MONTH_COLORS[m];
+        const body = list.length
+          ? list.map(e=>`
+              <div class="year-cal-entry">
+                <span class="year-cal-day">${dayNum(e.start)}${e.end && e.end !== e.start ? "–"+dayNum(e.end) : ""}</span>
+                <div class="year-cal-entry-text">
+                  <h4>${escapeHtml(yearCalLabel(e, currentLang))}</h4>
+                  ${yearCalNotes(e, currentLang) ? `<p>${escapeHtml(yearCalNotes(e, currentLang))}</p>` : ""}
+                </div>
+              </div>`).join("")
+          : `<div class="year-cal-month-empty">${pickLang({hy:"Դեռ ոչինչ", nl:"Geen items", en:"Nothing yet"})}</div>`;
+        return `<div class="year-cal-month">
+          <div class="year-cal-month-head" style="background:${bg};">${monthLabel}</div>
+          <div class="year-cal-month-body">${body}</div>
+        </div>`;
+      }).join("");
+
+      listEl.style.display = "grid";
+      imgWrap.style.display = "none";
+    } else {
+      listEl.style.display = "none";
+      imgWrap.style.display = "";
+    }
+  }catch(err){
+    console.warn("Could not load yearly calendar entries:", err.message);
+  }
+}
+
+let editingYearCalId = null;
+function setYearCalFormMode(editing){
+  const btn = document.querySelector('#yearCalEntryForm button[type="submit"]');
+  const cancelBtn = document.getElementById("yearCalEntryCancelEdit");
+  btn.textContent = editing ? "Պահպանել փոփոխությունը" : "Ավելացնել";
+  cancelBtn.style.display = editing ? "" : "none";
+}
+
+document.getElementById("yearCalEntryForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("yearCalEntryMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY || !currentUser){
+    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
+    msg.classList.add("show","err"); return;
+  }
+  const startVal = document.getElementById("yce_start").value;
+  const payload = {
+    start_date: startVal,
+    end_date: document.getElementById("yce_end").value || startVal,
+    label_hy: document.getElementById("yce_label_hy").value.trim(),
+    label_nl: document.getElementById("yce_label_nl").value.trim(),
+    label_en: document.getElementById("yce_label_en").value.trim(),
+    notes_hy: document.getElementById("yce_notes_hy").value.trim(),
+    notes_nl: document.getElementById("yce_notes_nl").value.trim(),
+    notes_en: document.getElementById("yce_notes_en").value.trim(),
+    added_by: currentUser.email
+  };
+  try{
+    if (editingYearCalId){
+      const { error } = await supabase.from("yearly_events").update(payload).eq("id", editingYearCalId);
+      if (error) throw error;
+      msg.textContent = "Թարմացվեց ✔";
+      editingYearCalId = null;
+      setYearCalFormMode(false);
+    } else {
+      const { error } = await supabase.from("yearly_events").insert(payload);
+      if (error) throw error;
+      msg.textContent = "Ավելացվեց ✔";
+    }
+    msg.classList.add("show","ok");
+    e.target.reset();
+    loadYearCalDisplay(); loadYearCalAdmin(); renderCalendar();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+document.getElementById("yearCalEntryCancelEdit").addEventListener("click", ()=>{
+  editingYearCalId = null;
+  document.getElementById("yearCalEntryForm").reset();
+  setYearCalFormMode(false);
+});
+
+async function loadYearCalAdmin(){
+  const body = document.getElementById("yearCalAdminBody");
+  if (!body) return;
+  try{
+    const rows = await fetchYearCalEntries();
+    body.innerHTML = rows.length ? rows.map(r=>`
+      <tr>
+        <td>${formatDateRange(r.start, r.end)}</td>
+        <td>${escapeHtml(r.labelHy||"")}</td>
+        <td>${escapeHtml(r.labelNl||"")}</td>
+        <td>${escapeHtml(r.labelEn||"")}</td>
+        <td style="display:flex; gap:6px;">
+          <button class="btn ghost small" data-edityc="${r.id||''}">Խմբագրել</button>
+          <button class="btn danger small" data-delyc="${r.id||''}">Ջնջել</button>
+        </td>
+      </tr>`).join("") : `<tr><td colspan="5">Դեռ գծեր չկան։ Այցելուները կտեսնեն սկզբնական պատկերը։</td></tr>`;
+    body.querySelectorAll("[data-delyc]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս գիծը տարեկան օրացույցից։")) return;
+        await supabase.from("yearly_events").delete().eq("id", b.dataset.delyc);
+        loadYearCalDisplay(); loadYearCalAdmin(); renderCalendar();
+      });
+    });
+    body.querySelectorAll("[data-edityc]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const rows2 = await fetchYearCalEntries();
+        const row = rows2.find(r=>r.id === b.dataset.edityc);
+        if (!row) return;
+        document.getElementById("yce_start").value = row.start || "";
+        document.getElementById("yce_end").value = (row.end && row.end !== row.start) ? row.end : "";
+        document.getElementById("yce_label_hy").value = row.labelHy || "";
+        document.getElementById("yce_label_nl").value = row.labelNl || "";
+        document.getElementById("yce_label_en").value = row.labelEn || "";
+        document.getElementById("yce_notes_hy").value = row.notesHy || "";
+        document.getElementById("yce_notes_nl").value = row.notesNl || "";
+        document.getElementById("yce_notes_en").value = row.notesEn || "";
+        editingYearCalId = row.id;
+        setYearCalFormMode(true);
+        document.getElementById("yearCalEntryForm").scrollIntoView({ behavior:"smooth", block:"center" });
+      });
+    });
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// 12. Yearly calendar overview image — editable by admin from the
+//     Site Content tab; falls back to the school's original graphic.
+// ---------------------------------------------------------
+const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg").getAttribute("src");
+
+document.getElementById("yearCalForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("yearCalMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const file = document.getElementById("yc_file").files[0];
+    let url = document.getElementById("yc_url").value.trim();
+    if (file){
+      const path = `yearCalendar_${Date.now()}_${file.name}`;
+      const { error: upErr } = await supabase.storage.from("site-assets").upload(path, file);
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("site-assets").getPublicUrl(path);
+      url = pub.publicUrl;
+    }
+    if (!url){ msg.textContent = "Ընտրեք ֆայլ կամ լրացրեք հղումը։"; msg.classList.add("show","err"); return; }
+    const { error } = await supabase.from("site_content").upsert({ key:"yearCalImage", value_hy:url, value_nl:url, value_en:url });
+    if (error) throw error;
+    contentOverrides.yearCalImage = { hy:url, nl:url, en:url };
+    document.getElementById("yearCalImg").src = url;
+    msg.textContent = "Թարմացվեց ✔"; msg.classList.add("show","ok");
+    e.target.reset();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+document.getElementById("yearCalRemoveBtn").addEventListener("click", async ()=>{
+  const msg = document.getElementById("yearCalMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const { error } = await supabase.from("site_content").upsert({ key:"yearCalImage", value_hy:null, value_nl:null, value_en:null });
+    if (error) throw error;
+    contentOverrides.yearCalImage = null;
+    document.getElementById("yearCalImg").src = DEFAULT_YEAR_CAL_URL;
+    msg.textContent = "Վերականգնվեց սկզբնական պատկերը ✔"; msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+// ---------------------------------------------------------
+// 13. School logo — editable by admin from the Site Content tab.
+// ---------------------------------------------------------
+function applyLogo(url){
+  const box = document.getElementById("crestBox");
+  if (url){
+    box.innerHTML = `<img src="${url}" alt="Դպրոցի լոգո">`;
+  } else {
+    box.innerHTML = `<span id="crestInitials">ԼՇ</span>`;
+  }
+}
+
+document.getElementById("logoForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("logoMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const file = document.getElementById("logo_file").files[0];
+    let url = document.getElementById("logo_url").value.trim();
+    if (file){
+      const path = `logo_${Date.now()}_${file.name}`;
+      const { error: upErr } = await supabase.storage.from("site-assets").upload(path, file);
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("site-assets").getPublicUrl(path);
+      url = pub.publicUrl;
+    }
+    if (!url){ msg.textContent = "Ընտրեք ֆայլ կամ լրացրեք հղումը։"; msg.classList.add("show","err"); return; }
+    const { error } = await supabase.from("site_content").upsert({ key:"logoUrl", value_hy:url, value_nl:url, value_en:url });
+    if (error) throw error;
+    contentOverrides.logoUrl = { hy:url, nl:url, en:url };
+    applyLogo(url);
+    msg.textContent = "Լոգոն պահպանվեց ✔"; msg.classList.add("show","ok");
+    e.target.reset();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+document.getElementById("logoRemoveBtn").addEventListener("click", async ()=>{
+  const msg = document.getElementById("logoMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const { error } = await supabase.from("site_content").upsert({ key:"logoUrl", value_hy:null, value_nl:null, value_en:null });
+    if (error) throw error;
+    contentOverrides.logoUrl = null;
+    applyLogo(null);
+    msg.textContent = "Լոգոն հեռացվեց ✔"; msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+// initial load
+renderTimeline("hy");
+renderClassesList("hy");
+updateHistoryToggleLabel();
+loadFeed();
+loadGallery();
+loadSiteContent();
+loadSchedule();
+loadStaff();
+loadYearCalDisplay();
+renderCalendar();
+
+</script>
+</body>
+</html>
