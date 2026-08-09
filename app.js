@@ -16,8 +16,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 //    (Supabase dashboard → Project Settings → API)
 // ---------------------------------------------------------
 const supabaseConfig = {
-  url: "YOUR_SUPABASE_URL",
-  anonKey: "YOUR_SUPABASE_ANON_KEY"
+  url: "https://bemfluogtfafsfnbvboo.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlbWZsdW9ndGZhZnNmbmJ2Ym9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyODQxOTIsImV4cCI6MjEwMTg2MDE5Mn0.TA3dZQ8ov9oUu1-ibRpzyl-CC5AZylICw9kGdeDnPHE"
 };
 
 const SUPABASE_READY = supabaseConfig.url !== "YOUR_SUPABASE_URL";
