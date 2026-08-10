@@ -1074,15 +1074,60 @@ async function loadUsers(){
 // 7. Site content editor (admin only)
 // ---------------------------------------------------------
 const CONTENT_FIELDS = [
-  { key:"hero.title", label:"Hero — վերնագիր / titel" },
-  { key:"hero.lede",  label:"Hero — նկարագրություն / omschrijving", area:true },
-  { key:"about.p1", label:"Մեր դպրոցը — պարբերություն 1", area:true },
-  { key:"about.p2", label:"Մեր դպրոցը — պարբերություն 2", area:true },
-  { key:"about.p3", label:"Մեր դպրոցը — պարբերություն 3", area:true },
-  { key:"hz.p1", label:"Համազգային — պարբերություն 1", area:true },
-  { key:"hz.p2", label:"Համազգային — պարբերություն 2", area:true },
-  { key:"dept.lede", label:"Ուսումնական բաժին — նկարագրություն", area:true },
-  { key:"classes.list", label:"Դասարանների ցանկ (մեկ տողում մեկ դասարան)", area:true }
+  { section:"Hero", key:"hero.title", label:"Վերնագիր" },
+  { section:"Hero", key:"hero.lede",  label:"Նկարագրություն", area:true },
+
+  { section:"Մեր դպրոցը", key:"about.eyebrow", label:"Փոքր վերնագրիկ" },
+  { section:"Մեր դպրոցը", key:"about.title", label:"Վերնագիր" },
+  { section:"Մեր դպրոցը", key:"about.p1", label:"Պարբերություն 1", area:true },
+  { section:"Մեր դպրոցը", key:"about.p2", label:"Պարբերություն 2", area:true },
+  { section:"Մեր դպրոցը", key:"about.p3", label:"Պարբերություն 3", area:true },
+  { section:"Մեր դպրոցը", key:"about.card1title", label:"«Ինչ ենք առաջարկում» քարտ — վերնագիր" },
+  { section:"Մեր դպրոցը", key:"about.card1text", label:"«Ինչ ենք առաջարկում» քարտ — տեքստ", area:true },
+
+  { section:"Համազգային ընկերակցություն", key:"hz.eyebrow", label:"Փոքր վերնագրիկ" },
+  { section:"Համազգային ընկերակցություն", key:"hz.title", label:"Վերնագիր" },
+  { section:"Համազգային ընկերակցություն", key:"hz.p1", label:"Պարբերություն 1", area:true },
+  { section:"Համազգային ընկերակցություն", key:"hz.p2", label:"Պարբերություն 2", area:true },
+
+  { section:"Ուսումնական բաժին", key:"dept.eyebrow", label:"Փոքր վերնագրիկ" },
+  { section:"Ուսումնական բաժին", key:"dept.title", label:"Վերնագիր" },
+  { section:"Ուսումնական բաժին", key:"dept.lede", label:"Նկարագրություն", area:true },
+  { section:"Ուսումնական բաժին", key:"dept.c1t", label:"Քարտ 1 — վերնագիր" },
+  { section:"Ուսումնական բաժին", key:"dept.c1d", label:"Քարտ 1 — նկարագրություն" },
+  { section:"Ուսումնական բաժին", key:"dept.c2t", label:"Քարտ 2 — վերնագիր" },
+  { section:"Ուսումնական բաժին", key:"dept.c2d", label:"Քարտ 2 — նկարագրություն" },
+  { section:"Ուսումնական բաժին", key:"dept.c3t", label:"Քարտ 3 — վերնագիր" },
+  { section:"Ուսումնական բաժին", key:"dept.c3d", label:"Քարտ 3 — նկարագրություն" },
+  { section:"Ուսումնական բաժին", key:"dept.c4t", label:"Քարտ 4 — վերնագիր" },
+  { section:"Ուսումնական բաժին", key:"dept.c4d", label:"Քարտ 4 — նկարագրություն" },
+  { section:"Ուսումնական բաժին", key:"classes.list", label:"Դասարանների ցանկ (մեկ տողում մեկ դասարան)", area:true },
+
+  { section:"Օրացույց", key:"cal.eyebrow", label:"Փոքր վերնագրիկ (դասացուցակ)" },
+  { section:"Օրացույց", key:"cal.title", label:"Վերնագիր (դասացուցակ)" },
+  { section:"Օրացույց", key:"cal.lede", label:"Նկարագրություն (դասացուցակ)", area:true },
+  { section:"Օրացույց", key:"yearcal.eyebrow", label:"Փոքր վերնագրիկ (տարեկան օրացույց)" },
+  { section:"Օրացույց", key:"yearcal.title", label:"Վերնագիր (տարեկան օրացույց)" },
+  { section:"Օրացույց", key:"yearcal.lede", label:"Նկարագրություն (տարեկան օրացույց)", area:true },
+
+  { section:"Միջոցառումներ", key:"feed.eyebrow", label:"Փոքր վերնագրիկ" },
+  { section:"Միջոցառումներ", key:"feed.title", label:"Վերնագիր" },
+  { section:"Միջոցառումներ", key:"feed.lede", label:"Նկարագրություն", area:true },
+
+  { section:"Լուսանկարներ/տեսանյութեր", key:"gal.eyebrow", label:"Փոքր վերնագրիկ" },
+  { section:"Լուսանկարներ/տեսանյութեր", key:"gal.title", label:"Վերնագիր" },
+  { section:"Լուսանկարներ/տեսանյութեր", key:"gal.lede", label:"Նկարագրություն", area:true },
+
+  { section:"Գրանցում", key:"reg.eyebrow", label:"Փոքր վերնագրիկ" },
+  { section:"Գրանցում", key:"reg.title", label:"Վերնագիր" },
+  { section:"Գրանցում", key:"reg.lede", label:"Նկարագրություն", area:true },
+  { section:"Գրանցում", key:"reg.needt", label:"«Ի՞նչ է անհրաժեշտ» — վերնագիր" },
+  { section:"Գրանցում", key:"reg.need1", label:"Կետ 1" },
+  { section:"Գրանցում", key:"reg.need2", label:"Կետ 2" },
+  { section:"Գրանցում", key:"reg.need3", label:"Կետ 3" },
+
+  { section:"Կապ", key:"contact.eyebrow", label:"Փոքր վերնագրիկ" },
+  { section:"Կապ", key:"contact.title", label:"Վերնագիր" }
 ];
 
 function currentTextFor(key){
@@ -1104,7 +1149,13 @@ function currentTextFor(key){
 
 function renderContentForm(){
   const wrap = document.getElementById("contentFields");
-  wrap.innerHTML = CONTENT_FIELDS.map(f=>{
+  let currentSection = null;
+  let html = "";
+  CONTENT_FIELDS.forEach((f, i)=>{
+    if (f.section !== currentSection){
+      currentSection = f.section;
+      html += `<h3 class="content-section-head"${i>0 ? ' style="margin-top:30px;"' : ''}>${escapeHtml(currentSection)}</h3>`;
+    }
     const cur = currentTextFor(f.key);
     const field = (lang, labelText, value) => `
         <div class="field">
@@ -1113,13 +1164,14 @@ function renderContentForm(){
             ? `<textarea rows="3" data-field="${f.key}" data-lang="${lang}">${escapeHtml(value)}</textarea>`
             : `<input data-field="${f.key}" data-lang="${lang}" value="${escapeHtml(value)}">`}
         </div>`;
-    return `
+    html += `
       <div class="field-row-3" style="margin-bottom:14px; align-items:start;">
         ${field("hy", "ՀԱՅ", cur.hy)}
         ${field("nl", "NL", cur.nl)}
         ${field("en", "EN", cur.en)}
       </div>`;
-  }).join("");
+  });
+  wrap.innerHTML = html;
 }
 
 document.getElementById("contentForm")?.addEventListener("submit", async (e)=>{
@@ -1165,8 +1217,65 @@ async function loadSiteContent(){
     if (contentOverrides.logoUrl && contentOverrides.logoUrl.hy){
       applyLogo(contentOverrides.logoUrl.hy);
     }
+    applyContactInfo();
   }catch(err){ console.warn("Could not load site content overrides:", err.message); }
 }
+
+// ---------------------------------------------------------
+// 7b. Contact details (address/email/phone) — single value each,
+//     same across all three languages, admin-only.
+// ---------------------------------------------------------
+function applyContactInfo(){
+  const addr = contentOverrides.contactAddress?.hy;
+  const email = contentOverrides.contactEmail?.hy;
+  const phone = contentOverrides.contactPhone?.hy;
+  if (addr){
+    const el = document.getElementById("contactAddressVal");
+    if (el) el.textContent = addr;
+  }
+  if (email){
+    const el = document.getElementById("contactEmailLink");
+    if (el){ el.textContent = email; el.href = "mailto:" + email; }
+  }
+  if (phone){
+    const el = document.getElementById("contactPhoneLink");
+    if (el){ el.textContent = phone; el.href = "tel:" + phone.replace(/[^\d+]/g, ""); }
+  }
+  // pre-fill the admin form with current values so it's obvious what's live
+  const addrInput = document.getElementById("cf_address");
+  const emailInput = document.getElementById("cf_email");
+  const phoneInput = document.getElementById("cf_phone");
+  if (addrInput && !addrInput.value) addrInput.value = addr || document.getElementById("contactAddressVal")?.textContent || "";
+  if (emailInput && !emailInput.value) emailInput.value = email || document.getElementById("contactEmailLink")?.textContent || "";
+  if (phoneInput && !phoneInput.value) phoneInput.value = phone || document.getElementById("contactPhoneLink")?.textContent || "";
+}
+
+document.getElementById("contactInfoForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("contactInfoMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
+    msg.classList.add("show","err"); return;
+  }
+  const address = document.getElementById("cf_address").value.trim();
+  const email = document.getElementById("cf_email").value.trim();
+  const phone = document.getElementById("cf_phone").value.trim();
+  const rows = [];
+  if (address) rows.push({ key:"contactAddress", value_hy:address, value_nl:address, value_en:address });
+  if (email) rows.push({ key:"contactEmail", value_hy:email, value_nl:email, value_en:email });
+  if (phone) rows.push({ key:"contactPhone", value_hy:phone, value_nl:phone, value_en:phone });
+  if (!rows.length){ msg.textContent = "Լրացրեք գոնե մեկ դաշտ։"; msg.classList.add("show","err"); return; }
+  try{
+    const { error } = await supabase.from("site_content").upsert(rows);
+    if (error) throw error;
+    rows.forEach(r=>{ contentOverrides[r.key] = { hy:r.value_hy, nl:r.value_nl, en:r.value_en }; });
+    applyContactInfo();
+    msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
 
 // ---------------------------------------------------------
 // 8. Weekly lesson schedule ("Դասացուցակ") — shared, staff-editable.

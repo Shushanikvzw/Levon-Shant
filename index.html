@@ -384,9 +384,9 @@
       </div>
       <div class="contact-grid">
         <ul class="contact-list">
-          <li><span class="ic">📍</span><div><strong data-i18n="contact.addr">Հասցե</strong><br>Nijverheidsstraat 45, 2800 Mechelen, België</div></li>
-          <li><span class="ic">✉️</span><div><strong data-i18n="contact.email">Էլ. փոստ</strong><br><a href="mailto:levon.shant.dproc@gmail.com">levon.shant.dproc@gmail.com</a></div></li>
-          <li><span class="ic">📞</span><div><strong data-i18n="contact.phone">Հեռախոս</strong><br><a href="tel:+32487534061">+32 487 53 40 61</a></div></li>
+          <li><span class="ic">📍</span><div><strong data-i18n="contact.addr">Հասցե</strong><br><span id="contactAddressVal">Nijverheidsstraat 45, 2800 Mechelen, België</span></div></li>
+          <li><span class="ic">✉️</span><div><strong data-i18n="contact.email">Էլ. փոստ</strong><br><a id="contactEmailLink" href="mailto:levon.shant.dproc@gmail.com">levon.shant.dproc@gmail.com</a></div></li>
+          <li><span class="ic">📞</span><div><strong data-i18n="contact.phone">Հեռախոս</strong><br><a id="contactPhoneLink" href="tel:+32487534061">+32 487 53 40 61</a></div></li>
           <li><span class="ic">📘</span><div><strong>Facebook</strong><br><a href="https://www.facebook.com/groups/1419295908284023" target="_blank" rel="noopener" data-i18n="contact.fbGroup">Դպրոցի Facebook խումբ ↗</a></div></li>
           <li><span class="ic">📸</span><div><strong>Instagram</strong><br><a href="https://www.instagram.com/reel/DQe6DquiJK9/?igsh=dmo2dzB3cWQ3NXB0" target="_blank" rel="noopener">Instagram ↗</a></div></li>
           <li><span class="ic">📰</span><div><strong>Blog</strong><br><a href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">armeniandiasporaschool.wordpress.com ↗</a></div></li>
@@ -571,11 +571,21 @@
       </div>
       <!-- Site content (admin only) -->
       <div class="dash-panel" id="panel-content">
-        <div class="banner warn">Այստեղ խմբագրվում է կայքի հիմնական տեքստը (Hero, Մեր դպրոցը, Համազգային, Ուսումնական բաժին, Դասարանների ցանկ)՝ երկու լեզուներով։ Դատարկ դաշտերը կպահպանեն ընթացիկ տեքստը։</div>
+        <div class="banner warn">Այստեղ խմբագրվում է կայքի ողջ տեքստը՝ Hero, Մեր դպրոցը, Համազգային, Ուսումնական բաժին, Օրացույց, Միջոցառումներ, Լուսանկարներ, Գրանցում և Կապ բաժինների վերնագրերն ու նկարագրությունները՝ երեք լեզուներով (ՀԱՅ/NL/EN)։ Դատարկ դաշտերը կպահպանեն ընթացիկ տեքստը։</div>
         <form class="card-form" id="contentForm" style="max-width:760px;">
           <div id="contentFields"></div>
           <button class="btn blue" type="submit">Պահպանել փոփոխությունները</button>
           <div class="form-msg" id="contentMsg"></div>
+        </form>
+
+        <h3 style="margin-top:32px;">📍 Կոնտակտային տվյալներ</h3>
+        <p class="helper" style="margin-bottom:14px;">Հասցեն, էլ. փոստը և հեռախոսահամարը նույնն են բոլոր լեզուներով, ուստի այստեղ միայն մեկական դաշտ կա։</p>
+        <form class="card-form" id="contactInfoForm" style="max-width:520px;">
+          <div class="field"><label for="cf_address">Հասցե</label><input id="cf_address" placeholder="Nijverheidsstraat 45, 2800 Mechelen, België"></div>
+          <div class="field"><label for="cf_email">Էլ. փոստ</label><input id="cf_email" type="email" placeholder="levon.shant.dproc@gmail.com"></div>
+          <div class="field"><label for="cf_phone">Հեռախոս</label><input id="cf_phone" type="tel" placeholder="+32 487 53 40 61"></div>
+          <button class="btn blue" type="submit">Պահպանել կոնտակտային տվյալները</button>
+          <div class="form-msg" id="contactInfoMsg"></div>
         </form>
 
         <h3 style="margin-top:32px;">🏫 Դպրոցի լոգո</h3>

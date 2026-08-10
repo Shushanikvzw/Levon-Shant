@@ -437,6 +437,10 @@ footer.site a:hover{color:var(--apricot);}
 .dash-tabs .chip.active{background:var(--ink); color:var(--paper); box-shadow:0 2px 8px rgba(18,28,20,0.18);}
 
 .dash-panel{display:none; animation:dashFadeIn .2s ease;}
+.content-section-head{
+  font-family:'Noto Serif Armenian',serif; font-size:1.05rem; color:var(--blue);
+  margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid var(--gold);
+}
 .dash-panel.active{display:block;}
 @keyframes dashFadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
 

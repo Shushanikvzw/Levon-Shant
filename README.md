@@ -184,6 +184,18 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Site Content now covers every section shown in the nav**: Hero, Մեր դպրոցը (About),
+  Համազգային ընկերակցություն (Hamazkayin), Ուսումնական բաժին (Department, including
+  all four cards), Օրացույց (both the weekly schedule and yearly calendar headers),
+  Միջոցառումներ (Activities), Լուսանկարներ/տեսանյութեր (Gallery), Գրանցում
+  (Registration, including the "what you'll need" checklist), and Կապ (Contact) — 46
+  fields total, each with ՀԱՅ/NL/EN inputs, grouped under section headings in the
+  dashboard so the long form stays navigable. **The actual address, email, and phone
+  number are now editable too** — previously hardcoded, now a small dedicated form
+  right below the main content editor (same value shown in all three languages, since
+  addresses/phone numbers aren't translated). Posts, staff, schedule entries, and
+  yearly-calendar entries remain separately editable from their own dashboard tabs, as
+  before — Site Content is specifically for each section's fixed header/intro text.
 - **Why the staff photos, schedule, and yearly calendar went empty after connecting
   Supabase**: all of that content only ever lived in `app.js` as a fallback shown while
   Supabase wasn't configured. The moment real project credentials are added (step 4),
