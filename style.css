@@ -92,12 +92,12 @@ header.site{
 .nav-row{display:flex; align-items:center; justify-content:space-between; padding:14px 24px; gap:16px;}
 .brand{display:flex; align-items:center; gap:12px; min-width:0;}
 .brand .crest{
-  width:42px; height:42px; border-radius:10px; flex:none;
+  width:58px; height:58px; border-radius:12px; flex:none;
   background:linear-gradient(155deg,var(--apricot),var(--pomegranate));
-  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:1.05rem;
   overflow:hidden;
 }
-.brand .crest img{width:100%; height:100%; object-fit:contain; padding:3px; background:#fff;}
+.brand .crest img{width:100%; height:100%; object-fit:contain; padding:4px; background:#fff;}
 .brand-text{min-width:0;}
 .brand-text strong{display:block; font-family:'Noto Serif Armenian',serif; font-size:1.02rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .brand-text span{display:block; font-size:.72rem; color:var(--ink-soft);}
@@ -421,9 +421,14 @@ footer.site a:hover{color:var(--apricot);}
   display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
 }
 .modal-backdrop.open{display:flex;}
-.modal{background:var(--card); border-radius:18px; width:100%; max-width:420px; padding:30px; box-shadow:0 30px 60px rgba(0,0,0,.3); position:relative;}
-.modal.wide{max-width:640px;}
-.modal-close{position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--ink-soft);}
+.modal{
+  background:var(--card); border-radius:18px; width:100%; max-width:420px; padding:30px;
+  box-shadow:0 30px 60px rgba(0,0,0,.3); position:relative;
+  max-height:85vh; overflow-y:auto;
+  word-break:break-word; overflow-wrap:anywhere;
+}
+.modal.wide{max-width:720px;}
+.modal-close{position:absolute; top:14px; right:14px; background:var(--card); border:none; border-radius:999px; width:34px; height:34px; font-size:1.2rem; cursor:pointer; color:var(--ink-soft); box-shadow:0 2px 10px rgba(18,28,20,.18); z-index:2;}
 .modal h2{margin-bottom:4px;}
 .modal .sub{color:var(--ink-soft); font-size:.9rem; margin-bottom:20px;}
 .tabs{display:flex; gap:6px; margin-bottom:18px; border-bottom:1px solid var(--line);}

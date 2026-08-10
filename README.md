@@ -200,6 +200,18 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed the real bug behind "changes don't show on the live site."** After the admin
+  area was split into its own page, one leftover line in the public site's code
+  (`app.js`) still tried to call a function that had been moved to `admin.js` — every
+  time the site loaded or refreshed its content, that line silently threw an error and
+  **cut off everything scheduled to run after it**: applying the logo, the yearly
+  calendar image, and the contact/social links, specifically. Saving in the admin panel
+  was always working correctly (which is why the admin form itself showed your saved
+  Instagram link) — the public site just never got to the point of displaying it. This
+  is now fixed, and each of those steps also runs independently of the others going
+  forward, so a problem in one can never again silently block the rest.
+- **The logo is now noticeably bigger** in the header (58×58px, up from 42×42px) so
+  it's clearly visible once uploaded.
 - **Fixed: auto-login.** Supabase remembers sessions in the browser by default, so once
   signed in, every future visit silently restored that session — no password ever
   asked again. Session persistence is now turned off for `admin.html`, so **every visit

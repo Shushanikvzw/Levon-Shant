@@ -496,7 +496,6 @@ function applyLang(lang){
   loadFeed();
   loadGallery();
   updateHistoryToggleLabel();
-  renderAuthArea();
 }
 document.querySelectorAll("[data-i18n]").forEach(el=> el.dataset.orig = el.textContent);
 document.querySelectorAll("[data-i18n-aria]").forEach(el=> el.dataset.origAria = el.getAttribute("aria-label"));
@@ -855,16 +854,24 @@ async function loadSiteContent(){
     if (error) throw error;
     contentOverrides = {};
     (data || []).forEach(row=>{ contentOverrides[row.key] = { hy: row.value_hy, nl: row.value_nl, en: row.value_en }; });
-    applyLang(currentLang);
+  }catch(err){
+    console.warn("Could not load site content overrides:", err.message);
+    return;
+  }
+  // Each of these is independent — if one throws, the others still run.
+  try{ applyLang(currentLang); }catch(err){ console.warn("applyLang failed:", err); }
+  try{
     if (contentOverrides.yearCalImage && contentOverrides.yearCalImage.hy){
       const img = document.getElementById("yearCalImg");
       if (img) img.src = contentOverrides.yearCalImage.hy;
     }
+  }catch(err){ console.warn("Applying yearly calendar image failed:", err); }
+  try{
     if (contentOverrides.logoUrl && contentOverrides.logoUrl.hy){
       applyLogo(contentOverrides.logoUrl.hy);
     }
-    applyContactInfo();
-  }catch(err){ console.warn("Could not load site content overrides:", err.message); }
+  }catch(err){ console.warn("Applying logo failed:", err); }
+  try{ applyContactInfo(); }catch(err){ console.warn("Applying contact info failed:", err); }
 }
 
 // ---------------------------------------------------------
