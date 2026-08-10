@@ -340,17 +340,39 @@ section.alt{background:var(--paper-dim);}
 
 .reg-wrap{display:grid; grid-template-columns:.9fr 1.1fr; gap:44px;}
 @media (max-width:900px){.reg-wrap{grid-template-columns:1fr;}}
-form.card-form{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:28px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:16px;}
-.field{display:flex; flex-direction:column; gap:6px;}
-.field label{font-size:.85rem; font-weight:600; color:var(--ink-soft);}
+form.card-form{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:30px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:18px;}
+.field{display:flex; flex-direction:column; gap:7px;}
+.field label{font-size:.82rem; font-weight:700; color:var(--ink-soft); letter-spacing:.01em;}
 .field input, .field textarea, .field select{
-  border:1.5px solid var(--line); border-radius:10px; padding:11px 13px; background:#fff; color:var(--ink);
+  border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff; color:var(--ink);
+  font-size:.95rem; transition:border-color .15s ease, box-shadow .15s ease; font-family:inherit;
 }
-.field input:focus, .field textarea:focus, .field select:focus{border-color:var(--blue);}
-.field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.field input::placeholder, .field textarea::placeholder{color:#B3ACA0;}
+.field input:focus, .field textarea:focus, .field select:focus{
+  border-color:var(--blue); outline:none; box-shadow:0 0 0 3px rgba(31,75,63,0.12);
+}
+.field textarea{resize:vertical; min-height:96px; line-height:1.55;}
+.field select{appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234E5A4A' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:38px; cursor:pointer;}
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
 @media (max-width:520px){.field-row{grid-template-columns:1fr;}}
-.field-row-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+.field-row-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; padding:16px; background:var(--paper-dim); border-radius:12px; border:1px solid var(--line);}
 @media (max-width:760px){.field-row-3{grid-template-columns:1fr;}}
+.field-row-3 .field label{display:flex; align-items:center; gap:6px;}
+.field-row-3 .field:nth-child(1) input, .field-row-3 .field:nth-child(1) textarea{border-top:3px solid var(--gold);}
+.field-row-3 .field:nth-child(2) input, .field-row-3 .field:nth-child(2) textarea{border-top:3px solid var(--blue);}
+.field-row-3 .field:nth-child(3) input, .field-row-3 .field:nth-child(3) textarea{border-top:3px solid var(--pomegranate);}
+
+/* Custom file input */
+.field input[type="file"]{
+  border:1.5px dashed var(--line); background:var(--paper-dim); padding:16px 14px; cursor:pointer;
+  font-size:.85rem; color:var(--ink-soft); transition:border-color .15s ease, background .15s ease;
+}
+.field input[type="file"]:hover{border-color:var(--blue); background:var(--paper);}
+.field input[type="file"]::file-selector-button{
+  background:var(--ink); color:var(--paper); border:none; border-radius:999px; padding:8px 16px;
+  font-weight:600; font-size:.82rem; margin-right:12px; cursor:pointer; transition:background .15s ease;
+}
+.field input[type="file"]::file-selector-button:hover{background:var(--blue);}
 
 .choice-group{display:flex; flex-direction:column; gap:8px;}
 .choice-item{
@@ -403,23 +425,41 @@ footer.site a:hover{color:var(--apricot);}
 .tabs button{background:none; border:none; padding:10px 4px; margin-right:16px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent;}
 .tabs button.active{color:var(--ink); border-color:var(--apricot);}
 
-.dash{background:var(--paper-dim); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
-.dash-head{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:22px;}
-.role-badge{font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--blue); color:#fff;}
+.dash{background:linear-gradient(180deg, var(--paper-dim) 0%, var(--paper) 320px); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+
+.dash-head{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
+  margin-bottom:28px; padding-bottom:24px; border-bottom:1px solid var(--line);
+}
+.dash-head h2{font-size:1.5rem;}
+.dash-head #dashName{color:var(--blue);}
+.role-badge{font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; padding:5px 12px; border-radius:999px; background:var(--blue); color:#fff; vertical-align:middle;}
 .role-badge.admin{background:var(--pomegranate);}
-.dash-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
-.dash-panel{display:none;}
+
+.dash-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:28px; padding:6px; background:var(--card); border:1px solid var(--line); border-radius:14px;}
+.dash-tabs .chip{
+  border:none; background:none; color:var(--ink-soft); font-weight:600; font-size:.86rem;
+  padding:10px 16px; border-radius:10px; transition:background .15s ease, color .15s ease;
+}
+.dash-tabs .chip:hover{background:var(--paper-dim); color:var(--ink);}
+.dash-tabs .chip.active{background:var(--ink); color:var(--paper); box-shadow:0 2px 8px rgba(18,28,20,0.18);}
+
+.dash-panel{display:none; animation:dashFadeIn .2s ease;}
 .dash-panel.active{display:block;}
-.table-wrap{overflow-x:auto; background:var(--card); border-radius:var(--radius); border:1px solid var(--line);}
-table{width:100%; border-collapse:collapse; font-size:.88rem;}
-th, td{text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); white-space:nowrap;}
-th{background:var(--paper); font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+@keyframes dashFadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+.table-wrap{overflow-x:auto; background:var(--card); border-radius:var(--radius); border:1px solid var(--line); box-shadow:var(--shadow);}
+table{width:100%; border-collapse:collapse; font-size:.87rem;}
+th, td{text-align:left; padding:13px 16px; border-bottom:1px solid var(--line); white-space:nowrap;}
+th{background:var(--paper-dim); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:700; position:sticky; top:0;}
 tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .12s ease;}
+tbody tr:hover{background:var(--paper-dim);}
 .status-pill{font-size:.72rem; padding:3px 9px; border-radius:999px; background:var(--apricot); color:#2A1706; font-weight:700;}
 
 .helper{font-size:.8rem; color:var(--ink-soft);}
-.banner{border-radius:12px; padding:14px 16px; font-size:.88rem; margin-bottom:20px;}
-.banner.warn{background:#F6EBD2; color:#6b4f14; border:1px solid #e3c877;}
+.banner{border-radius:12px; padding:14px 18px; font-size:.88rem; margin-bottom:20px; border-left:4px solid var(--gold);}
+.banner.warn{background:#F6EBD2; color:#6b4f14; border:1px solid #e3c877; border-left:4px solid #C9942E;}
 
 .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;}
 
@@ -1098,7 +1138,12 @@ tr:last-child td{border-bottom:none;}
    below. See README.md for step-by-step instructions.
    ========================================================= */
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+let createClient = null;
+try {
+  ({ createClient } = await import("https://esm.sh/@supabase/supabase-js@2"));
+} catch (err) {
+  console.warn("Could not load the Supabase library (network or CDN issue) — running in demo mode.", err);
+}
 
 // ---------------------------------------------------------
 // 1. SUPABASE CONFIG — replace with your own project's values
@@ -1109,14 +1154,19 @@ const supabaseConfig = {
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlbWZsdW9ndGZhZnNmbmJ2Ym9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyODQxOTIsImV4cCI6MjEwMTg2MDE5Mn0.TA3dZQ8ov9oUu1-ibRpzyl-CC5AZylICw9kGdeDnPHE"
 };
 
-const SUPABASE_READY = supabaseConfig.url !== "YOUR_SUPABASE_URL";
+const supabaseConfigured = !!createClient && supabaseConfig.url !== "YOUR_SUPABASE_URL";
 
 let supabase;
-if (SUPABASE_READY) {
-  supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+if (supabaseConfigured) {
+  try {
+    supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+  } catch (err) {
+    console.warn("Could not initialize the Supabase client — running in demo mode.", err);
+  }
 } else {
   console.warn("Supabase is not configured yet — the site is running in demo/preview mode. See README.md.");
 }
+const SUPABASE_READY = !!supabase;
 
 let currentUser = null;   // Supabase auth user
 let currentRole = null;   // 'admin' | 'smm' | null
@@ -1601,7 +1651,7 @@ function updateHistoryToggleLabel(){
   btn.textContent = historyOpen ? set.open : set.closed;
   btn.setAttribute("aria-expanded", String(historyOpen));
 }
-document.getElementById("historyToggle").addEventListener("click", ()=>{
+document.getElementById("historyToggle")?.addEventListener("click", ()=>{
   historyOpen = !historyOpen;
   document.getElementById("history").style.display = historyOpen ? "" : "none";
   updateHistoryToggleLabel();
@@ -1611,13 +1661,14 @@ document.getElementById("historyToggle").addEventListener("click", ()=>{
 // mobile nav toggle
 const menuToggle = document.getElementById("menuToggle");
 const mainNav = document.getElementById("mainNav");
-menuToggle.addEventListener("click", ()=>{
+menuToggle?.addEventListener("click", ()=>{
   const open = mainNav.classList.toggle("open");
   menuToggle.setAttribute("aria-expanded", open);
 });
-document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click", ()=> mainNav.classList.remove("open")));
+document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click", ()=> mainNav?.classList.remove("open")));
 
-document.getElementById("year").textContent = new Date().getFullYear();
+const yearEl = document.getElementById("year");
+if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 // ---------------------------------------------------------
 // Demo data (shown when Supabase isn't configured yet)
@@ -1670,7 +1721,7 @@ function renderAuthArea(){
   if (currentRole === "admin") { loadRegistrations(); loadUsers(); renderContentForm(); }
 }
 
-document.getElementById("closeLogin").addEventListener("click", ()=> loginBackdrop.classList.remove("open"));
+document.getElementById("closeLogin")?.addEventListener("click", ()=> loginBackdrop.classList.remove("open"));
 loginBackdrop.addEventListener("click", (e)=>{ if (e.target === loginBackdrop) loginBackdrop.classList.remove("open"); });
 
 // sign-in / sign-up tab switching within the modal
@@ -1684,7 +1735,7 @@ document.querySelectorAll('.tabs button[data-authtab]').forEach(btn=>{
   });
 });
 
-document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+document.getElementById("loginForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("loginMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1709,7 +1760,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e)=>{
   e.target.reset();
 });
 
-document.getElementById("signupForm").addEventListener("submit", async (e)=>{
+document.getElementById("signupForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("signupMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1730,7 +1781,7 @@ document.getElementById("signupForm").addEventListener("submit", async (e)=>{
   e.target.reset();
 });
 
-document.getElementById("signOutBtn").addEventListener("click", ()=> supabase.auth.signOut());
+document.getElementById("signOutBtn")?.addEventListener("click", ()=> supabase.auth.signOut());
 
 async function handleAuthChange(session){
   if (!session){
@@ -1773,7 +1824,7 @@ document.querySelectorAll("#dashTabs .chip").forEach(btn=>{
 // ---------------------------------------------------------
 // 4. Posts: publish (admin + smm), read (public), delete (own or admin)
 // ---------------------------------------------------------
-document.getElementById("postForm").addEventListener("submit", async (e)=>{
+document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("postMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -2041,7 +2092,7 @@ async function sendRegistrationEmail(payload){
   }
 }
 
-document.getElementById("childRegForm").addEventListener("submit", async (e)=>{
+document.getElementById("childRegForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const payload = {
     type: "child",
@@ -2060,7 +2111,7 @@ document.getElementById("childRegForm").addEventListener("submit", async (e)=>{
   await submitRegistration(payload, document.getElementById("childRegMsg"), e.target);
 });
 
-document.getElementById("adultRegForm").addEventListener("submit", async (e)=>{
+document.getElementById("adultRegForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const payload = {
     type: "adult",
@@ -2200,7 +2251,7 @@ function renderContentForm(){
   }).join("");
 }
 
-document.getElementById("contentForm").addEventListener("submit", async (e)=>{
+document.getElementById("contentForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("contentMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -2321,7 +2372,7 @@ function setScheduleFormMode(editing){
   cancelBtn.style.display = editing ? "" : "none";
 }
 
-document.getElementById("scheduleForm").addEventListener("submit", async (e)=>{
+document.getElementById("scheduleForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("scheduleMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -2359,7 +2410,7 @@ document.getElementById("scheduleForm").addEventListener("submit", async (e)=>{
   }
 });
 
-document.getElementById("scheduleCancelEdit").addEventListener("click", ()=>{
+document.getElementById("scheduleCancelEdit")?.addEventListener("click", ()=>{
   editingScheduleId = null;
   document.getElementById("scheduleForm").reset();
   setScheduleFormMode(false);
@@ -2561,12 +2612,12 @@ async function renderCalendar(){
   listEl.innerHTML = html;
 }
 
-document.getElementById("calPrev").addEventListener("click", ()=>{
+document.getElementById("calPrev")?.addEventListener("click", ()=>{
   calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()-1, 1);
   calSelectedDate = null;
   renderCalendar();
 });
-document.getElementById("calNext").addEventListener("click", ()=>{
+document.getElementById("calNext")?.addEventListener("click", ()=>{
   calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()+1, 1);
   calSelectedDate = null;
   renderCalendar();
@@ -2633,7 +2684,7 @@ async function loadStaff(){
   }
 }
 
-document.getElementById("staffForm").addEventListener("submit", async (e)=>{
+document.getElementById("staffForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("staffMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -2789,11 +2840,11 @@ function defaultAcademicStartYear(){
 }
 let yearCalViewStartYear = defaultAcademicStartYear();
 
-document.getElementById("yearCalPrev").addEventListener("click", ()=>{
+document.getElementById("yearCalPrev")?.addEventListener("click", ()=>{
   yearCalViewStartYear--;
   loadYearCalDisplay();
 });
-document.getElementById("yearCalNext").addEventListener("click", ()=>{
+document.getElementById("yearCalNext")?.addEventListener("click", ()=>{
   yearCalViewStartYear++;
   loadYearCalDisplay();
 });
@@ -2854,7 +2905,7 @@ function setYearCalFormMode(editing){
   cancelBtn.style.display = editing ? "" : "none";
 }
 
-document.getElementById("yearCalEntryForm").addEventListener("submit", async (e)=>{
+document.getElementById("yearCalEntryForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("yearCalEntryMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -2894,7 +2945,7 @@ document.getElementById("yearCalEntryForm").addEventListener("submit", async (e)
   }
 });
 
-document.getElementById("yearCalEntryCancelEdit").addEventListener("click", ()=>{
+document.getElementById("yearCalEntryCancelEdit")?.addEventListener("click", ()=>{
   editingYearCalId = null;
   document.getElementById("yearCalEntryForm").reset();
   setYearCalFormMode(false);
@@ -2950,9 +3001,9 @@ async function loadYearCalAdmin(){
 // 12. Yearly calendar overview image — editable by admin from the
 //     Site Content tab; falls back to the school's original graphic.
 // ---------------------------------------------------------
-const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg").getAttribute("src");
+const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg")?.getAttribute("src") || "";
 
-document.getElementById("yearCalForm").addEventListener("submit", async (e)=>{
+document.getElementById("yearCalForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("yearCalMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -2982,7 +3033,7 @@ document.getElementById("yearCalForm").addEventListener("submit", async (e)=>{
   }
 });
 
-document.getElementById("yearCalRemoveBtn").addEventListener("click", async ()=>{
+document.getElementById("yearCalRemoveBtn")?.addEventListener("click", async ()=>{
   const msg = document.getElementById("yearCalMsg");
   msg.className = "form-msg"; msg.textContent = "";
   if (!SUPABASE_READY){
@@ -3012,7 +3063,7 @@ function applyLogo(url){
   }
 }
 
-document.getElementById("logoForm").addEventListener("submit", async (e)=>{
+document.getElementById("logoForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("logoMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -3042,7 +3093,7 @@ document.getElementById("logoForm").addEventListener("submit", async (e)=>{
   }
 });
 
-document.getElementById("logoRemoveBtn").addEventListener("click", async ()=>{
+document.getElementById("logoRemoveBtn")?.addEventListener("click", async ()=>{
   const msg = document.getElementById("logoMsg");
   msg.className = "form-msg"; msg.textContent = "";
   if (!SUPABASE_READY){

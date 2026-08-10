@@ -9,7 +9,12 @@
    below. See README.md for step-by-step instructions.
    ========================================================= */
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+let createClient = null;
+try {
+  ({ createClient } = await import("https://esm.sh/@supabase/supabase-js@2"));
+} catch (err) {
+  console.warn("Could not load the Supabase library (network or CDN issue) — running in demo mode.", err);
+}
 
 // ---------------------------------------------------------
 // 1. SUPABASE CONFIG — replace with your own project's values
@@ -20,14 +25,19 @@ const supabaseConfig = {
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlbWZsdW9ndGZhZnNmbmJ2Ym9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyODQxOTIsImV4cCI6MjEwMTg2MDE5Mn0.TA3dZQ8ov9oUu1-ibRpzyl-CC5AZylICw9kGdeDnPHE"
 };
 
-const SUPABASE_READY = supabaseConfig.url !== "YOUR_SUPABASE_URL";
+const supabaseConfigured = !!createClient && supabaseConfig.url !== "YOUR_SUPABASE_URL";
 
 let supabase;
-if (SUPABASE_READY) {
-  supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+if (supabaseConfigured) {
+  try {
+    supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+  } catch (err) {
+    console.warn("Could not initialize the Supabase client — running in demo mode.", err);
+  }
 } else {
   console.warn("Supabase is not configured yet — the site is running in demo/preview mode. See README.md.");
 }
+const SUPABASE_READY = !!supabase;
 
 let currentUser = null;   // Supabase auth user
 let currentRole = null;   // 'admin' | 'smm' | null
@@ -512,7 +522,7 @@ function updateHistoryToggleLabel(){
   btn.textContent = historyOpen ? set.open : set.closed;
   btn.setAttribute("aria-expanded", String(historyOpen));
 }
-document.getElementById("historyToggle").addEventListener("click", ()=>{
+document.getElementById("historyToggle")?.addEventListener("click", ()=>{
   historyOpen = !historyOpen;
   document.getElementById("history").style.display = historyOpen ? "" : "none";
   updateHistoryToggleLabel();
@@ -522,13 +532,14 @@ document.getElementById("historyToggle").addEventListener("click", ()=>{
 // mobile nav toggle
 const menuToggle = document.getElementById("menuToggle");
 const mainNav = document.getElementById("mainNav");
-menuToggle.addEventListener("click", ()=>{
+menuToggle?.addEventListener("click", ()=>{
   const open = mainNav.classList.toggle("open");
   menuToggle.setAttribute("aria-expanded", open);
 });
-document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click", ()=> mainNav.classList.remove("open")));
+document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click", ()=> mainNav?.classList.remove("open")));
 
-document.getElementById("year").textContent = new Date().getFullYear();
+const yearEl = document.getElementById("year");
+if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 // ---------------------------------------------------------
 // Demo data (shown when Supabase isn't configured yet)
@@ -581,7 +592,7 @@ function renderAuthArea(){
   if (currentRole === "admin") { loadRegistrations(); loadUsers(); renderContentForm(); }
 }
 
-document.getElementById("closeLogin").addEventListener("click", ()=> loginBackdrop.classList.remove("open"));
+document.getElementById("closeLogin")?.addEventListener("click", ()=> loginBackdrop.classList.remove("open"));
 loginBackdrop.addEventListener("click", (e)=>{ if (e.target === loginBackdrop) loginBackdrop.classList.remove("open"); });
 
 // sign-in / sign-up tab switching within the modal
@@ -595,7 +606,7 @@ document.querySelectorAll('.tabs button[data-authtab]').forEach(btn=>{
   });
 });
 
-document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+document.getElementById("loginForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("loginMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -620,7 +631,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e)=>{
   e.target.reset();
 });
 
-document.getElementById("signupForm").addEventListener("submit", async (e)=>{
+document.getElementById("signupForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("signupMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -641,7 +652,7 @@ document.getElementById("signupForm").addEventListener("submit", async (e)=>{
   e.target.reset();
 });
 
-document.getElementById("signOutBtn").addEventListener("click", ()=> supabase.auth.signOut());
+document.getElementById("signOutBtn")?.addEventListener("click", ()=> supabase.auth.signOut());
 
 async function handleAuthChange(session){
   if (!session){
@@ -684,7 +695,7 @@ document.querySelectorAll("#dashTabs .chip").forEach(btn=>{
 // ---------------------------------------------------------
 // 4. Posts: publish (admin + smm), read (public), delete (own or admin)
 // ---------------------------------------------------------
-document.getElementById("postForm").addEventListener("submit", async (e)=>{
+document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("postMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -952,7 +963,7 @@ async function sendRegistrationEmail(payload){
   }
 }
 
-document.getElementById("childRegForm").addEventListener("submit", async (e)=>{
+document.getElementById("childRegForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const payload = {
     type: "child",
@@ -971,7 +982,7 @@ document.getElementById("childRegForm").addEventListener("submit", async (e)=>{
   await submitRegistration(payload, document.getElementById("childRegMsg"), e.target);
 });
 
-document.getElementById("adultRegForm").addEventListener("submit", async (e)=>{
+document.getElementById("adultRegForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const payload = {
     type: "adult",
@@ -1111,7 +1122,7 @@ function renderContentForm(){
   }).join("");
 }
 
-document.getElementById("contentForm").addEventListener("submit", async (e)=>{
+document.getElementById("contentForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("contentMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1232,7 +1243,7 @@ function setScheduleFormMode(editing){
   cancelBtn.style.display = editing ? "" : "none";
 }
 
-document.getElementById("scheduleForm").addEventListener("submit", async (e)=>{
+document.getElementById("scheduleForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("scheduleMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1270,7 +1281,7 @@ document.getElementById("scheduleForm").addEventListener("submit", async (e)=>{
   }
 });
 
-document.getElementById("scheduleCancelEdit").addEventListener("click", ()=>{
+document.getElementById("scheduleCancelEdit")?.addEventListener("click", ()=>{
   editingScheduleId = null;
   document.getElementById("scheduleForm").reset();
   setScheduleFormMode(false);
@@ -1472,12 +1483,12 @@ async function renderCalendar(){
   listEl.innerHTML = html;
 }
 
-document.getElementById("calPrev").addEventListener("click", ()=>{
+document.getElementById("calPrev")?.addEventListener("click", ()=>{
   calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()-1, 1);
   calSelectedDate = null;
   renderCalendar();
 });
-document.getElementById("calNext").addEventListener("click", ()=>{
+document.getElementById("calNext")?.addEventListener("click", ()=>{
   calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()+1, 1);
   calSelectedDate = null;
   renderCalendar();
@@ -1544,7 +1555,7 @@ async function loadStaff(){
   }
 }
 
-document.getElementById("staffForm").addEventListener("submit", async (e)=>{
+document.getElementById("staffForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("staffMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1700,11 +1711,11 @@ function defaultAcademicStartYear(){
 }
 let yearCalViewStartYear = defaultAcademicStartYear();
 
-document.getElementById("yearCalPrev").addEventListener("click", ()=>{
+document.getElementById("yearCalPrev")?.addEventListener("click", ()=>{
   yearCalViewStartYear--;
   loadYearCalDisplay();
 });
-document.getElementById("yearCalNext").addEventListener("click", ()=>{
+document.getElementById("yearCalNext")?.addEventListener("click", ()=>{
   yearCalViewStartYear++;
   loadYearCalDisplay();
 });
@@ -1765,7 +1776,7 @@ function setYearCalFormMode(editing){
   cancelBtn.style.display = editing ? "" : "none";
 }
 
-document.getElementById("yearCalEntryForm").addEventListener("submit", async (e)=>{
+document.getElementById("yearCalEntryForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("yearCalEntryMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1805,7 +1816,7 @@ document.getElementById("yearCalEntryForm").addEventListener("submit", async (e)
   }
 });
 
-document.getElementById("yearCalEntryCancelEdit").addEventListener("click", ()=>{
+document.getElementById("yearCalEntryCancelEdit")?.addEventListener("click", ()=>{
   editingYearCalId = null;
   document.getElementById("yearCalEntryForm").reset();
   setYearCalFormMode(false);
@@ -1861,9 +1872,9 @@ async function loadYearCalAdmin(){
 // 12. Yearly calendar overview image — editable by admin from the
 //     Site Content tab; falls back to the school's original graphic.
 // ---------------------------------------------------------
-const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg").getAttribute("src");
+const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg")?.getAttribute("src") || "";
 
-document.getElementById("yearCalForm").addEventListener("submit", async (e)=>{
+document.getElementById("yearCalForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("yearCalMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1893,7 +1904,7 @@ document.getElementById("yearCalForm").addEventListener("submit", async (e)=>{
   }
 });
 
-document.getElementById("yearCalRemoveBtn").addEventListener("click", async ()=>{
+document.getElementById("yearCalRemoveBtn")?.addEventListener("click", async ()=>{
   const msg = document.getElementById("yearCalMsg");
   msg.className = "form-msg"; msg.textContent = "";
   if (!SUPABASE_READY){
@@ -1923,7 +1934,7 @@ function applyLogo(url){
   }
 }
 
-document.getElementById("logoForm").addEventListener("submit", async (e)=>{
+document.getElementById("logoForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("logoMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1953,7 +1964,7 @@ document.getElementById("logoForm").addEventListener("submit", async (e)=>{
   }
 });
 
-document.getElementById("logoRemoveBtn").addEventListener("click", async ()=>{
+document.getElementById("logoRemoveBtn")?.addEventListener("click", async ()=>{
   const msg = document.getElementById("logoMsg");
   msg.className = "form-msg"; msg.textContent = "";
   if (!SUPABASE_READY){

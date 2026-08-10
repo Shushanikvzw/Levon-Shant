@@ -28,6 +28,8 @@ supabase/migrations/0003_trilingual_staff_schedule_posts.sql adds Dutch/English 
                                           staff roles, schedule course names, and post titles/bodies
 supabase/migrations/0004_teacher_name_transliteration.sql adds Latin-script name columns for
                                           staff and schedule teacher names
+supabase/migrations/0005_seed_content.sql   fills the staff, schedule, and yearly calendar
+                                          tables with the school's real content (only if empty)
 preview.html                    single self-contained file (CSS+JS inlined) for quick viewing
 README.md                       this file
 ```
@@ -54,10 +56,10 @@ integration isn't picking it up, use the manual method in step 2 instead — bot
 ## 2. Set up the database (2 minutes)
 
 **If your GitHub↔Supabase integration runs migrations automatically:** just pushing
-the repo (step 1) is enough — skip to step 3 once all four migrations have run (check
+the repo (step 1) is enough — skip to step 3 once all five migrations have run (check
 **Database → Migrations** in the Supabase dashboard to confirm `0001_init`,
-`0002_add_english`, `0003_trilingual_staff_schedule_posts`, and
-`0004_teacher_name_transliteration` all succeeded).
+`0002_add_english`, `0003_trilingual_staff_schedule_posts`,
+`0004_teacher_name_transliteration`, and `0005_seed_content` all succeeded).
 
 **Manual method (always works):**
 1. Open your Supabase project → **SQL Editor → New query**.
@@ -71,7 +73,16 @@ the repo (step 1) is enough — skip to step 3 once all four migrations have run
    post titles/bodies.
 5. New query again → paste `supabase/migrations/0004_teacher_name_transliteration.sql`
    → **Run**. It adds Latin-script name columns for staff and schedule teacher names.
-   All four files are safe to re-run if needed.
+6. New query again → paste `supabase/migrations/0005_seed_content.sql` → **Run**. **This
+   one matters a lot**: connecting the site to a real Supabase project (step 4 below)
+   means it now reads the staff directory, weekly schedule, and yearly calendar from
+   your actual database — which starts out completely empty. Migrations 0001–0004 only
+   create empty tables; this one fills them with the school's real teacher photos,
+   weekly class times, and the full 2025–2026 calendar, so the site isn't blank the
+   moment you connect it. It only inserts if a table is currently empty, so it's safe
+   to re-run and will never overwrite anything you've since added or edited yourself.
+
+All five files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -173,6 +184,14 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Why the staff photos, schedule, and yearly calendar went empty after connecting
+  Supabase**: all of that content only ever lived in `app.js` as a fallback shown while
+  Supabase wasn't configured. The moment real project credentials are added (step 4),
+  the site switches to querying your actual database instead — which starts out
+  completely empty, since migrations only create table structure, not data. Run
+  `0005_seed_content.sql` (step 2.6 above) to fill it with the real content immediately;
+  after that, everything you add or edit from the dashboard lives in the database
+  permanently, same as before.
 - **Teacher names now show in Latin script for Dutch/English visitors.** Armenian
   script isn't readable to most non-Armenian speakers, so both the staff directory and
   teacher names in the weekly schedule show a Latin transliteration (e.g. "Լիանա
