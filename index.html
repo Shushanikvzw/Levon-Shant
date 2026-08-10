@@ -35,7 +35,7 @@
         <button type="button" data-lang="nl">NL</button>
         <button type="button" data-lang="en">EN</button>
       </div>
-      <div id="authArea"></div>
+      <a href="admin.html" target="_blank" rel="noopener" class="btn ghost small">🔐 Անձնակազմի մուտք</a>
       <button class="menu-toggle" id="menuToggle" aria-label="Ցանկ" data-i18n-aria="aria.menu" aria-expanded="false">☰</button>
     </div>
   </div>
@@ -387,9 +387,9 @@
           <li><span class="ic">📍</span><div><strong data-i18n="contact.addr">Հասցե</strong><br><span id="contactAddressVal">Nijverheidsstraat 45, 2800 Mechelen, België</span></div></li>
           <li><span class="ic">✉️</span><div><strong data-i18n="contact.email">Էլ. փոստ</strong><br><a id="contactEmailLink" href="mailto:levon.shant.dproc@gmail.com">levon.shant.dproc@gmail.com</a></div></li>
           <li><span class="ic">📞</span><div><strong data-i18n="contact.phone">Հեռախոս</strong><br><a id="contactPhoneLink" href="tel:+32487534061">+32 487 53 40 61</a></div></li>
-          <li><span class="ic">📘</span><div><strong>Facebook</strong><br><a href="https://www.facebook.com/groups/1419295908284023" target="_blank" rel="noopener" data-i18n="contact.fbGroup">Դպրոցի Facebook խումբ ↗</a></div></li>
-          <li><span class="ic">📸</span><div><strong>Instagram</strong><br><a href="https://www.instagram.com/reel/DQe6DquiJK9/?igsh=dmo2dzB3cWQ3NXB0" target="_blank" rel="noopener">Instagram ↗</a></div></li>
-          <li><span class="ic">📰</span><div><strong>Blog</strong><br><a href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">armeniandiasporaschool.wordpress.com ↗</a></div></li>
+          <li><span class="ic">📘</span><div><strong>Facebook</strong><br><a id="contactFbLink" href="https://www.facebook.com/groups/1419295908284023" target="_blank" rel="noopener" data-i18n="contact.fbGroup">Դպրոցի Facebook խումբ ↗</a></div></li>
+          <li><span class="ic">📸</span><div><strong>Instagram</strong><br><a id="contactIgLink" href="https://www.instagram.com/reel/DQe6DquiJK9/?igsh=dmo2dzB3cWQ3NXB0" target="_blank" rel="noopener">Instagram ↗</a></div></li>
+          <li><span class="ic">📰</span><div><strong>Blog</strong><br><a id="contactBlogLink" href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">armeniandiasporaschool.wordpress.com ↗</a></div></li>
         </ul>
         <div class="map-embed">
           <iframe title="map" loading="lazy" src="https://maps.google.com/maps?q=Nijverheidsstraat%2045%2C%202800%20Mechelen%2C%20Belgi%C3%AB&z=15&output=embed"></iframe>
@@ -398,220 +398,6 @@
     </div>
   </section>
 
-  <!-- ============ STAFF DASHBOARD (hidden unless signed in) ============ -->
-  <section id="dashboard" class="dash" style="display:none;">
-    <div class="container" style="padding-top:44px; padding-bottom:56px;">
-      <div class="dash-head">
-        <div>
-          <span class="eyebrow">Կառավարման վահանակ</span>
-          <h2 style="margin-bottom:0;">Բարի գալուստ, <span id="dashName">—</span> <span class="role-badge" id="dashRole">—</span></h2>
-        </div>
-        <button class="btn ghost small" id="signOutBtn">Դուրս գալ</button>
-      </div>
-
-      <div class="dash-tabs" id="dashTabs">
-        <button class="chip active" data-panel="panel-publish">✍️ Հրապարակել</button>
-        <button class="chip" data-panel="panel-schedule">🗓️ Դասացուցակ</button>
-        <button class="chip" data-panel="panel-staff">🧑‍🏫 Անձնակազմ</button>
-        <button class="chip" data-panel="panel-yearcal">📅 Տարեկան օրացույց</button>
-        <button class="chip" data-panel="panel-manage">🗂️ Իմ հրապարակումները</button>
-        <button class="chip" data-panel="panel-reg" data-admin-only="1">📋 Գրանցումներ</button>
-        <button class="chip" data-panel="panel-users" data-admin-only="1">👤 Հաշիվներ</button>
-        <button class="chip" data-panel="panel-content" data-admin-only="1">📝 Կայքի բովանդակություն</button>
-      </div>
-
-      <!-- Publish -->
-      <div class="dash-panel active" id="panel-publish">
-        <form class="card-form" id="postForm" style="max-width:760px;">
-          <div class="field-row">
-            <div class="field"><label for="postType">Տեսակ</label>
-              <select id="postType">
-                <option value="news">Հայտարարություն</option>
-                <option value="event">Միջոցառում</option>
-                <option value="gallery">Լուսանկար/տեսանյութ (միայն պատկերասրահ)</option>
-              </select>
-            </div>
-            <div class="field"><label for="postDate">Ամսաթիվ</label><input type="date" id="postDate"></div>
-          </div>
-          <div class="field-row-3">
-            <div class="field"><label for="postTitle">Վերնագիր — ՀԱՅ</label><input id="postTitle" required></div>
-            <div class="field"><label for="postTitle_nl">Titel — NL (ոչ պարտադիր)</label><input id="postTitle_nl"></div>
-            <div class="field"><label for="postTitle_en">Title — EN (ոչ պարտադիր)</label><input id="postTitle_en"></div>
-          </div>
-          <div class="field-row-3">
-            <div class="field"><label for="postBody">Նկարագրություն — ՀԱՅ</label><textarea id="postBody" rows="4"></textarea></div>
-            <div class="field"><label for="postBody_nl">Omschrijving — NL</label><textarea id="postBody_nl" rows="4"></textarea></div>
-            <div class="field"><label for="postBody_en">Description — EN</label><textarea id="postBody_en" rows="4"></textarea></div>
-          </div>
-          <div class="field"><label for="postFile">Նկար կամ տեսանյութ (ոչ պարտադիր)</label><input type="file" id="postFile" accept="image/*,video/*"></div>
-          <div class="field"><label for="postMediaUrl">...կամ նկարի/YouTube հղում</label><input id="postMediaUrl" placeholder="https://..."></div>
-          <button class="btn apricot" type="submit">Հրապարակել</button>
-          <div class="form-msg" id="postMsg"></div>
-        </form>
-        <p class="helper" style="margin-top:10px;">💡 Միջոցառում ընտրելիս, ամսաթիվը ցուցադրվում է ստորև՝ «Օրացույց» բաժնի ամսացույցում։ NL/EN դաշտերը դատարկ թողնելու դեպքում կցուցադրվի հայերեն տարբերակը։</p>
-      </div>
-
-      <!-- Weekly schedule -->
-      <div class="dash-panel" id="panel-schedule">
-        <form class="card-form" id="scheduleForm" style="max-width:760px; margin-bottom:24px;">
-          <div class="field-row">
-            <div class="field"><label for="s_start">Ժամ (սկիզբ)</label><input type="time" id="s_start" required></div>
-            <div class="field"><label for="s_end">Ժամ (ավարտ)</label><input type="time" id="s_end" required></div>
-          </div>
-          <div class="field-row-3">
-            <div class="field"><label for="s_course_hy">Դասընթաց — ՀԱՅ</label><input id="s_course_hy" required></div>
-            <div class="field"><label for="s_course_nl">Vak — NL</label><input id="s_course_nl"></div>
-            <div class="field"><label for="s_course_en">Class — EN</label><input id="s_course_en"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label for="s_teacher">Ուսուցիչ / սենյակ — ՀԱՅ (ոչ պարտադիր)</label><input id="s_teacher"></div>
-            <div class="field"><label for="s_teacher_latin">Teacher name in Latin letters (NL/EN)</label><input id="s_teacher_latin" placeholder="e.g. Arpine Hovhannisyan"></div>
-          </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn blue" type="submit">Ավելացնել դասացուցակում</button>
-            <button class="btn ghost" type="button" id="scheduleCancelEdit" style="display:none;">Չեղարկել խմբագրումը</button>
-          </div>
-          <div class="form-msg" id="scheduleMsg"></div>
-        </form>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Ցուցադրել</th><th>Ժամ</th><th>Դասընթաց (ՀԱՅ)</th><th>Vak (NL)</th><th>Class (EN)</th><th>Ուսուցիչ (ՀԱՅ)</th><th>Teacher (Latin)</th><th></th></tr></thead>
-            <tbody id="scheduleAdminBody"><tr><td colspan="8">Բեռնվում է…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Teaching staff -->
-      <div class="dash-panel" id="panel-staff">
-        <form class="card-form" id="staffForm" style="max-width:760px; margin-bottom:24px;">
-          <div class="field-row">
-            <div class="field"><label for="st_name">Անուն, ազգանուն — ՀԱՅ</label><input id="st_name" required></div>
-            <div class="field"><label for="st_name_latin">Name in Latin letters (NL/EN)</label><input id="st_name_latin" placeholder="e.g. Liana Melkonyan"></div>
-          </div>
-          <div class="field-row-3">
-            <div class="field"><label for="st_role_hy">Պաշտոն / դասընթաց — ՀԱՅ</label><input id="st_role_hy" required placeholder="օր.՝ Այբբենարանի ուսուցչուհի"></div>
-            <div class="field"><label for="st_role_nl">Functie / vak — NL</label><input id="st_role_nl" placeholder="bv. Lerares alfabetklas"></div>
-            <div class="field"><label for="st_role_en">Role / subject — EN</label><input id="st_role_en" placeholder="e.g. Alphabet class teacher"></div>
-          </div>
-          <div class="field"><label for="st_photoFile">Լուսանկար (ոչ պարտադիր)</label><input type="file" id="st_photoFile" accept="image/*"></div>
-          <div class="field"><label for="st_photoUrl">...կամ լուսանկարի հղում</label><input id="st_photoUrl" placeholder="https://..."></div>
-          <button class="btn blue" type="submit">Ավելացնել անձնակազմում</button>
-          <div class="form-msg" id="staffMsg"></div>
-        </form>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Անուն (ՀԱՅ)</th><th>Name (Latin)</th><th>Պաշտոն (ՀԱՅ)</th><th>Functie (NL)</th><th>Role (EN)</th><th></th></tr></thead>
-            <tbody id="staffAdminBody"><tr><td colspan="6">Բեռնվում է…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Yearly academic calendar (dynamic entries) -->
-      <div class="dash-panel" id="panel-yearcal">
-        <div class="banner warn">Այս ցանկը փոխարինում է վերևի պատկերին, հենց որ գոնե մեկ գիծ ավելացվի։ Դատարկ ցանկի դեպքում այցելուները կտեսնեն սկզբնական պատկերը։ Յուրաքանչյուր գիծ ունի հայերեն, հոլանդերեն և անգլերեն անվանում։ Այստեղ ավելացրած տոներն ու կարևոր օրերը, ինչպես նաև «✍️ Հրապարակել»-ից ավելացրած միջոցառումները, միասին երևում են և° այստեղ, և° վերևի ամսացույցում («Օրացույց» բաժնում)։</div>
-        <form class="card-form" id="yearCalEntryForm" style="max-width:760px; margin-bottom:24px;">
-          <div class="field-row">
-            <div class="field"><label for="yce_start">Ամսաթիվ (սկիզբ)</label><input type="date" id="yce_start" required></div>
-            <div class="field"><label for="yce_end">Ամսաթիվ (ավարտ, ոչ պարտադիր)</label><input type="date" id="yce_end"></div>
-          </div>
-          <div class="field-row-3">
-            <div class="field"><label for="yce_label_hy">Անվանում — ՀԱՅ</label><input id="yce_label_hy" required placeholder="օր.՝ Աշնանային արձակուրդ"></div>
-            <div class="field"><label for="yce_label_nl">Titel — NL</label><input id="yce_label_nl" placeholder="bv. Herfstvakantie"></div>
-            <div class="field"><label for="yce_label_en">Title — EN</label><input id="yce_label_en" placeholder="e.g. Autumn break"></div>
-          </div>
-          <div class="field-row-3">
-            <div class="field"><label for="yce_notes_hy">Նշումներ — ՀԱՅ (ոչ պարտադիր)</label><input id="yce_notes_hy"></div>
-            <div class="field"><label for="yce_notes_nl">Notities — NL (optioneel)</label><input id="yce_notes_nl"></div>
-            <div class="field"><label for="yce_notes_en">Notes — EN (optional)</label><input id="yce_notes_en"></div>
-          </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn blue" type="submit">Ավելացնել</button>
-            <button class="btn ghost" type="button" id="yearCalEntryCancelEdit" style="display:none;">Չեղարկել խմբագրումը</button>
-          </div>
-          <div class="form-msg" id="yearCalEntryMsg"></div>
-        </form>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Ամսաթիվ</th><th>Անվանում (ՀԱՅ)</th><th>Titel (NL)</th><th>Title (EN)</th><th></th></tr></thead>
-            <tbody id="yearCalAdminBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Manage own posts -->
-      <div class="dash-panel" id="panel-manage">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Վերնագիր</th><th>Տեսակ</th><th>Ամսաթիվ</th><th>Հեղինակ</th><th></th></tr></thead>
-            <tbody id="managePostsBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Registrations (admin only) -->
-      <div class="dash-panel" id="panel-reg">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Տեսակ</th><th>Անուն</th><th>Ծնունդ</th><th>Կապ</th><th>Դասընթացներ</th><th>Ուղարկվել է</th></tr></thead>
-            <tbody id="regBody"><tr><td colspan="6">Բեռնվում է…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Users (admin only) -->
-      <div class="dash-panel" id="panel-users">
-        <div class="banner warn">Նոր անձնակազմը գրանցվում է ինքնուրույն («Անձնակազմի մուտք» → «Գրանցվել որպես անձնակազմ»)՝ ընտրելով սեփական email և գաղտնաբառ։ Ստորև Դուք հաստատում եք հայտը՝ նշանակելով դեր (Admin կամ SMM)։ Առանց դերի հաշիվները մուտք գործել չեն կարող։</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Անուն</th><th>Email</th><th>Ընթացիկ դեր</th><th>Նոր դեր</th><th></th></tr></thead>
-            <tbody id="usersBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
-          </table>
-        </div>
-        <div class="form-msg" id="userMsg" style="margin-top:14px;"></div>
-      </div>
-      <!-- Site content (admin only) -->
-      <div class="dash-panel" id="panel-content">
-        <div class="banner warn">Այստեղ խմբագրվում է կայքի ողջ տեքստը՝ Hero, Մեր դպրոցը, Համազգային, Ուսումնական բաժին, Օրացույց, Միջոցառումներ, Լուսանկարներ, Գրանցում և Կապ բաժինների վերնագրերն ու նկարագրությունները՝ երեք լեզուներով (ՀԱՅ/NL/EN)։ Դատարկ դաշտերը կպահպանեն ընթացիկ տեքստը։</div>
-        <form class="card-form" id="contentForm" style="max-width:760px;">
-          <div id="contentFields"></div>
-          <button class="btn blue" type="submit">Պահպանել փոփոխությունները</button>
-          <div class="form-msg" id="contentMsg"></div>
-        </form>
-
-        <h3 style="margin-top:32px;">📍 Կոնտակտային տվյալներ</h3>
-        <p class="helper" style="margin-bottom:14px;">Հասցեն, էլ. փոստը և հեռախոսահամարը նույնն են բոլոր լեզուներով, ուստի այստեղ միայն մեկական դաշտ կա։</p>
-        <form class="card-form" id="contactInfoForm" style="max-width:520px;">
-          <div class="field"><label for="cf_address">Հասցե</label><input id="cf_address" placeholder="Nijverheidsstraat 45, 2800 Mechelen, België"></div>
-          <div class="field"><label for="cf_email">Էլ. փոստ</label><input id="cf_email" type="email" placeholder="levon.shant.dproc@gmail.com"></div>
-          <div class="field"><label for="cf_phone">Հեռախոս</label><input id="cf_phone" type="tel" placeholder="+32 487 53 40 61"></div>
-          <button class="btn blue" type="submit">Պահպանել կոնտակտային տվյալները</button>
-          <div class="form-msg" id="contactInfoMsg"></div>
-        </form>
-
-        <h3 style="margin-top:32px;">🏫 Դպրոցի լոգո</h3>
-        <form class="card-form" id="logoForm" style="max-width:520px;">
-          <div class="field"><label for="logo_file">Վերբեռնել նոր լոգո</label><input type="file" id="logo_file" accept="image/*"></div>
-          <div class="field"><label for="logo_url">...կամ պատկերի հղում</label><input id="logo_url" placeholder="https://..."></div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn blue" type="submit">Պահպանել լոգոն</button>
-            <button class="btn ghost" type="button" id="logoRemoveBtn">Հեռացնել լոգոն (վերադառնալ սկզբնականին)</button>
-          </div>
-          <div class="form-msg" id="logoMsg"></div>
-        </form>
-
-        <h3 style="margin-top:32px;">🗓️ Ուսումնական տարվա օրացույցի պատկեր</h3>
-        <form class="card-form" id="yearCalForm" style="max-width:520px;">
-          <div class="field"><label for="yc_file">Վերբեռնել նոր պատկեր</label><input type="file" id="yc_file" accept="image/*"></div>
-          <div class="field"><label for="yc_url">...կամ նկարի հղում</label><input id="yc_url" placeholder="https://..."></div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn blue" type="submit">Թարմացնել օրացույցի պատկերը</button>
-            <button class="btn ghost" type="button" id="yearCalRemoveBtn">Հեռացնել (վերադառնալ սկզբնականին)</button>
-          </div>
-          <div class="form-msg" id="yearCalMsg"></div>
-        </form>
-      </div>
-    </div>
-  </section>
 
 </main>
 
@@ -622,9 +408,9 @@
       <h4 data-i18n="foot.name">Լևոն Շանթ շաբաթօրյա դպրոց</h4>
       <p style="color:var(--paper-dim); font-size:.9rem;" data-i18n="foot.blurb">Համազգայինի Մեխելենի (Բելգիա) մասնաճյուղ։ Հայերեն, պատմություն, մշակույթ։</p>
       <div class="social-row">
-        <a href="https://www.facebook.com/groups/1419295908284023" target="_blank" rel="noopener">Facebook</a>
-        <a href="https://www.instagram.com/reel/DQe6DquiJK9/?igsh=dmo2dzB3cWQ3NXB0" target="_blank" rel="noopener">Instagram</a>
-        <a href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">Blog</a>
+        <a id="footerFbLink" href="https://www.facebook.com/groups/1419295908284023" target="_blank" rel="noopener">Facebook</a>
+        <a id="footerIgLink" href="https://www.instagram.com/reel/DQe6DquiJK9/?igsh=dmo2dzB3cWQ3NXB0" target="_blank" rel="noopener">Instagram</a>
+        <a id="footerBlogLink" href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">Blog</a>
       </div>
     </div>
     <div>
@@ -639,7 +425,7 @@
     </div>
     <div>
       <h4 data-i18n="contact.title2">Կապ</h4>
-      <p>Nijverheidsstraat 45<br>2800 Mechelen, België<br><a href="mailto:levon.shant.dproc@gmail.com">levon.shant.dproc@gmail.com</a><br><a href="tel:+32487534061">+32 487 53 40 61</a></p>
+      <p><span id="footerAddressVal">Nijverheidsstraat 45<br>2800 Mechelen, België</span><br><a id="footerEmailLink" href="mailto:levon.shant.dproc@gmail.com">levon.shant.dproc@gmail.com</a><br><a id="footerPhoneLink" href="tel:+32487534061">+32 487 53 40 61</a></p>
     </div>
   </div>
   <div class="container foot-bottom">
@@ -648,32 +434,12 @@
   </div>
 </footer>
 
-<!-- ============ LOGIN / SIGN-UP MODAL ============ -->
-<div class="modal-backdrop" id="loginBackdrop">
-  <div class="modal">
-    <button class="modal-close" id="closeLogin" aria-label="Փակել" data-i18n-aria="aria.close">✕</button>
-    <h2 data-i18n="auth.modalTitle">Անձնակազմի հաշիվ</h2>
-    <p class="sub" data-i18n="auth.modalSub">Admin և SMM հաշիվների համար։ Ծնողները հաշիվ պետք չէ գրանցման ձևը լրացնելու համար։</p>
-    <div class="tabs">
-      <button type="button" class="active" data-authtab="signin" data-i18n="auth.tabSignin">Մուտք</button>
-      <button type="button" data-authtab="signup" data-i18n="auth.tabSignup">Գրանցվել որպես անձնակազմ</button>
-    </div>
 
-    <form id="loginForm">
-      <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" required></div>
-      <div class="field" style="margin-top:12px;"><label for="loginPass" data-i18n="auth.passwordLabel">Գաղտնաբառ</label><input id="loginPass" type="password" required></div>
-      <button class="btn apricot" type="submit" style="margin-top:18px; width:100%; justify-content:center;" data-i18n="auth.submitSignin">Մուտք</button>
-      <div class="form-msg" id="loginMsg"></div>
-    </form>
-
-    <form id="signupForm" style="display:none;">
-      <p class="helper" style="margin-bottom:14px;" data-i18n="auth.signupHelper">Ընտրեք Ձեր անունը, email-ը և գաղտնաբառը։ Հաշիվը կակտիվանա միայն այն բանից հետո, երբ ադմինիստրատորը հաստատի այն և նշանակի Ձեր դերը (Admin կամ SMM)։</p>
-      <div class="field"><label for="signupName" data-i18n="auth.nameLabel">Անուն, ազգանուն</label><input id="signupName" required></div>
-      <div class="field" style="margin-top:12px;"><label for="signupEmail">Email</label><input id="signupEmail" type="email" required></div>
-      <div class="field" style="margin-top:12px;"><label for="signupPass" data-i18n="auth.passwordMinLabel">Գաղտնաբառ (առնվազն 6 նիշ)</label><input id="signupPass" type="password" minlength="6" required></div>
-      <button class="btn blue" type="submit" style="margin-top:18px; width:100%; justify-content:center;" data-i18n="auth.submitSignup">Ուղարկել հայտը</button>
-      <div class="form-msg" id="signupMsg"></div>
-    </form>
+<!-- ============ POST / EVENT DETAIL MODAL ============ -->
+<div class="modal-backdrop" id="postDetailBackdrop">
+  <div class="modal wide">
+    <button class="modal-close" id="closePostDetail" aria-label="Փակել">✕</button>
+    <div id="postDetailBody"></div>
   </div>
 </div>
 

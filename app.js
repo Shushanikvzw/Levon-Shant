@@ -39,9 +39,6 @@ if (supabaseConfigured) {
 }
 const SUPABASE_READY = !!supabase;
 
-let currentUser = null;   // Supabase auth user
-let currentRole = null;   // 'admin' | 'smm' | null
-
 // ---------------------------------------------------------
 // 1b. EMAILJS CONFIG — sends the school an organized email every time
 //     someone submits the child or adult registration form, in addition
@@ -554,193 +551,8 @@ const demoPosts = [
 ];
 
 // ---------------------------------------------------------
-// 3. Auth UI (sign in / sign up / dashboard)
+// 4. Posts: read (public); publishing/deleting happens in the admin area
 // ---------------------------------------------------------
-const authArea = document.getElementById("authArea");
-const loginBackdrop = document.getElementById("loginBackdrop");
-const dashboard = document.getElementById("dashboard");
-
-function renderAuthArea(){
-  authArea.innerHTML = "";
-  const t = (hy, key) => (currentLang !== "hy" && i18n[currentLang] && i18n[currentLang][key]) ? i18n[currentLang][key] : hy;
-  if (!currentUser) {
-    const btn = document.createElement("button");
-    btn.className = "btn ghost small";
-    btn.textContent = t("Անձնակազմի մուտք", "auth.signin");
-    btn.addEventListener("click", ()=> loginBackdrop.classList.add("open"));
-    authArea.appendChild(btn);
-    dashboard.style.display = "none";
-    return;
-  }
-  const wrap = document.createElement("div");
-  wrap.className = "auth-btn";
-  wrap.innerHTML = `<div class="avatar">${(currentUser.email||"?")[0].toUpperCase()}</div>`;
-  authArea.appendChild(wrap);
-  dashboard.style.display = "block";
-  document.getElementById("dashName").textContent = currentUser.email;
-  document.getElementById("signOutBtn").textContent = t("Դուրս գալ", "auth.signout");
-  const roleBadge = document.getElementById("dashRole");
-  roleBadge.textContent = currentRole === "admin" ? "Admin" : "SMM";
-  roleBadge.classList.toggle("admin", currentRole === "admin");
-  document.querySelectorAll('[data-admin-only]').forEach(el=>{
-    el.style.display = currentRole === "admin" ? "" : "none";
-  });
-  loadManagePosts();
-  loadScheduleAdmin();
-  loadStaffAdmin();
-  loadYearCalAdmin();
-  if (currentRole === "admin") { loadRegistrations(); loadUsers(); renderContentForm(); }
-}
-
-document.getElementById("closeLogin")?.addEventListener("click", ()=> loginBackdrop.classList.remove("open"));
-loginBackdrop.addEventListener("click", (e)=>{ if (e.target === loginBackdrop) loginBackdrop.classList.remove("open"); });
-
-// sign-in / sign-up tab switching within the modal
-document.querySelectorAll('.tabs button[data-authtab]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tabs button[data-authtab]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    const tab = btn.dataset.authtab;
-    document.getElementById('loginForm').style.display = tab === 'signin' ? '' : 'none';
-    document.getElementById('signupForm').style.display = tab === 'signup' ? '' : 'none';
-  });
-});
-
-document.getElementById("loginForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("loginMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին. տես README.md ֆայլը կարգավորման համար։";
-    msg.classList.add("show","err"); return;
-  }
-  const email = document.getElementById("loginEmail").value.trim();
-  const pass = document.getElementById("loginPass").value;
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-  if (error){
-    msg.textContent = "Մուտքը ձախողվեց՝ " + error.message;
-    msg.classList.add("show","err"); return;
-  }
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
-  if (!profile || !profile.role){
-    await supabase.auth.signOut();
-    msg.textContent = "Ձեր հաշիվը դեռ սպասում է ադմինիստրատորի հաստատմանը։";
-    msg.classList.add("show","err"); return;
-  }
-  loginBackdrop.classList.remove("open");
-  e.target.reset();
-});
-
-document.getElementById("signupForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("signupMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին. տես README.md ֆայլը կարգավորման համար։";
-    msg.classList.add("show","err"); return;
-  }
-  const name = document.getElementById("signupName").value.trim();
-  const email = document.getElementById("signupEmail").value.trim();
-  const pass = document.getElementById("signupPass").value;
-  const { error } = await supabase.auth.signUp({ email, password: pass, options: { data: { name } } });
-  if (error){
-    msg.textContent = "Սխալ՝ " + error.message;
-    msg.classList.add("show","err"); return;
-  }
-  msg.textContent = "Հայտն ուղարկվեց ✔ Սպասեք ադմինիստրատորի հաստատմանը, ապա մուտք գործեք «Մուտք» ներդիրից։";
-  msg.classList.add("show","ok");
-  e.target.reset();
-});
-
-document.getElementById("signOutBtn")?.addEventListener("click", ()=> supabase.auth.signOut());
-
-async function handleAuthChange(session){
-  if (!session){
-    currentUser = null; currentRole = null;
-    renderAuthArea();
-    return;
-  }
-  currentUser = session.user;
-  try{
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
-    currentRole = profile ? profile.role : null;
-  }catch(err){
-    currentRole = null;
-  }
-  if (!currentRole){
-    // signed in but not yet approved by an admin — don't show the dashboard
-    currentUser = null;
-    renderAuthArea();
-    return;
-  }
-  renderAuthArea();
-}
-
-if (SUPABASE_READY){
-  supabase.auth.onAuthStateChange((_event, session) => { handleAuthChange(session); });
-} else {
-  renderAuthArea();
-}
-
-// dashboard tabs
-document.querySelectorAll("#dashTabs .chip").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll("#dashTabs .chip").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelectorAll(".dash-panel").forEach(p=>p.classList.remove("active"));
-    document.getElementById(btn.dataset.panel).classList.add("active");
-  });
-});
-
-// ---------------------------------------------------------
-// 4. Posts: publish (admin + smm), read (public), delete (own or admin)
-// ---------------------------------------------------------
-document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("postMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY || !currentUser){
-    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
-    msg.classList.add("show","err"); return;
-  }
-  const type = document.getElementById("postType").value;
-  const title = document.getElementById("postTitle").value.trim();
-  const titleNl = document.getElementById("postTitle_nl").value.trim();
-  const titleEn = document.getElementById("postTitle_en").value.trim();
-  const body = document.getElementById("postBody").value.trim();
-  const bodyNl = document.getElementById("postBody_nl").value.trim();
-  const bodyEn = document.getElementById("postBody_en").value.trim();
-  const date = document.getElementById("postDate").value || new Date().toISOString().slice(0,10);
-  const file = document.getElementById("postFile").files[0];
-  let mediaUrl = document.getElementById("postMediaUrl").value.trim();
-  let mediaType = mediaUrl ? (mediaUrl.match(/\.(mp4|webm|mov)$/i) ? "video" : (mediaUrl.includes("youtube")||mediaUrl.includes("youtu.be") ? "youtube" : "image")) : null;
-
-  try{
-    if (file){
-      const path = `${currentUser.id}/${Date.now()}_${file.name}`;
-      const { error: upErr } = await supabase.storage.from("posts").upload(path, file);
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("posts").getPublicUrl(path);
-      mediaUrl = pub.publicUrl;
-      mediaType = file.type.startsWith("video") ? "video" : "image";
-    }
-    const { error } = await supabase.from("posts").insert({
-      type, title, title_nl: titleNl || null, title_en: titleEn || null,
-      body, body_nl: bodyNl || null, body_en: bodyEn || null,
-      date, media_url: mediaUrl || null, media_type: mediaType,
-      author_id: currentUser.id, author_name: currentUser.email
-    });
-    if (error) throw error;
-    msg.textContent = "Հրապարակվեց ✔";
-    msg.classList.add("show","ok");
-    e.target.reset();
-    loadFeed(); loadGallery(); loadManagePosts(); renderCalendar(); loadYearCalDisplay();
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message;
-    msg.classList.add("show","err");
-  }
-});
-
 async function fetchPosts(){
   if (!SUPABASE_READY) return demoPosts;
   const { data, error } = await supabase.from("posts").select("*").order("created_at", { ascending:false });
@@ -774,24 +586,76 @@ function postCardHTML(p){
   } else if (p.media_url) media = `<img src="${p.media_url}" alt="${title}">`;
   else media = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.85rem;">${pickLang({hy:"Առանց պատկերի", nl:"Geen afbeelding", en:"No image"})}</div>`;
 
-  return `<article class="post-card">
+  return `<article class="post-card" data-post-id="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(title)}">
     <div class="post-media">${media}<span class="kind">${kindLabel}</span></div>
     <div class="post-body">
       <span class="post-date">${p.date || ""}</span>
       <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(body)}</p>
-      <div class="post-foot"><span>${escapeHtml(p.author_name||"")}</span></div>
+      <div class="post-foot"><span>${escapeHtml(p.author_name||"")}</span><span class="post-more">${pickLang({hy:"Ավելին ↗", nl:"Meer info ↗", en:"More info ↗"})}</span></div>
     </div>
   </article>`;
 }
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function pickLang(dict){ return dict[currentLang] || dict.hy; }
 
+// ---------------------------------------------------------
+// Post/event detail modal — clicking a card opens the full
+// title, date, image/video, and description.
+// ---------------------------------------------------------
+let allKnownPosts = []; // combined feed + gallery cache, used to look up detail by id
+
+function openPostDetail(post){
+  const backdrop = document.getElementById("postDetailBackdrop");
+  const body = document.getElementById("postDetailBody");
+  if (!backdrop || !body || !post) return;
+  const title = postTitle(post, currentLang);
+  const desc = postBody(post, currentLang);
+  let media = "";
+  if (post.media_type === "video") media = `<video src="${post.media_url}" controls style="width:100%; border-radius:12px;"></video>`;
+  else if (post.media_type === "youtube") {
+    const idm = post.media_url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
+    const vid = idm ? idm[1] : "";
+    media = `<div style="aspect-ratio:16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen style="border-radius:12px;"></iframe></div>`;
+  } else if (post.media_url) media = `<img src="${post.media_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:12px; display:block;">`;
+
+  body.innerHTML = `
+    ${media}
+    <div style="padding-top:18px;">
+      <span class="post-date">${post.date || ""}</span>
+      <h2 style="margin:6px 0 12px;">${escapeHtml(title)}</h2>
+      <p style="color:var(--ink-soft); line-height:1.7; white-space:pre-line;">${escapeHtml(desc)}</p>
+      ${post.author_name ? `<p class="helper" style="margin-top:14px;">${escapeHtml(post.author_name)}</p>` : ""}
+    </div>`;
+  backdrop.classList.add("open");
+}
+
+document.getElementById("closePostDetail")?.addEventListener("click", ()=>{
+  document.getElementById("postDetailBackdrop")?.classList.remove("open");
+});
+document.getElementById("postDetailBackdrop")?.addEventListener("click", (e)=>{
+  if (e.target.id === "postDetailBackdrop") e.target.classList.remove("open");
+});
+
+function wireCardClicks(container){
+  if (!container) return;
+  container.querySelectorAll(".post-card").forEach(card=>{
+    const open = ()=>{
+      const post = allKnownPosts.find(p=>String(p.id) === card.dataset.postId);
+      if (post) openPostDetail(post);
+    };
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", (e)=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
+  });
+}
+
 let allPostsCache = [];
 async function loadFeed(){
   const el = document.getElementById("activitiesFeed");
+  if (!el) return;
   try{
     allPostsCache = await fetchPosts();
+    allKnownPosts = allPostsCache;
     renderFeed("all");
   }catch(err){
     el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել տվյալները։ (${err.message})</div>`;
@@ -801,6 +665,7 @@ function renderFeed(filter){
   const el = document.getElementById("activitiesFeed");
   const items = allPostsCache.filter(p=> p.type !== "gallery" && (filter==="all" || p.type===filter));
   el.innerHTML = items.length ? items.map(postCardHTML).join("") : `<div class="empty-state">Դեռ հրապարակումներ չկան։</div>`;
+  wireCardClicks(el);
 }
 document.querySelectorAll("#feedFilters .chip").forEach(btn=>{
   btn.addEventListener("click", ()=>{
@@ -812,42 +677,20 @@ document.querySelectorAll("#feedFilters .chip").forEach(btn=>{
 
 async function loadGallery(){
   const el = document.getElementById("galleryFeed");
+  if (!el) return;
   try{
     const posts = await fetchPosts();
+    allKnownPosts = [...allKnownPosts.filter(p=>!posts.some(np=>np.id===p.id)), ...posts];
     const items = posts.filter(p=> p.type==="gallery" || p.media_url);
     el.innerHTML = items.length ? items.map(postCardHTML).join("") : `<div class="empty-state">Դեռ նկարներ/տեսանյութեր չկան։</div>`;
+    wireCardClicks(el);
   }catch(err){
     el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
   }
 }
 
-async function loadManagePosts(){
-  const body = document.getElementById("managePostsBody");
-  try{
-    const posts = await fetchPosts();
-    const mine = currentRole === "admin" ? posts : posts.filter(p=>p.author_id === currentUser.id);
-    body.innerHTML = mine.length ? mine.map(p=>`
-      <tr>
-        <td>${escapeHtml(p.title||"")}</td>
-        <td>${p.type}</td>
-        <td>${p.date||""}</td>
-        <td>${escapeHtml(p.author_name||"")}</td>
-        <td><button class="btn danger small" data-del="${p.id}">Ջնջել</button></td>
-      </tr>`).join("") : `<tr><td colspan="5">Հրապարակումներ չկան։</td></tr>`;
-    body.querySelectorAll("[data-del]").forEach(b=>{
-      b.addEventListener("click", async ()=>{
-        if (!confirm("Ջնջե՞լ այս հրապարակումը։")) return;
-        await supabase.from("posts").delete().eq("id", b.dataset.del);
-        loadManagePosts(); loadFeed(); loadGallery(); renderCalendar(); loadYearCalDisplay();
-      });
-    });
-  }catch(err){
-    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
-  }
-}
-
 // ---------------------------------------------------------
-// 5. Registrations: public write, admin-only read
+// 5. Registrations: public write, admin-only read (viewing happens in admin.js)
 // ---------------------------------------------------------
 document.querySelectorAll('#regTypeToggle .chip').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -1001,206 +844,10 @@ document.getElementById("adultRegForm")?.addEventListener("submit", async (e)=>{
   await submitRegistration(payload, document.getElementById("adultRegMsg"), e.target);
 });
 
-async function loadRegistrations(){
-  const body = document.getElementById("regBody");
-  try{
-    const { data, error } = await supabase.from("registrations").select("*").order("submitted_at", { ascending:false });
-    if (error) throw error;
-    const rows = data || [];
-    body.innerHTML = rows.length ? rows.map(r=>{
-      const isChild = r.type === "child";
-      const name = isChild ? r.child_name : r.name;
-      const dob = isChild ? r.child_dob : r.dob;
-      const contact = isChild
-        ? `Մայր՝ ${escapeHtml(r.mother||"")}<br>Հայր՝ ${escapeHtml(r.father||"")}`
-        : `${escapeHtml(r.phone||"")}<br>${escapeHtml(r.email||"")}`;
-      const courses = (r.courses||[]).join(", ");
-      const submitted = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "";
-      return `<tr>
-        <td><span class="status-pill">${isChild ? "Երեխա" : "Մեծահասակ"}</span></td>
-        <td>${escapeHtml(name||"")}</td>
-        <td>${dob||""}</td>
-        <td>${contact}</td>
-        <td>${escapeHtml(courses)}</td>
-        <td>${submitted}</td>
-      </tr>`;
-    }).join("") : `<tr><td colspan="6">Դեռ գրանցումներ չկան։</td></tr>`;
-  }catch(err){
-    body.innerHTML = `<tr><td colspan="6">Սխալ (միայն admin-ը կարող է տեսնել)՝ ${err.message}</td></tr>`;
-  }
-}
-
 // ---------------------------------------------------------
-// 6. Admin: approve pending sign-ups and assign roles
+// 7. Site content editor (admin-only editing happens in admin.js;
+//    this file only reads the saved values to display them)
 // ---------------------------------------------------------
-async function loadUsers(){
-  const body = document.getElementById("usersBody");
-  try{
-    const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending:false });
-    if (error) throw error;
-    const rows = data || [];
-    body.innerHTML = rows.length ? rows.map(u=>`
-      <tr>
-        <td>${escapeHtml(u.name||"")}</td>
-        <td>${escapeHtml(u.email||"")}</td>
-        <td>${u.role ? `<span class="status-pill">${u.role}</span>` : `<span class="helper">Սպասում է</span>`}</td>
-        <td>
-          <select data-roleselect="${u.id}">
-            <option value="" ${!u.role ? "selected" : ""}>— (առանց հասանելիության)</option>
-            <option value="smm" ${u.role==='smm' ? "selected" : ""}>SMM</option>
-            <option value="admin" ${u.role==='admin' ? "selected" : ""}>Admin</option>
-          </select>
-        </td>
-        <td>${u.id !== currentUser.id ? `<button class="btn blue small" data-saverole="${u.id}">Պահպանել</button>` : `<span class="helper">Դուք</span>`}</td>
-      </tr>`).join("") : `<tr><td colspan="5">Հաշիվներ չկան։</td></tr>`;
-    body.querySelectorAll("[data-saverole]").forEach(b=>{
-      b.addEventListener("click", async ()=>{
-        const id = b.dataset.saverole;
-        const select = body.querySelector(`select[data-roleselect="${id}"]`);
-        const newRole = select.value || null;
-        const msg = document.getElementById("userMsg");
-        msg.className = "form-msg";
-        const { error } = await supabase.from("profiles").update({ role: newRole }).eq("id", id);
-        if (error){ msg.textContent = "Սխալ՝ " + error.message; msg.classList.add("show","err"); }
-        else { msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok"); loadUsers(); }
-      });
-    });
-  }catch(err){
-    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
-  }
-}
-
-// ---------------------------------------------------------
-// 7. Site content editor (admin only)
-// ---------------------------------------------------------
-const CONTENT_FIELDS = [
-  { section:"Hero", key:"hero.title", label:"Վերնագիր" },
-  { section:"Hero", key:"hero.lede",  label:"Նկարագրություն", area:true },
-
-  { section:"Մեր դպրոցը", key:"about.eyebrow", label:"Փոքր վերնագրիկ" },
-  { section:"Մեր դպրոցը", key:"about.title", label:"Վերնագիր" },
-  { section:"Մեր դպրոցը", key:"about.p1", label:"Պարբերություն 1", area:true },
-  { section:"Մեր դպրոցը", key:"about.p2", label:"Պարբերություն 2", area:true },
-  { section:"Մեր դպրոցը", key:"about.p3", label:"Պարբերություն 3", area:true },
-  { section:"Մեր դպրոցը", key:"about.card1title", label:"«Ինչ ենք առաջարկում» քարտ — վերնագիր" },
-  { section:"Մեր դպրոցը", key:"about.card1text", label:"«Ինչ ենք առաջարկում» քարտ — տեքստ", area:true },
-
-  { section:"Համազգային ընկերակցություն", key:"hz.eyebrow", label:"Փոքր վերնագրիկ" },
-  { section:"Համազգային ընկերակցություն", key:"hz.title", label:"Վերնագիր" },
-  { section:"Համազգային ընկերակցություն", key:"hz.p1", label:"Պարբերություն 1", area:true },
-  { section:"Համազգային ընկերակցություն", key:"hz.p2", label:"Պարբերություն 2", area:true },
-
-  { section:"Ուսումնական բաժին", key:"dept.eyebrow", label:"Փոքր վերնագրիկ" },
-  { section:"Ուսումնական բաժին", key:"dept.title", label:"Վերնագիր" },
-  { section:"Ուսումնական բաժին", key:"dept.lede", label:"Նկարագրություն", area:true },
-  { section:"Ուսումնական բաժին", key:"dept.c1t", label:"Քարտ 1 — վերնագիր" },
-  { section:"Ուսումնական բաժին", key:"dept.c1d", label:"Քարտ 1 — նկարագրություն" },
-  { section:"Ուսումնական բաժին", key:"dept.c2t", label:"Քարտ 2 — վերնագիր" },
-  { section:"Ուսումնական բաժին", key:"dept.c2d", label:"Քարտ 2 — նկարագրություն" },
-  { section:"Ուսումնական բաժին", key:"dept.c3t", label:"Քարտ 3 — վերնագիր" },
-  { section:"Ուսումնական բաժին", key:"dept.c3d", label:"Քարտ 3 — նկարագրություն" },
-  { section:"Ուսումնական բաժին", key:"dept.c4t", label:"Քարտ 4 — վերնագիր" },
-  { section:"Ուսումնական բաժին", key:"dept.c4d", label:"Քարտ 4 — նկարագրություն" },
-  { section:"Ուսումնական բաժին", key:"classes.list", label:"Դասարանների ցանկ (մեկ տողում մեկ դասարան)", area:true },
-
-  { section:"Օրացույց", key:"cal.eyebrow", label:"Փոքր վերնագրիկ (դասացուցակ)" },
-  { section:"Օրացույց", key:"cal.title", label:"Վերնագիր (դասացուցակ)" },
-  { section:"Օրացույց", key:"cal.lede", label:"Նկարագրություն (դասացուցակ)", area:true },
-  { section:"Օրացույց", key:"yearcal.eyebrow", label:"Փոքր վերնագրիկ (տարեկան օրացույց)" },
-  { section:"Օրացույց", key:"yearcal.title", label:"Վերնագիր (տարեկան օրացույց)" },
-  { section:"Օրացույց", key:"yearcal.lede", label:"Նկարագրություն (տարեկան օրացույց)", area:true },
-
-  { section:"Միջոցառումներ", key:"feed.eyebrow", label:"Փոքր վերնագրիկ" },
-  { section:"Միջոցառումներ", key:"feed.title", label:"Վերնագիր" },
-  { section:"Միջոցառումներ", key:"feed.lede", label:"Նկարագրություն", area:true },
-
-  { section:"Լուսանկարներ/տեսանյութեր", key:"gal.eyebrow", label:"Փոքր վերնագրիկ" },
-  { section:"Լուսանկարներ/տեսանյութեր", key:"gal.title", label:"Վերնագիր" },
-  { section:"Լուսանկարներ/տեսանյութեր", key:"gal.lede", label:"Նկարագրություն", area:true },
-
-  { section:"Գրանցում", key:"reg.eyebrow", label:"Փոքր վերնագրիկ" },
-  { section:"Գրանցում", key:"reg.title", label:"Վերնագիր" },
-  { section:"Գրանցում", key:"reg.lede", label:"Նկարագրություն", area:true },
-  { section:"Գրանցում", key:"reg.needt", label:"«Ի՞նչ է անհրաժեշտ» — վերնագիր" },
-  { section:"Գրանցում", key:"reg.need1", label:"Կետ 1" },
-  { section:"Գրանցում", key:"reg.need2", label:"Կետ 2" },
-  { section:"Գրանցում", key:"reg.need3", label:"Կետ 3" },
-
-  { section:"Կապ", key:"contact.eyebrow", label:"Փոքր վերնագրիկ" },
-  { section:"Կապ", key:"contact.title", label:"Վերնագիր" }
-];
-
-function currentTextFor(key){
-  const el = document.querySelector(`[data-i18n="${key}"]`);
-  const override = contentOverrides[key];
-  if (key === "classes.list"){
-    return {
-      hy: override?.hy || DEFAULT_CLASSES.hy,
-      nl: override?.nl || DEFAULT_CLASSES.nl,
-      en: override?.en || DEFAULT_CLASSES.en
-    };
-  }
-  return {
-    hy: override?.hy || el?.dataset.orig || "",
-    nl: override?.nl || i18n.nl[key] || "",
-    en: override?.en || i18n.en[key] || ""
-  };
-}
-
-function renderContentForm(){
-  const wrap = document.getElementById("contentFields");
-  let currentSection = null;
-  let html = "";
-  CONTENT_FIELDS.forEach((f, i)=>{
-    if (f.section !== currentSection){
-      currentSection = f.section;
-      html += `<h3 class="content-section-head"${i>0 ? ' style="margin-top:30px;"' : ''}>${escapeHtml(currentSection)}</h3>`;
-    }
-    const cur = currentTextFor(f.key);
-    const field = (lang, labelText, value) => `
-        <div class="field">
-          <label>${f.label} — ${labelText}</label>
-          ${f.area
-            ? `<textarea rows="3" data-field="${f.key}" data-lang="${lang}">${escapeHtml(value)}</textarea>`
-            : `<input data-field="${f.key}" data-lang="${lang}" value="${escapeHtml(value)}">`}
-        </div>`;
-    html += `
-      <div class="field-row-3" style="margin-bottom:14px; align-items:start;">
-        ${field("hy", "ՀԱՅ", cur.hy)}
-        ${field("nl", "NL", cur.nl)}
-        ${field("en", "EN", cur.en)}
-      </div>`;
-  });
-  wrap.innerHTML = html;
-}
-
-document.getElementById("contentForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("contentMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
-    msg.classList.add("show","err"); return;
-  }
-  const rows = CONTENT_FIELDS.map(f=>{
-    const hyVal = document.querySelector(`[data-field="${f.key}"][data-lang="hy"]`).value.trim();
-    const nlVal = document.querySelector(`[data-field="${f.key}"][data-lang="nl"]`).value.trim();
-    const enVal = document.querySelector(`[data-field="${f.key}"][data-lang="en"]`).value.trim();
-    const existing = currentTextFor(f.key);
-    return { key: f.key, value_hy: hyVal || existing.hy, value_nl: nlVal || existing.nl, value_en: enVal || existing.en };
-  });
-  try{
-    const { error } = await supabase.from("site_content").upsert(rows);
-    if (error) throw error;
-    rows.forEach(r=>{ contentOverrides[r.key] = { hy:r.value_hy, nl:r.value_nl, en:r.value_en }; });
-    applyLang(currentLang);
-    msg.textContent = "Պահպանվեց ✔";
-    msg.classList.add("show","ok");
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message;
-    msg.classList.add("show","err");
-  }
-});
 
 async function loadSiteContent(){
   if (!SUPABASE_READY) return;
@@ -1229,53 +876,34 @@ function applyContactInfo(){
   const addr = contentOverrides.contactAddress?.hy;
   const email = contentOverrides.contactEmail?.hy;
   const phone = contentOverrides.contactPhone?.hy;
+  const fb = contentOverrides.contactFacebook?.hy;
+  const ig = contentOverrides.contactInstagram?.hy;
+  const blog = contentOverrides.contactBlog?.hy;
+
   if (addr){
-    const el = document.getElementById("contactAddressVal");
-    if (el) el.textContent = addr;
+    document.getElementById("contactAddressVal")?.replaceChildren(document.createTextNode(addr));
+    document.getElementById("footerAddressVal")?.replaceChildren(document.createTextNode(addr));
   }
   if (email){
-    const el = document.getElementById("contactEmailLink");
-    if (el){ el.textContent = email; el.href = "mailto:" + email; }
+    [document.getElementById("contactEmailLink"), document.getElementById("footerEmailLink")].forEach(el=>{
+      if (el){ el.textContent = email; el.href = "mailto:" + email; }
+    });
   }
   if (phone){
-    const el = document.getElementById("contactPhoneLink");
-    if (el){ el.textContent = phone; el.href = "tel:" + phone.replace(/[^\d+]/g, ""); }
+    [document.getElementById("contactPhoneLink"), document.getElementById("footerPhoneLink")].forEach(el=>{
+      if (el){ el.textContent = phone; el.href = "tel:" + phone.replace(/[^\d+]/g, ""); }
+    });
   }
-  // pre-fill the admin form with current values so it's obvious what's live
-  const addrInput = document.getElementById("cf_address");
-  const emailInput = document.getElementById("cf_email");
-  const phoneInput = document.getElementById("cf_phone");
-  if (addrInput && !addrInput.value) addrInput.value = addr || document.getElementById("contactAddressVal")?.textContent || "";
-  if (emailInput && !emailInput.value) emailInput.value = email || document.getElementById("contactEmailLink")?.textContent || "";
-  if (phoneInput && !phoneInput.value) phoneInput.value = phone || document.getElementById("contactPhoneLink")?.textContent || "";
+  if (fb){
+    [document.getElementById("contactFbLink"), document.getElementById("footerFbLink")].forEach(el=>{ if (el) el.href = fb; });
+  }
+  if (ig){
+    [document.getElementById("contactIgLink"), document.getElementById("footerIgLink")].forEach(el=>{ if (el) el.href = ig; });
+  }
+  if (blog){
+    [document.getElementById("contactBlogLink"), document.getElementById("footerBlogLink")].forEach(el=>{ if (el) el.href = blog; });
+  }
 }
-
-document.getElementById("contactInfoForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("contactInfoMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
-    msg.classList.add("show","err"); return;
-  }
-  const address = document.getElementById("cf_address").value.trim();
-  const email = document.getElementById("cf_email").value.trim();
-  const phone = document.getElementById("cf_phone").value.trim();
-  const rows = [];
-  if (address) rows.push({ key:"contactAddress", value_hy:address, value_nl:address, value_en:address });
-  if (email) rows.push({ key:"contactEmail", value_hy:email, value_nl:email, value_en:email });
-  if (phone) rows.push({ key:"contactPhone", value_hy:phone, value_nl:phone, value_en:phone });
-  if (!rows.length){ msg.textContent = "Լրացրեք գոնե մեկ դաշտ։"; msg.classList.add("show","err"); return; }
-  try{
-    const { error } = await supabase.from("site_content").upsert(rows);
-    if (error) throw error;
-    rows.forEach(r=>{ contentOverrides[r.key] = { hy:r.value_hy, nl:r.value_nl, en:r.value_en }; });
-    applyContactInfo();
-    msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
 
 // ---------------------------------------------------------
 // 8. Weekly lesson schedule ("Դասացուցակ") — shared, staff-editable.
@@ -1341,115 +969,6 @@ async function loadSchedule(){
       </div>`).join("") : `<div class="empty-state">${pickLang({hy:"Դասացուցակը դեռ լրացված չէ։", nl:"Het lesrooster is nog niet ingevuld.", en:"The schedule hasn't been filled in yet."})}</div>`;
   }catch(err){
     el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
-  }
-}
-
-let editingScheduleId = null;
-function setScheduleFormMode(editing){
-  const btn = document.querySelector('#scheduleForm button[type="submit"]');
-  const cancelBtn = document.getElementById("scheduleCancelEdit");
-  btn.textContent = editing ? "Պահպանել փոփոխությունը" : "Ավելացնել դասացուցակում";
-  cancelBtn.style.display = editing ? "" : "none";
-}
-
-document.getElementById("scheduleForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("scheduleMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY || !currentUser){
-    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
-    msg.classList.add("show","err"); return;
-  }
-  const payload = {
-    start_time: document.getElementById("s_start").value,
-    end_time: document.getElementById("s_end").value,
-    course: document.getElementById("s_course_hy").value.trim(),
-    course_nl: document.getElementById("s_course_nl").value.trim(),
-    course_en: document.getElementById("s_course_en").value.trim(),
-    teacher: document.getElementById("s_teacher").value.trim(),
-    teacher_latin: document.getElementById("s_teacher_latin").value.trim() || null,
-    added_by: currentUser.email
-  };
-  try{
-    if (editingScheduleId){
-      const { error } = await supabase.from("schedule").update(payload).eq("id", editingScheduleId);
-      if (error) throw error;
-      msg.textContent = "Թարմացվեց ✔";
-      editingScheduleId = null;
-      setScheduleFormMode(false);
-    } else {
-      const { error } = await supabase.from("schedule").insert(payload);
-      if (error) throw error;
-      msg.textContent = "Ավելացվեց ✔";
-    }
-    msg.classList.add("show","ok");
-    e.target.reset();
-    loadSchedule(); loadScheduleAdmin(); renderCalendar();
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
-
-document.getElementById("scheduleCancelEdit")?.addEventListener("click", ()=>{
-  editingScheduleId = null;
-  document.getElementById("scheduleForm").reset();
-  setScheduleFormMode(false);
-});
-
-async function loadScheduleAdmin(){
-  const body = document.getElementById("scheduleAdminBody");
-  if (!body) return;
-  try{
-    const rows = await fetchSchedule();
-    body.innerHTML = rows.length ? rows.map(r=>`
-      <tr>
-        <td><label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-          <input type="checkbox" data-toggleactive="${r.id}" ${r.active !== false ? "checked" : ""}>
-          <span class="helper">${r.active !== false ? "Ցուցադրվում է" : "Թաքցված է"}</span>
-        </label></td>
-        <td>${timeLabel(r.start)}–${timeLabel(r.end)}</td>
-        <td>${escapeHtml(r.course||"")}</td>
-        <td>${escapeHtml(r.courseNl||"")}</td>
-        <td>${escapeHtml(r.courseEn||"")}</td>
-        <td>${escapeHtml(r.teacher||"")}</td>
-        <td>${escapeHtml(r.teacherLatin||"")}</td>
-        <td style="display:flex; gap:6px;">
-          <button class="btn ghost small" data-editsched="${r.id}">Խմբագրել</button>
-          <button class="btn danger small" data-delsched="${r.id}">Ջնջել</button>
-        </td>
-      </tr>`).join("") : `<tr><td colspan="8">Դասացուցակը դատարկ է։</td></tr>`;
-    body.querySelectorAll("[data-toggleactive]").forEach(cb=>{
-      cb.addEventListener("change", async ()=>{
-        await supabase.from("schedule").update({ active: cb.checked }).eq("id", cb.dataset.toggleactive);
-        loadSchedule(); loadScheduleAdmin(); renderCalendar();
-      });
-    });
-    body.querySelectorAll("[data-delsched]").forEach(b=>{
-      b.addEventListener("click", async ()=>{
-        if (!confirm("Ջնջե՞լ այս գիծը դասացուցակից։")) return;
-        await supabase.from("schedule").delete().eq("id", b.dataset.delsched);
-        loadSchedule(); loadScheduleAdmin(); renderCalendar();
-      });
-    });
-    body.querySelectorAll("[data-editsched]").forEach(b=>{
-      b.addEventListener("click", async ()=>{
-        const rows2 = await fetchSchedule();
-        const row = rows2.find(r=>r.id === b.dataset.editsched);
-        if (!row) return;
-        document.getElementById("s_start").value = row.start || "";
-        document.getElementById("s_end").value = row.end || "";
-        document.getElementById("s_course_hy").value = row.course || "";
-        document.getElementById("s_course_nl").value = row.courseNl || "";
-        document.getElementById("s_course_en").value = row.courseEn || "";
-        document.getElementById("s_teacher").value = row.teacher || "";
-        document.getElementById("s_teacher_latin").value = row.teacherLatin || "";
-        editingScheduleId = row.id;
-        setScheduleFormMode(true);
-        document.getElementById("scheduleForm").scrollIntoView({ behavior:"smooth", block:"center" });
-      });
-    });
-  }catch(err){
-    body.innerHTML = `<tr><td colspan="8">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
 
@@ -1566,7 +1085,7 @@ async function renderCalendar(){
     }
     const dayEvents = eventsByDate[calSelectedDate] || [];
     html += dayEvents.map(ev=>`
-      <div class="cal-event-item">
+      <div class="cal-event-item${ev.source === 'post' ? ' clickable' : ''}" ${ev.source === 'post' ? `data-post-id="${ev.id}"` : ''}>
         <span class="cal-event-date">${formatDateRange(ev.start, ev.end)}</span>
         <div><h4>${escapeHtml(yearCalLabel(ev, currentLang))}</h4>${yearCalNotes(ev, currentLang) ? `<p>${escapeHtml(yearCalNotes(ev, currentLang))}</p>` : ""}</div>
       </div>`).join("");
@@ -1579,7 +1098,7 @@ async function renderCalendar(){
       .filter(ev => expandDateRange(ev.start, ev.end).some(d => d.startsWith(monthPrefix)))
       .sort((a,b)=>a.start.localeCompare(b.start));
     html = monthEvents.length ? monthEvents.map(ev=>`
-      <div class="cal-event-item">
+      <div class="cal-event-item${ev.source === 'post' ? ' clickable' : ''}" ${ev.source === 'post' ? `data-post-id="${ev.id}"` : ''}>
         <span class="cal-event-date">${formatDateRange(ev.start, ev.end)}</span>
         <div><h4>${escapeHtml(yearCalLabel(ev, currentLang))}</h4>${yearCalNotes(ev, currentLang) ? `<p>${escapeHtml(yearCalNotes(ev, currentLang))}</p>` : ""}</div>
       </div>`).join("") : `<div class="empty-state">${pickLang({
@@ -1590,6 +1109,13 @@ async function renderCalendar(){
   }
 
   listEl.innerHTML = html;
+  listEl.querySelectorAll(".cal-event-item.clickable").forEach(item=>{
+    item.addEventListener("click", async ()=>{
+      if (!allKnownPosts.length) allKnownPosts = await fetchPosts();
+      const post = allKnownPosts.find(p=>String(p.id) === item.dataset.postId);
+      if (post) openPostDetail(post);
+    });
+  });
 }
 
 document.getElementById("calPrev")?.addEventListener("click", ()=>{
@@ -1644,6 +1170,7 @@ function staffInitials(name){
 
 async function loadStaff(){
   const el = document.getElementById("staffGrid");
+  if (!el) return;
   try{
     const rows = await fetchStaff();
     el.innerHTML = rows.length ? rows.map(t=>{
@@ -1664,67 +1191,6 @@ async function loadStaff(){
   }
 }
 
-document.getElementById("staffForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("staffMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY || !currentUser){
-    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
-    msg.classList.add("show","err"); return;
-  }
-  try{
-    const file = document.getElementById("st_photoFile").files[0];
-    let photoUrl = document.getElementById("st_photoUrl").value.trim();
-    if (file){
-      const path = `${Date.now()}_${file.name}`;
-      const { error: upErr } = await supabase.storage.from("staff").upload(path, file);
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("staff").getPublicUrl(path);
-      photoUrl = pub.publicUrl;
-    }
-    const { error } = await supabase.from("staff").insert({
-      name: document.getElementById("st_name").value.trim(),
-      name_latin: document.getElementById("st_name_latin").value.trim() || null,
-      role: document.getElementById("st_role_hy").value.trim(),
-      role_nl: document.getElementById("st_role_nl").value.trim(),
-      role_en: document.getElementById("st_role_en").value.trim(),
-      photo_url: photoUrl || null,
-      added_by: currentUser.email
-    });
-    if (error) throw error;
-    msg.textContent = "Ավելացվեց ✔"; msg.classList.add("show","ok");
-    e.target.reset();
-    loadStaff(); loadStaffAdmin();
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
-
-async function loadStaffAdmin(){
-  const body = document.getElementById("staffAdminBody");
-  if (!body) return;
-  try{
-    const rows = await fetchStaff();
-    body.innerHTML = rows.length ? rows.map(t=>`
-      <tr>
-        <td>${escapeHtml(t.name||"")}</td>
-        <td>${escapeHtml(t.nameLatin||"")}</td>
-        <td>${escapeHtml(t.role||"")}</td>
-        <td>${escapeHtml(t.roleNl||"")}</td>
-        <td>${escapeHtml(t.roleEn||"")}</td>
-        <td><button class="btn danger small" data-delstaff="${t.id}">Ջնջել</button></td>
-      </tr>`).join("") : `<tr><td colspan="6">Անձնակազմի ցանկը դատարկ է։</td></tr>`;
-    body.querySelectorAll("[data-delstaff]").forEach(b=>{
-      b.addEventListener("click", async ()=>{
-        if (!confirm("Ջնջե՞լ այս անձնակազմի անդամին։")) return;
-        await supabase.from("staff").delete().eq("id", b.dataset.delstaff);
-        loadStaff(); loadStaffAdmin();
-      });
-    });
-  }catch(err){
-    body.innerHTML = `<tr><td colspan="6">Սխալ՝ ${err.message}</td></tr>`;
-  }
-}
 
 // ---------------------------------------------------------
 // 11. Yearly academic calendar — dynamic, staff-editable, bilingual
@@ -1833,6 +1299,7 @@ async function loadYearCalDisplay(){
   const listEl = document.getElementById("yearCalList");
   const imgWrap = document.getElementById("yearCalImageWrap");
   const yearLabelEl = document.getElementById("yearCalYearLabel");
+  if (!listEl || !imgWrap) return;
   if (yearLabelEl) yearLabelEl.textContent = academicYearLabel(yearCalViewStartYear);
   try{
     const allEntries = await fetchAllEvents();
@@ -1877,219 +1344,25 @@ async function loadYearCalDisplay(){
   }
 }
 
-let editingYearCalId = null;
-function setYearCalFormMode(editing){
-  const btn = document.querySelector('#yearCalEntryForm button[type="submit"]');
-  const cancelBtn = document.getElementById("yearCalEntryCancelEdit");
-  btn.textContent = editing ? "Պահպանել փոփոխությունը" : "Ավելացնել";
-  cancelBtn.style.display = editing ? "" : "none";
-}
-
-document.getElementById("yearCalEntryForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("yearCalEntryMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY || !currentUser){
-    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
-    msg.classList.add("show","err"); return;
-  }
-  const startVal = document.getElementById("yce_start").value;
-  const payload = {
-    start_date: startVal,
-    end_date: document.getElementById("yce_end").value || startVal,
-    label_hy: document.getElementById("yce_label_hy").value.trim(),
-    label_nl: document.getElementById("yce_label_nl").value.trim(),
-    label_en: document.getElementById("yce_label_en").value.trim(),
-    notes_hy: document.getElementById("yce_notes_hy").value.trim(),
-    notes_nl: document.getElementById("yce_notes_nl").value.trim(),
-    notes_en: document.getElementById("yce_notes_en").value.trim(),
-    added_by: currentUser.email
-  };
-  try{
-    if (editingYearCalId){
-      const { error } = await supabase.from("yearly_events").update(payload).eq("id", editingYearCalId);
-      if (error) throw error;
-      msg.textContent = "Թարմացվեց ✔";
-      editingYearCalId = null;
-      setYearCalFormMode(false);
-    } else {
-      const { error } = await supabase.from("yearly_events").insert(payload);
-      if (error) throw error;
-      msg.textContent = "Ավելացվեց ✔";
-    }
-    msg.classList.add("show","ok");
-    e.target.reset();
-    loadYearCalDisplay(); loadYearCalAdmin(); renderCalendar();
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
-
-document.getElementById("yearCalEntryCancelEdit")?.addEventListener("click", ()=>{
-  editingYearCalId = null;
-  document.getElementById("yearCalEntryForm").reset();
-  setYearCalFormMode(false);
-});
-
-async function loadYearCalAdmin(){
-  const body = document.getElementById("yearCalAdminBody");
-  if (!body) return;
-  try{
-    const rows = await fetchYearCalEntries();
-    body.innerHTML = rows.length ? rows.map(r=>`
-      <tr>
-        <td>${formatDateRange(r.start, r.end)}</td>
-        <td>${escapeHtml(r.labelHy||"")}</td>
-        <td>${escapeHtml(r.labelNl||"")}</td>
-        <td>${escapeHtml(r.labelEn||"")}</td>
-        <td style="display:flex; gap:6px;">
-          <button class="btn ghost small" data-edityc="${r.id||''}">Խմբագրել</button>
-          <button class="btn danger small" data-delyc="${r.id||''}">Ջնջել</button>
-        </td>
-      </tr>`).join("") : `<tr><td colspan="5">Դեռ գծեր չկան։ Այցելուները կտեսնեն սկզբնական պատկերը։</td></tr>`;
-    body.querySelectorAll("[data-delyc]").forEach(b=>{
-      b.addEventListener("click", async ()=>{
-        if (!confirm("Ջնջե՞լ այս գիծը տարեկան օրացույցից։")) return;
-        await supabase.from("yearly_events").delete().eq("id", b.dataset.delyc);
-        loadYearCalDisplay(); loadYearCalAdmin(); renderCalendar();
-      });
-    });
-    body.querySelectorAll("[data-edityc]").forEach(b=>{
-      b.addEventListener("click", async ()=>{
-        const rows2 = await fetchYearCalEntries();
-        const row = rows2.find(r=>r.id === b.dataset.edityc);
-        if (!row) return;
-        document.getElementById("yce_start").value = row.start || "";
-        document.getElementById("yce_end").value = (row.end && row.end !== row.start) ? row.end : "";
-        document.getElementById("yce_label_hy").value = row.labelHy || "";
-        document.getElementById("yce_label_nl").value = row.labelNl || "";
-        document.getElementById("yce_label_en").value = row.labelEn || "";
-        document.getElementById("yce_notes_hy").value = row.notesHy || "";
-        document.getElementById("yce_notes_nl").value = row.notesNl || "";
-        document.getElementById("yce_notes_en").value = row.notesEn || "";
-        editingYearCalId = row.id;
-        setYearCalFormMode(true);
-        document.getElementById("yearCalEntryForm").scrollIntoView({ behavior:"smooth", block:"center" });
-      });
-    });
-  }catch(err){
-    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
-  }
-}
 
 // ---------------------------------------------------------
-// 12. Yearly calendar overview image — editable by admin from the
-//     Site Content tab; falls back to the school's original graphic.
+// 12. Yearly calendar overview image — falls back to the school's
+//     original graphic; editable from the admin area (admin.html).
 // ---------------------------------------------------------
 const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg")?.getAttribute("src") || "";
 
-document.getElementById("yearCalForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("yearCalMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
-    msg.classList.add("show","err"); return;
-  }
-  try{
-    const file = document.getElementById("yc_file").files[0];
-    let url = document.getElementById("yc_url").value.trim();
-    if (file){
-      const path = `yearCalendar_${Date.now()}_${file.name}`;
-      const { error: upErr } = await supabase.storage.from("site-assets").upload(path, file);
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("site-assets").getPublicUrl(path);
-      url = pub.publicUrl;
-    }
-    if (!url){ msg.textContent = "Ընտրեք ֆայլ կամ լրացրեք հղումը։"; msg.classList.add("show","err"); return; }
-    const { error } = await supabase.from("site_content").upsert({ key:"yearCalImage", value_hy:url, value_nl:url, value_en:url });
-    if (error) throw error;
-    contentOverrides.yearCalImage = { hy:url, nl:url, en:url };
-    document.getElementById("yearCalImg").src = url;
-    msg.textContent = "Թարմացվեց ✔"; msg.classList.add("show","ok");
-    e.target.reset();
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
-
-document.getElementById("yearCalRemoveBtn")?.addEventListener("click", async ()=>{
-  const msg = document.getElementById("yearCalMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
-    msg.classList.add("show","err"); return;
-  }
-  try{
-    const { error } = await supabase.from("site_content").upsert({ key:"yearCalImage", value_hy:null, value_nl:null, value_en:null });
-    if (error) throw error;
-    contentOverrides.yearCalImage = null;
-    document.getElementById("yearCalImg").src = DEFAULT_YEAR_CAL_URL;
-    msg.textContent = "Վերականգնվեց սկզբնական պատկերը ✔"; msg.classList.add("show","ok");
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
-
 // ---------------------------------------------------------
-// 13. School logo — editable by admin from the Site Content tab.
+// 13. School logo — editable from the admin area (admin.html).
 // ---------------------------------------------------------
 function applyLogo(url){
   const box = document.getElementById("crestBox");
+  if (!box) return;
   if (url){
     box.innerHTML = `<img src="${url}" alt="Դպրոցի լոգո">`;
   } else {
     box.innerHTML = `<span id="crestInitials">ԼՇ</span>`;
   }
 }
-
-document.getElementById("logoForm")?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const msg = document.getElementById("logoMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
-    msg.classList.add("show","err"); return;
-  }
-  try{
-    const file = document.getElementById("logo_file").files[0];
-    let url = document.getElementById("logo_url").value.trim();
-    if (file){
-      const path = `logo_${Date.now()}_${file.name}`;
-      const { error: upErr } = await supabase.storage.from("site-assets").upload(path, file);
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("site-assets").getPublicUrl(path);
-      url = pub.publicUrl;
-    }
-    if (!url){ msg.textContent = "Ընտրեք ֆայլ կամ լրացրեք հղումը։"; msg.classList.add("show","err"); return; }
-    const { error } = await supabase.from("site_content").upsert({ key:"logoUrl", value_hy:url, value_nl:url, value_en:url });
-    if (error) throw error;
-    contentOverrides.logoUrl = { hy:url, nl:url, en:url };
-    applyLogo(url);
-    msg.textContent = "Լոգոն պահպանվեց ✔"; msg.classList.add("show","ok");
-    e.target.reset();
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
-
-document.getElementById("logoRemoveBtn")?.addEventListener("click", async ()=>{
-  const msg = document.getElementById("logoMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!SUPABASE_READY){
-    msg.textContent = "Supabase-ը դեռ կարգավորված չէ. տես README.md։";
-    msg.classList.add("show","err"); return;
-  }
-  try{
-    const { error } = await supabase.from("site_content").upsert({ key:"logoUrl", value_hy:null, value_nl:null, value_en:null });
-    if (error) throw error;
-    contentOverrides.logoUrl = null;
-    applyLogo(null);
-    msg.textContent = "Լոգոն հեռացվեց ✔"; msg.classList.add("show","ok");
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
-  }
-});
 
 // initial load
 renderTimeline("hy");

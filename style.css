@@ -193,15 +193,18 @@ section.alt{background:var(--paper-dim);}
 .post-card{
   background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
   overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column;
+  cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
 }
+.post-card:hover, .post-card:focus-visible{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(18,28,20,0.14); }
 .post-media{aspect-ratio:16/10; background:var(--paper-dim); overflow:hidden; position:relative;}
 .post-media img, .post-media video{width:100%; height:100%; object-fit:cover; object-position:center;}
 .post-media .kind{position:absolute; top:10px; left:10px; background:rgba(36,27,21,.7); color:#fff; font-size:.72rem; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em;}
 .post-body{padding:18px; display:flex; flex-direction:column; gap:8px; flex:1;}
 .post-date{font-size:.78rem; color:var(--ink-soft); font-weight:600; letter-spacing:.02em;}
 .post-body h3{margin:0;}
-.post-body p{color:var(--ink-soft); font-size:.92rem; margin:0; flex:1;}
+.post-body p{color:var(--ink-soft); font-size:.92rem; margin:0; flex:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
 .post-foot{display:flex; align-items:center; justify-content:space-between; padding-top:6px; border-top:1px dashed var(--line); font-size:.78rem; color:var(--ink-soft);}
+.post-more{color:var(--blue); font-weight:700;}
 .post-actions{display:flex; gap:6px;}
 .empty-state{
   border:1.5px dashed var(--line); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--ink-soft); background:var(--card);
@@ -317,6 +320,8 @@ section.alt{background:var(--paper-dim);}
 .cal-event-item{
   display:flex; gap:12px; align-items:flex-start; padding:11px 13px; border:1px solid var(--line); border-radius:10px; background:var(--paper);
 }
+.cal-event-item.clickable{ cursor:pointer; transition:border-color .15s ease, background .15s ease; }
+.cal-event-item.clickable:hover{ border-color:var(--blue); background:var(--paper-dim); }
 .cal-event-date{
   font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--pomegranate); font-size:.8rem;
   background:var(--paper-dim); padding:4px 9px; border-radius:8px; white-space:nowrap; flex:none;

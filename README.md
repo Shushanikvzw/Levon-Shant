@@ -3,25 +3,39 @@
 A trilingual (Armenian / Dutch / English) website for the school: history timeline,
 Hamazkayin background, teaching staff directory, full course list, a weekly lesson
 schedule synchronized with an events calendar, a yearly academic calendar (month
-raster, trilingual, editable, switchable by school year), a photo/video gallery, child
-and adult registration forms (with an organized email sent to the school on every
-submission), and a staff dashboard.
+raster, trilingual, editable, switchable by school year), a photo/video gallery with
+clickable post/event detail views, child and adult registration forms (with an
+organized email sent to the school on every submission), and a **separate admin area**
+for staff.
 
 **Backend: [Supabase](https://supabase.com)** — Postgres database with Row Level
 Security, Auth, and Storage. Free tier is enough for a school site.
 
+**Two pages:**
+- **`index.html`** — the public website. No login, no editing tools — just the school's
+  content, in three languages.
+- **`admin.html`** — a separate, dedicated page for staff. Reached via the "🔐
+  Անձնակազմի մուտք" link in the public site's header, which opens it in a new browser
+  tab. Has its own sign-in/sign-up screen and a sidebar-organized dashboard (grouped
+  into "Բովանդակություն" for day-to-day publishing and "Կառավարում" for
+  registrations/accounts/site text/settings), so admin/SMM never see editing tools
+  mixed into the public pages.
+
 Two roles:
 - **Admin** — full access: publish/edit/delete anything, view registrations, approve
-  new staff accounts and assign roles, edit all site text, manage the logo.
+  new staff accounts and assign roles, edit all site text, manage the logo and contact/
+  social links.
 - **SMM** — publish news/events/images/videos, manage the weekly schedule, the yearly
   calendar, and the staff directory; edit/delete their own posts.
 
 ## Files
 
 ```
-index.html                     the whole site (all sections + login/sign-up modal + dashboard)
-style.css                       design system
-app.js                          Supabase auth/database/storage logic, i18n, calendar, CMS
+index.html                     the public website (no editing tools)
+admin.html                      the separate admin area: sign-in/sign-up + sidebar dashboard
+style.css                       shared design system for both pages
+app.js                          public-site logic: i18n, calendar, registration forms, EmailJS
+admin.js                        admin-only logic: auth, all publishing/editing/CRUD actions
 supabase/migrations/0001_init.sql        database schema + Row Level Security + storage buckets
 supabase/migrations/0002_add_english.sql adds English columns for trilingual support
 supabase/migrations/0003_trilingual_staff_schedule_posts.sql adds Dutch/English columns for
@@ -30,7 +44,9 @@ supabase/migrations/0004_teacher_name_transliteration.sql adds Latin-script name
                                           staff and schedule teacher names
 supabase/migrations/0005_seed_content.sql   fills the staff, schedule, and yearly calendar
                                           tables with the school's real content (only if empty)
-preview.html                    single self-contained file (CSS+JS inlined) for quick viewing
+preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
+                                 for quick viewing — admin.html is a separate file and isn't included
+                                 in this preview, since it needs admin.js alongside it to work
 README.md                       this file
 ```
 
@@ -184,6 +200,26 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **The admin area is now a separate page** (`admin.html`), opened in a new tab from
+  the public site's "🔐 Անձնակազմի մուտք" link. Signing in or signing up happens there
+  directly (no modal), and once approved, the dashboard uses a proper sidebar — grouped
+  into "Բովանդակություն" (Publish, Schedule, Staff, Yearly Calendar, My posts) and
+  "Կառավարում" (Registrations, Accounts, Site Content, and a new **Settings** tab) —
+  instead of the old top row of tabs, so it's much faster to find the right section.
+  Public visitors never see any editing UI at all now; `app.js` (the public site) no
+  longer contains any auth or write code.
+- **Social media links are now editable**: Facebook, Instagram, and Blog links each
+  have their own field in the admin's new **"⚙️ Կարգավորումներ" (Settings)** tab,
+  alongside the address/email/phone that were already editable. Changing a link updates
+  it everywhere it appears on the public site (the Contact section and the footer) the
+  next time that page loads.
+- **Posts and events are now clickable.** Every card in the Activities feed and Gallery
+  opens a detail view with the full image, title, date, and complete (untruncated)
+  description — card text is now clipped to 3 lines with a "More info ↗" hint so there's
+  a clear reason to click through. Clicking an event on the calendar (in either the
+  monthly grid's day view or the yearly overview) does the same, for any event that was
+  published as a post — holiday/important-date entries (which don't have a full post
+  behind them) stay as simple inline text, as before.
 - **Site Content now covers every section shown in the nav**: Hero, Մեր դպրոցը (About),
   Համազգային ընկերակցություն (Hamazkayin), Ուսումնական բաժին (Department, including
   all four cards), Օրացույց (both the weekly schedule and yearly calendar headers),
