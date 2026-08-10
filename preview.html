@@ -210,9 +210,17 @@ section.alt{background:var(--paper-dim);}
 .post-body{padding:18px; display:flex; flex-direction:column; gap:8px; flex:1;}
 .post-date{font-size:.78rem; color:var(--ink-soft); font-weight:600; letter-spacing:.02em;}
 .post-body h3{margin:0;}
-.post-body p{color:var(--ink-soft); font-size:.92rem; margin:0; flex:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
-.post-foot{display:flex; align-items:center; justify-content:space-between; padding-top:6px; border-top:1px dashed var(--line); font-size:.78rem; color:var(--ink-soft);}
-.post-more{color:var(--blue); font-weight:700;}
+.post-body p{
+  color:var(--ink-soft); font-size:.92rem; margin:0; flex:1; line-height:1.55;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  position:relative;
+}
+.post-foot{display:flex; align-items:center; justify-content:space-between; padding-top:10px; border-top:1px dashed var(--line); font-size:.78rem; color:var(--ink-soft);}
+.post-more{
+  color:#fff; background:var(--blue); font-weight:700; padding:6px 14px; border-radius:999px;
+  font-size:.78rem; transition:background .15s ease, transform .15s ease;
+}
+.post-card:hover .post-more{ background:var(--apricot-deep); }
 .post-actions{display:flex; gap:6px;}
 .empty-state{
   border:1.5px dashed var(--line); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--ink-soft); background:var(--card);
@@ -453,7 +461,17 @@ footer.site a:hover{color:var(--apricot);}
 .content-section-head{
   font-family:'Noto Serif Armenian',serif; font-size:1.05rem; color:var(--blue);
   margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid var(--gold);
+  scroll-margin-top:90px;
 }
+.content-nav{
+  display:flex; flex-wrap:wrap; gap:6px; margin-bottom:22px; padding:12px;
+  background:var(--card); border:1px solid var(--line); border-radius:12px; position:sticky; top:0; z-index:5;
+}
+.content-nav-link{
+  font-size:.78rem; font-weight:600; color:var(--ink-soft); background:var(--paper-dim);
+  padding:6px 12px; border-radius:999px; transition:background .15s ease, color .15s ease;
+}
+.content-nav-link:hover{ background:var(--blue); color:#fff; }
 .dash-panel.active{display:block;}
 @keyframes dashFadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
 
@@ -1506,7 +1524,7 @@ function postCardHTML(p){
       <span class="post-date">${p.date || ""}</span>
       <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(body)}</p>
-      <div class="post-foot"><span>${escapeHtml(p.author_name||"")}</span><span class="post-more">${pickLang({hy:"Ավելին ↗", nl:"Meer info ↗", en:"More info ↗"})}</span></div>
+      <div class="post-foot" style="justify-content:flex-end;"><span class="post-more">${pickLang({hy:"Ավելին ↗", nl:"Meer info ↗", en:"More info ↗"})}</span></div>
     </div>
   </article>`;
 }
@@ -1539,7 +1557,6 @@ function openPostDetail(post){
       <span class="post-date">${post.date || ""}</span>
       <h2 style="margin:6px 0 12px;">${escapeHtml(title)}</h2>
       <p style="color:var(--ink-soft); line-height:1.7; white-space:pre-line;">${escapeHtml(desc)}</p>
-      ${post.author_name ? `<p class="helper" style="margin-top:14px;">${escapeHtml(post.author_name)}</p>` : ""}
     </div>`;
   backdrop.classList.add("open");
 }

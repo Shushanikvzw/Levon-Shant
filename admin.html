@@ -159,7 +159,10 @@
           </div>
           <div class="field"><label for="postFile">Նկար կամ տեսանյութ (ոչ պարտադիր)</label><input type="file" id="postFile" accept="image/*,video/*"></div>
           <div class="field"><label for="postMediaUrl">...կամ նկարի/YouTube հղում</label><input id="postMediaUrl" placeholder="https://..."></div>
-          <button class="btn apricot" type="submit">Հրապարակել</button>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn apricot" type="submit">Հրապարակել</button>
+            <button class="btn ghost" type="button" id="postCancelEdit" style="display:none;">Չեղարկել խմբագրումը</button>
+          </div>
           <div class="form-msg" id="postMsg"></div>
         </form>
         <p class="helper" style="margin-top:10px;">💡 Միջոցառում ընտրելիս, ամսաթիվը ցուցադրվում է ստորև՝ «Օրացույց» բաժնի ամսացույցում։ NL/EN դաշտերը դատարկ թողնելու դեպքում կցուցադրվի հայերեն տարբերակը։</p>
@@ -264,12 +267,16 @@
 
       <!-- Registrations (admin only) -->
       <div class="dash-panel" id="panel-reg">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+          <button class="btn apricot small" id="exportRegBtn">⬇️ Excel ֆայլ (.xlsx)</button>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Տեսակ</th><th>Անուն</th><th>Ծնունդ</th><th>Կապ</th><th>Դասընթացներ</th><th>Ուղարկվել է</th></tr></thead>
             <tbody id="regBody"><tr><td colspan="6">Բեռնվում է…</td></tr></tbody>
           </table>
         </div>
+        <div class="form-msg" id="exportRegMsg" style="margin-top:12px;"></div>
       </div>
 
       <!-- Users (admin only) -->
@@ -285,10 +292,11 @@
       </div>
       <!-- Site content (admin only) -->
       <div class="dash-panel" id="panel-content">
-        <div class="banner warn">Այստեղ խմբագրվում է կայքի ողջ տեքստը՝ Hero, Մեր դպրոցը, Համազգային, Ուսումնական բաժին, Օրացույց, Միջոցառումներ, Լուսանկարներ, Գրանցում և Կապ բաժինների վերնագրերն ու նկարագրությունները՝ երեք լեզուներով (ՀԱՅ/NL/EN)։ Դատարկ դաշտերը կպահպանեն ընթացիկ տեքստը։</div>
+        <div class="banner warn">📌 Ամեն դաշտում արդեն ցուցադրված է կայքում <strong>հենց հիմա</strong> երևացող տեքստը՝ ինչպես հայերեն, այնպես էլ հոլանդերեն և անգլերեն։ Փոփոխեք միայն այն դաշտերը, որոնց տեքստը ուզում եք փոխել, և սեղմեք «Պահպանել» ներքևում։ Անփոփոխ թողած դաշտերը կմնան այնպես, ինչպես կան։</div>
+        <div class="content-nav" id="contentNav"></div>
         <form class="card-form" id="contentForm" style="max-width:760px;">
           <div id="contentFields"></div>
-          <button class="btn blue" type="submit">Պահպանել փոփոխությունները</button>
+          <button class="btn blue" type="submit" style="position:sticky; bottom:16px;">Պահպանել փոփոխությունները</button>
           <div class="form-msg" id="contentMsg"></div>
         </form>
       </div>
@@ -336,6 +344,7 @@
   </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script type="module" src="admin.js"></script>
 </body>
 </html>

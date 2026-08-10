@@ -592,7 +592,7 @@ function postCardHTML(p){
       <span class="post-date">${p.date || ""}</span>
       <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(body)}</p>
-      <div class="post-foot"><span>${escapeHtml(p.author_name||"")}</span><span class="post-more">${pickLang({hy:"Ավելին ↗", nl:"Meer info ↗", en:"More info ↗"})}</span></div>
+      <div class="post-foot" style="justify-content:flex-end;"><span class="post-more">${pickLang({hy:"Ավելին ↗", nl:"Meer info ↗", en:"More info ↗"})}</span></div>
     </div>
   </article>`;
 }
@@ -625,7 +625,6 @@ function openPostDetail(post){
       <span class="post-date">${post.date || ""}</span>
       <h2 style="margin:6px 0 12px;">${escapeHtml(title)}</h2>
       <p style="color:var(--ink-soft); line-height:1.7; white-space:pre-line;">${escapeHtml(desc)}</p>
-      ${post.author_name ? `<p class="helper" style="margin-top:14px;">${escapeHtml(post.author_name)}</p>` : ""}
     </div>`;
   backdrop.classList.add("open");
 }

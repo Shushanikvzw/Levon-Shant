@@ -200,6 +200,32 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: auto-login.** Supabase remembers sessions in the browser by default, so once
+  signed in, every future visit silently restored that session — no password ever
+  asked again. Session persistence is now turned off for `admin.html`, so **every visit
+  requires signing in with email and password**, and "Դուրս գալ" (sign out) fully ends
+  the session. If you were signed in before this update, close and reopen the admin tab
+  once — after that it'll always ask for credentials.
+- **Fixed: Site Content editor now always shows the real current text.** Previously,
+  fields appeared blank unless you'd already saved something there — even though the
+  live site was showing real content (the built-in defaults). Every field is now
+  pre-filled with what's actually visible on the site right now, in all three
+  languages, so it's always clear what you're changing. Also added a jump-to-section
+  bar at the top of the tab so you can find "Կապ" or "Ուսումնական բաժին" instantly
+  instead of scrolling through all 45 fields.
+- **Fixed: social media links and the logo not working.** The real cause: a pasted link
+  like `www.facebook.com/...` (without `https://`) becomes a broken *relative* link
+  when used as a URL — the browser tries to open it relative to your own site instead
+  of Facebook. Every link/image-URL field in the admin (Facebook, Instagram, Blog, logo
+  link, yearly-calendar image link, post media link) now automatically adds `https://`
+  if it's missing, so pasted links always work correctly regardless of how they're typed.
+- **Posts and events: clearer "read more."** The short preview text now has a proper
+  pill-shaped "More info ↗" button (was small text before) that highlights on hover, so
+  it's obvious there's more to read. Clicking anywhere on the card still opens the full
+  detail view with the complete description.
+- **New: export registrations to Excel.** The Registrations tab has an "⬇️ Excel ֆայլ
+  (.xlsx)" button that downloads every registration (child and adult, all fields) as a
+  spreadsheet — useful for printing, sharing, or record-keeping outside the site.
 - **The admin area is now a separate page** (`admin.html`), opened in a new tab from
   the public site's "🔐 Անձնակազմի մուտք" link. Signing in or signing up happens there
   directly (no modal), and once approved, the dashboard uses a proper sidebar — grouped

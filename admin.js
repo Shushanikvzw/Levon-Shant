@@ -25,7 +25,7 @@ const supabaseConfig = {
 const supabaseConfigured = !!createClient && supabaseConfig.url !== "YOUR_SUPABASE_URL";
 let supabase;
 if (supabaseConfigured) {
-  try { supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey); }
+  try { supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey, { auth: { persistSession: false, autoRefreshToken: false } }); }
   catch (err) { console.warn("Could not initialize the Supabase client.", err); }
 } else {
   console.warn("Supabase is not configured yet — see README.md.");
@@ -36,6 +36,15 @@ let currentUser = null;
 let currentRole = null;
 
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// A pasted link without "http(s)://" (e.g. "www.facebook.com/...") becomes a
+// broken *relative* link when used as an href/src. Always normalize before saving.
+function normalizeUrl(v){
+  v = (v || "").trim();
+  if (!v) return "";
+  if (!/^https?:\/\//i.test(v)) return "https://" + v;
+  return v;
+}
 
 // ---------------------------------------------------------
 // Auth screen vs dashboard toggle
@@ -197,7 +206,7 @@ document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
   const bodyEn = document.getElementById("postBody_en").value.trim();
   const date = document.getElementById("postDate").value || new Date().toISOString().slice(0,10);
   const file = document.getElementById("postFile").files[0];
-  let mediaUrl = document.getElementById("postMediaUrl").value.trim();
+  let mediaUrl = normalizeUrl(document.getElementById("postMediaUrl").value);
   let mediaType = mediaUrl ? (mediaUrl.match(/\.(mp4|webm|mov)$/i) ? "video" : (mediaUrl.includes("youtube")||mediaUrl.includes("youtu.be") ? "youtube" : "image")) : null;
   try{
     if (file){
@@ -208,14 +217,24 @@ document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
       mediaUrl = pub.publicUrl;
       mediaType = file.type.startsWith("video") ? "video" : "image";
     }
-    const { error } = await supabase.from("posts").insert({
+    const payload = {
       type, title, title_nl: titleNl || null, title_en: titleEn || null,
       body, body_nl: bodyNl || null, body_en: bodyEn || null,
-      date, media_url: mediaUrl || null, media_type: mediaType,
-      author_id: currentUser.id, author_name: currentUser.email
-    });
-    if (error) throw error;
-    msg.textContent = "Հրապարակվեց ✔ (տեսանելի է հանրային կայքում)";
+      date, media_url: mediaUrl || null, media_type: mediaType
+    };
+    if (editingPostId){
+      const { error } = await supabase.from("posts").update(payload).eq("id", editingPostId);
+      if (error) throw error;
+      msg.textContent = "Թարմացվեց ✔ (տեսանելի է հանրային կայքում)";
+      editingPostId = null;
+      setPostFormMode(false);
+    } else {
+      const { error } = await supabase.from("posts").insert({
+        ...payload, author_id: currentUser.id, author_name: currentUser.email
+      });
+      if (error) throw error;
+      msg.textContent = "Հրապարակվեց ✔ (տեսանելի է հանրային կայքում)";
+    }
     msg.classList.add("show","ok");
     e.target.reset();
     loadManagePosts();
@@ -223,6 +242,19 @@ document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
     msg.textContent = "Սխալ՝ " + err.message;
     msg.classList.add("show","err");
   }
+});
+
+let editingPostId = null;
+function setPostFormMode(editing){
+  const btn = document.querySelector('#postForm button[type="submit"]');
+  const cancelBtn = document.getElementById("postCancelEdit");
+  btn.textContent = editing ? "Պահպանել փոփոխությունը" : "Հրապարակել";
+  cancelBtn.style.display = editing ? "" : "none";
+}
+document.getElementById("postCancelEdit")?.addEventListener("click", ()=>{
+  editingPostId = null;
+  document.getElementById("postForm").reset();
+  setPostFormMode(false);
 });
 
 async function loadManagePosts(){
@@ -237,13 +269,36 @@ async function loadManagePosts(){
         <td>${p.type}</td>
         <td>${p.date||""}</td>
         <td>${escapeHtml(p.author_name||"")}</td>
-        <td><button class="btn danger small" data-del="${p.id}">Ջնջել</button></td>
+        <td style="display:flex; gap:6px;">
+          <button class="btn ghost small" data-editpost="${p.id}">Խմբագրել</button>
+          <button class="btn danger small" data-del="${p.id}">Ջնջել</button>
+        </td>
       </tr>`).join("") : `<tr><td colspan="5">Հրապարակումներ չկան։</td></tr>`;
     body.querySelectorAll("[data-del]").forEach(b=>{
       b.addEventListener("click", async ()=>{
         if (!confirm("Ջնջե՞լ այս հրապարակումը։")) return;
         await supabase.from("posts").delete().eq("id", b.dataset.del);
         loadManagePosts();
+      });
+    });
+    body.querySelectorAll("[data-editpost]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const posts2 = await fetchPosts();
+        const p = posts2.find(x=>String(x.id) === b.dataset.editpost);
+        if (!p) return;
+        document.getElementById("postType").value = p.type || "news";
+        document.getElementById("postDate").value = p.date || "";
+        document.getElementById("postTitle").value = p.title || "";
+        document.getElementById("postTitle_nl").value = p.title_nl || "";
+        document.getElementById("postTitle_en").value = p.title_en || "";
+        document.getElementById("postBody").value = p.body || "";
+        document.getElementById("postBody_nl").value = p.body_nl || "";
+        document.getElementById("postBody_en").value = p.body_en || "";
+        document.getElementById("postMediaUrl").value = p.media_url || "";
+        editingPostId = p.id;
+        setPostFormMode(true);
+        document.querySelector('[data-panel="panel-publish"]')?.click();
+        document.getElementById("postForm").scrollIntoView({ behavior:"smooth", block:"start" });
       });
     });
   }catch(err){
@@ -254,6 +309,8 @@ async function loadManagePosts(){
 // ---------------------------------------------------------
 // Registrations (admin only, read + delete)
 // ---------------------------------------------------------
+let registrationsCache = [];
+
 async function loadRegistrations(){
   const body = document.getElementById("regBody");
   if (!body) return;
@@ -261,6 +318,7 @@ async function loadRegistrations(){
     const { data, error } = await supabase.from("registrations").select("*").order("submitted_at", { ascending:false });
     if (error) throw error;
     const rows = data || [];
+    registrationsCache = rows;
     body.innerHTML = rows.length ? rows.map(r=>{
       const isChild = r.type === "child";
       const name = isChild ? r.child_name : r.name;
@@ -283,6 +341,52 @@ async function loadRegistrations(){
     body.innerHTML = `<tr><td colspan="6">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
+
+document.getElementById("exportRegBtn")?.addEventListener("click", ()=>{
+  const msg = document.getElementById("exportRegMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (typeof XLSX === "undefined"){
+    msg.textContent = "Excel գրադարանը չհաջողվեց բեռնել (ստուգեք ինտերնետ կապը)։";
+    msg.classList.add("show","err"); return;
+  }
+  if (!registrationsCache.length){
+    msg.textContent = "Դեռ գրանցումներ չկան արտահանելու համար։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const rows = registrationsCache.map(r=>{
+      const isChild = r.type === "child";
+      return {
+        "Տեսակ": isChild ? "Երեխա" : "Մեծահասակ",
+        "Անուն, ազգանուն": isChild ? (r.child_name||"") : (r.name||""),
+        "Ծննդյան տարեթիվ": isChild ? (r.child_dob||"") : (r.dob||""),
+        "Սեռ": r.gender||"",
+        "Հասցե": r.address||"",
+        "Ազգություն": r.nationality||"",
+        "Մայրենի լեզու": r.native_lang||"",
+        "Էլ. հասցե": isChild ? (r.email||"") : (r.email||""),
+        "Հեռախոս": r.phone||"",
+        "Մայր (անուն/հեռախոս)": r.mother||"",
+        "Հայր (անուն/հեռախոս)": r.father||"",
+        "Դասընթացներ": (r.courses||[]).join(", "),
+        "Հայերենի մակարդակ": r.level||"",
+        "Համաձայնություն նկարներին": r.photo_consent||"",
+        "Ուղարկվել է": r.submitted_at ? new Date(r.submitted_at).toLocaleString() : ""
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws["!cols"] = Object.keys(rows[0]).map(k=>({ wch: Math.max(14, k.length + 2) }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Գրանցումներ");
+    const today = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `grancumner_${today}.xlsx`);
+    msg.textContent = "Ֆայլը ներբեռնվեց ✔";
+    msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message;
+    msg.classList.add("show","err");
+  }
+});
 
 // ---------------------------------------------------------
 // Accounts: approve pending sign-ups and assign roles
@@ -328,6 +432,74 @@ async function loadUsers(){
 // ---------------------------------------------------------
 // Site content editor (trilingual, grouped by section)
 // ---------------------------------------------------------
+const DEFAULT_CONTENT = {
+  "hero.title": { hy:"Բարի գալուստ Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց", nl:"Welkom bij de Hamazkayin Levon Shant Zaterdagschool", en:"Welcome to the Hamazkayin Levon Shant Saturday School" },
+  "hero.lede": { hy:"Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում հայ երեխաներն ու ընտանիքները սովորում են հայոց լեզու, պատմություն և մշակույթ, և մասնակցում մշակութային ու երիտասարդական միջոցառումների՝ ամեն շաբաթ, Մեխելեն քաղաքում։", nl:"Op de Hamazkayin Levon Shant Zaterdagschool leren Armeense kinderen en gezinnen de Armeense taal, geschiedenis en cultuur, en nemen ze elke week deel aan culturele en jongerenevenementen in Mechelen.", en:"At the Hamazkayin Levon Shant Saturday School, Armenian children and families learn the Armenian language, history, and culture, and take part every week in cultural and youth activities in Mechelen." },
+  "about.eyebrow": { hy:"Մեր դպրոցը", nl:"Onze school", en:"Our school" },
+  "about.title": { hy:"Պատմություն և հիմնադրում", nl:"Geschiedenis en oprichting", en:"History and founding" },
+  "about.p1": { hy:"1999–2000 ուսումնական տարում, Բելգիայի ՀՅԴ կուսակցության նախաձեռնությամբ, Մեխելենում հիմնադրվեց Լևոն Շանթի անվան շաբաթօրյա դպրոցը։", nl:"In het schooljaar 1999–2000 werd, op initiatief van de Belgische ARF-partij, de Levon Shant Zaterdagschool opgericht in Mechelen.", en:"In the 1999–2000 school year, on the initiative of the Belgian ARF party, the Levon Shant Saturday School was founded in Mechelen." },
+  "about.p2": { hy:"Դպրոցի հիմնադիրներն են եղել Էդիկ Քոթանջյանը և Գրիգոր Ոսկանյանը, որոնցից Գրիգոր Ոսկանյանը այդ տարիներին ստանձնել է նաև դպրոցի տնօրենի պաշտոնը։", nl:"De school werd opgericht door Edik Kotanjian en Grigor Voskanian; Voskanian was in die beginjaren ook directeur van de school.", en:"The school was founded by Edik Kotanjian and Grigor Voskanian; Voskanian was also director of the school in those early years." },
+  "about.p3": { hy:"Նրանց ջանքերով դրվեց այն հիմքը, որի վրա դպրոցը տարիների ընթացքում զարգացավ, ընդլայնվեց և հասավ այն ամենին, ինչ ունենք այսօր՝ մի կենդանի հայկական համայնք Մեխելենի սրտում։", nl:"Dankzij hun inzet werd de basis gelegd waarop de school door de jaren heen groeide, uitbreidde en werd wat ze vandaag is: een levendige Armeense gemeenschap in het hart van Mechelen.", en:"Thanks to their efforts, the foundation was laid on which the school grew, expanded, and became what it is today: a vibrant Armenian community in the heart of Mechelen." },
+  "about.card1title": { hy:"Ինչ ենք առաջարկում", nl:"Wat wij aanbieden", en:"What we offer" },
+  "about.card1text": { hy:"Հայերենի (խոսակցական և գրական), հայոց պատմության, երգի ու պարի դասընթացներ, ինչպես նաև մշակութային-երիտասարդական միջոցառումներ ողջ ուսումնական տարվա ընթացքում։", nl:"Lessen Armeens (spreek- en schrijftaal), Armeense geschiedenis, zang en dans, en culturele en jongerenevenementen gedurende het hele schooljaar.", en:"Armenian language lessons (spoken and written), Armenian history, singing and dance, and cultural and youth activities throughout the school year." },
+  "hz.eyebrow": { hy:"Մեր ցանցը", nl:"Ons netwerk", en:"Our network" },
+  "hz.title": { hy:"Համազգային Հայ Կրթական և Մշակութային Միություն", nl:"Hamazkayin Armeense Educatieve en Culturele Vereniging", en:"Hamazkayin Armenian Educational and Cultural Society" },
+  "hz.p1": { hy:"1928 թ. մայիսի 28-ին ինը հայ մտավորականներ՝ գրող և մանկավարժ Լևոն Շանթը, պատմաբան Նիկոլ Աղբալյանը, Հայաստանի Առաջին Հանրապետության վարչապետ Համո Օհանջանյանը, բեմադրիչ Գասպար Իփեկյանը և ուրիշներ, Կահիրեում հիմնադրեցին «Համազգային Հայ Կրթական և Մշակութային Ընկերակցությունը»։", nl:"Op 28 mei 1928 richtte een groep van negen Armeense intellectuelen — onder wie schrijver en pedagoog Levon Shant, historicus Nikol Aghbalian, oud-premier Hamo Ohanjanian en regisseur Gaspar Ipekian — in Caïro de “Hamazkayin Armeense Educatieve en Culturele Vereniging” op.", en:"On May 28, 1928, a group of nine Armenian intellectuals — including writer and educator Levon Shant, historian Nikol Aghbalian, former prime minister Hamo Ohanjanian, and director Gaspar Ipekian — founded the “Hamazkayin Armenian Educational and Cultural Society” in Cairo." },
+  "hz.p2": { hy:"«Համազգայինի» նպատակն էր հայրենիքից դուրս մեծացող նոր սերնդին տալ ոչ միայն ընդհանուր կրթություն, այլև հայեցի դաստիարակություն՝ պահպանելու ազգային ինքնագիտակցությունն ու մշակութային ավանդույթները։ Այսօր «Համազգայինը» գործում է որպես ոչ-առևտրային կազմակերպություն՝ մասնաճյուղերով Մերձավոր Արևելքում, Եվրոպայում, ԱՄՆ-ում, Կանադայում, Հարավային Ամերիկայում և Ավստրալիայում. Մեխելենի դպրոցը այս ցանցի մի մասնիկն է։", nl:"Hamazkayin wilde nieuwe generaties buiten Armenië niet alleen algemene vorming, maar ook een Armeense opvoeding geven, om de nationale identiteit en culturele tradities levend te houden. Vandaag is Hamazkayin een vzw met afdelingen in het Midden-Oosten, Europa, de VS, Canada, Zuid-Amerika en Australië — en de school in Mechelen maakt deel uit van dat netwerk.", en:"Hamazkayin wanted to give new generations outside Armenia not just a general education, but an Armenian upbringing as well, to keep national identity and cultural traditions alive. Today Hamazkayin is a non-profit with branches across the Middle East, Europe, the US, Canada, South America, and Australia — and the school in Mechelen is part of that network." },
+  "dept.eyebrow": { hy:"Կառուցվածք", nl:"Structuur", en:"Structure" },
+  "dept.title": { hy:"Ուսումնական բաժին", nl:"Onderwijsafdeling", en:"Education department" },
+  "dept.lede": { hy:"Դասընթացները կազմակերպված են տարիքային խմբերով և անցկացվում են ամեն շաբաթ առավոտյան։ Ուսուցչական կազմի, ժամանակացույցի և տոնական օրերի մասին մանրամասների համար կապվեք դպրոցի հետ։", nl:"De lessen zijn georganiseerd per leeftijdsgroep en vinden elke zaterdagochtend plaats. Neem contact op met de school voor het lerarenteam, het rooster en de feestdagen.", en:"Classes are organized by age group and take place every Saturday morning. Contact the school for the teaching staff, schedule, and holidays." },
+  "dept.c1t": { hy:"Ուսուցչական կազմ", nl:"Lerarenteam", en:"Teaching staff" },
+  "dept.c1d": { hy:"Ծանոթացեք ուսուցիչներին ↓", nl:"Maak kennis met de leerkrachten ↓", en:"Meet the teachers ↓" },
+  "dept.c2t": { hy:"Դասարաններ և խմբակներ", nl:"Klassen en groepen", en:"Classes and groups" },
+  "dept.c2d": { hy:"Տես ամբողջական ցանկը ↓", nl:"Bekijk de volledige lijst ↓", en:"See the full list ↓" },
+  "dept.c3t": { hy:"Դասաժամեր", nl:"Lesuren", en:"Class hours" },
+  "dept.c3d": { hy:"Տես ամբողջական ժամանակացույցը ստորև ↓", nl:"Bekijk het volledige rooster hieronder ↓", en:"See the full schedule below ↓" },
+  "dept.c4t": { hy:"Օրացույց", nl:"Kalender", en:"Calendar" },
+  "dept.c4d": { hy:"Ուսումնական տարվա օրացույցը մեկ հայացքով ↓", nl:"De jaarkalender in één overzicht ↓", en:"The school year calendar at a glance ↓" },
+  "cal.eyebrow": { hy:"Ժամանակացույց", nl:"Rooster", en:"Schedule" },
+  "cal.title": { hy:"Դասացուցակ և միջոցառումների օրացույց", nl:"Lesrooster en activiteitenkalender", en:"Class schedule and activities calendar" },
+  "cal.lede": { hy:"Տեսեք, թե երբ է անցկացվում յուրաքանչյուր դասընթաց, և հետևեք առաջիկա միջոցառումներին ամսացույցի տեսքով։", nl:"Bekijk wanneer elke les plaatsvindt, en volg aankomende activiteiten in kalendervorm.", en:"See when each class takes place, and follow upcoming activities in calendar form." },
+  "yearcal.eyebrow": { hy:"Ուսումնական տարի", nl:"Schooljaar", en:"School year" },
+  "yearcal.title": { hy:"Ուսումնական տարվա օրացույցը մեկ հայացքով", nl:"De jaarkalender in één overzicht", en:"The school year calendar at a glance" },
+  "yearcal.lede": { hy:"Արձակուրդներ, տոնական օրեր և կարևոր ամսաթվեր ողջ ուսումնական տարվա ընթացքում։", nl:"Vakanties, feestdagen en belangrijke data doorheen het hele schooljaar.", en:"Holidays, celebrations, and important dates throughout the school year." },
+  "feed.eyebrow": { hy:"Թարմ լուրեր", nl:"Laatste nieuws", en:"Latest news" },
+  "feed.title": { hy:"Մշակութային-երիտասարդական միջոցառումներ և հայտարարություններ", nl:"Culturele en jongerenevenementen & mededelingen", en:"Cultural and youth activities & announcements" },
+  "feed.lede": { hy:"Այս բաժինը թարմացվում է դպրոցի անձնակազմի կողմից՝ ուղղակիորեն կայքից։", nl:"Dit onderdeel wordt rechtstreeks bijgewerkt door het schoolteam.", en:"This section is updated directly by the school team." },
+  "gal.eyebrow": { hy:"Խաղ և գիտելիք", nl:"Spel en kennis", en:"Play and knowledge" },
+  "gal.title": { hy:"Լուսանկարներ և տեսանյութեր", nl:"Foto's en video's", en:"Photos and videos" },
+  "gal.lede": { hy:"Դասադասընթացների և միջոցառումների պատկերներ, որոնք հրապարակվում են դպրոցի անձնակազմի կողմից։", nl:"Beelden van lessen en evenementen, gepubliceerd door het schoolteam.", en:"Images from classes and activities, published by the school team." },
+  "reg.eyebrow": { hy:"ԳՐԱՆՑՈՒՄՆԵՐ", nl:"INSCHRIJVINGEN", en:"REGISTRATION" },
+  "reg.title": { hy:"Գրանցվեք դպրոց", nl:"Schrijf u in bij de school", en:"Register with the school" },
+  "reg.lede": { hy:"Լրացրեք ձևը, և դպրոցի պատասխանատուն կապ կհաստատի Ձեզ հետ գրանցումը հաստատելու համար։ Ձեր տվյալները տեսանելի են միայն դպրոցի ադմինիստրատորին։", nl:"Vul het formulier in en de schoolverantwoordelijke neemt contact met u op om de inschrijving te bevestigen. Uw gegevens zijn alleen zichtbaar voor de beheerder.", en:"Fill in the form and the school coordinator will contact you to confirm the registration. Your details are only visible to the administrator." },
+  "reg.needt": { hy:"Ի՞նչ է անհրաժեշտ", nl:"Wat heb je nodig", en:"What you'll need" },
+  "reg.need1": { hy:"Անձնական տվյալներ (անուն, ծննդյան տարեթիվ, հասցե)", nl:"Persoonlijke gegevens (naam, geboortedatum, adres)", en:"Personal details (name, date of birth, address)" },
+  "reg.need2": { hy:"Ծնողների կոնտակտային տվյալները (երեխաների գրանցման համար)", nl:"Contactgegevens van de ouders (voor inschrijving van kinderen)", en:"Parents' contact details (for registering children)" },
+  "reg.need3": { hy:"Նախընտրելի դասընթաց(ներ)ը", nl:"Gewenste vak(ken)", en:"Preferred class(es)" },
+  "contact.eyebrow": { hy:"Կոնտակտային տվյալներ", nl:"Contactgegevens", en:"Contact details" },
+  "contact.title": { hy:"Կապվեք մեզ հետ", nl:"Neem contact met ons op", en:"Get in touch" },
+};
+const DEFAULT_CLASSES = {
+  hy: [
+    "Նախադպրոցական խումբ","Այբբենարանի դասարան","Մայրենի 1-ին դասարան","Մայրենի 2-րդ դասարան",
+    "Մայրենի 3-րդ դասարան","Մայրենի 4-րդ դասարան","Գրականության դասարան","Ես և շրջակա աշխարհը",
+    "Հայրենագիտության դասարան","Պատմության դասարան","Օտարախոս երեխաների և մեծահասակների հայերենի դասարան",
+    "Ավանդական երգ ու պարի խումբ","Ժողովրդական պարի խումբ","Դաշնամուրի անհատական դասեր","Շախմատի խմբակ"
+  ].join("\n"),
+  nl: [
+    "Kleutergroep","Alfabetklas","Moedertaal 1","Moedertaal 2","Moedertaal 3","Moedertaal 4",
+    "Literatuurklas","Ik en de wereld om mij heen","Vaderlandkunde","Geschiedenis",
+    "Armeens voor anderstalige kinderen en volwassenen","Traditionele zang- en dansgroep",
+    "Volksdansgroep","Individuele pianolessen","Schaakclub"
+  ].join("\n"),
+  en: [
+    "Preschool group","Alphabet class","Native language 1","Native language 2",
+    "Native language 3","Native language 4","Literature class","Me and my surroundings",
+    "Homeland studies class","History class","Armenian for non-Armenian-speaking children and adults",
+    "Traditional song and dance group","Folk dance group","Individual piano lessons","Chess club"
+  ].join("\n")
+};
+
 const CONTENT_FIELDS = [
   { section:"Hero", key:"hero.title", label:"Վերնագիր" },
   { section:"Hero", key:"hero.lede",  label:"Նկարագրություն", area:true },
@@ -398,19 +570,36 @@ async function fetchSiteContent(){
 
 function currentTextFor(key){
   const override = contentOverrides[key];
-  return { hy: override?.hy || "", nl: override?.nl || "", en: override?.en || "" };
+  if (key === "classes.list"){
+    return {
+      hy: override?.hy || DEFAULT_CLASSES.hy,
+      nl: override?.nl || DEFAULT_CLASSES.nl,
+      en: override?.en || DEFAULT_CLASSES.en
+    };
+  }
+  const def = DEFAULT_CONTENT[key] || { hy:"", nl:"", en:"" };
+  return {
+    hy: override?.hy || def.hy || "",
+    nl: override?.nl || def.nl || "",
+    en: override?.en || def.en || ""
+  };
 }
 
 async function renderContentForm(){
   contentOverrides = await fetchSiteContent();
   const wrap = document.getElementById("contentFields");
+  const nav = document.getElementById("contentNav");
   if (!wrap) return;
+  const sections = [...new Set(CONTENT_FIELDS.map(f=>f.section))];
+  if (nav){
+    nav.innerHTML = sections.map(s=>`<a href="#cf-${slugify(s)}" class="content-nav-link">${escapeHtml(s)}</a>`).join("");
+  }
   let currentSection = null;
   let html = "";
   CONTENT_FIELDS.forEach((f, i)=>{
     if (f.section !== currentSection){
       currentSection = f.section;
-      html += `<h3 class="content-section-head"${i>0 ? ' style="margin-top:30px;"' : ''}>${escapeHtml(currentSection)}</h3>`;
+      html += `<h3 class="content-section-head" id="cf-${slugify(currentSection)}"${i>0 ? ' style="margin-top:34px;"' : ''}>${escapeHtml(currentSection)}</h3>`;
     }
     const cur = currentTextFor(f.key);
     const field = (lang, labelText, value) => `
@@ -429,6 +618,7 @@ async function renderContentForm(){
   });
   wrap.innerHTML = html;
 }
+function slugify(s){ return s.replace(/[^a-zA-Zա-ֆԱ-Ֆ0-9]+/g, "-"); }
 
 document.getElementById("contentForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
@@ -488,9 +678,9 @@ document.getElementById("contactInfoForm")?.addEventListener("submit", async (e)
     contactAddress: document.getElementById("cf_address").value.trim(),
     contactEmail: document.getElementById("cf_email").value.trim(),
     contactPhone: document.getElementById("cf_phone").value.trim(),
-    contactFacebook: document.getElementById("cf_facebook").value.trim(),
-    contactInstagram: document.getElementById("cf_instagram").value.trim(),
-    contactBlog: document.getElementById("cf_blog").value.trim()
+    contactFacebook: normalizeUrl(document.getElementById("cf_facebook").value),
+    contactInstagram: normalizeUrl(document.getElementById("cf_instagram").value),
+    contactBlog: normalizeUrl(document.getElementById("cf_blog").value)
   };
   const rows = Object.entries(fields)
     .filter(([,v])=>v)
@@ -832,7 +1022,7 @@ document.getElementById("yearCalForm")?.addEventListener("submit", async (e)=>{
   }
   try{
     const file = document.getElementById("yc_file").files[0];
-    let url = document.getElementById("yc_url").value.trim();
+    let url = normalizeUrl(document.getElementById("yc_url").value);
     if (file){
       const path = `yearCalendar_${Date.now()}_${file.name}`;
       const { error: upErr } = await supabase.storage.from("site-assets").upload(path, file);
@@ -876,7 +1066,7 @@ document.getElementById("logoForm")?.addEventListener("submit", async (e)=>{
   }
   try{
     const file = document.getElementById("logo_file").files[0];
-    let url = document.getElementById("logo_url").value.trim();
+    let url = normalizeUrl(document.getElementById("logo_url").value);
     if (file){
       const path = `logo_${Date.now()}_${file.name}`;
       const { error: upErr } = await supabase.storage.from("site-assets").upload(path, file);
