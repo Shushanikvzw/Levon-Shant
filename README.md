@@ -49,6 +49,8 @@ supabase/migrations/0007_schedule_staff_admin_only.sql  restricts the weekly sch
                                           staff directory to admin-only editing (SMM loses write access)
 supabase/migrations/0008_custom_sections.sql  adds admin-manageable custom sections — whole
                                           new content blocks addable to the public site
+supabase/migrations/0009_custom_sections_nav.sql  adds the option to show a custom section's
+                                          own link in the site's main navigation menu
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -110,8 +112,10 @@ all succeeded).
    → **Run**. Restricts the weekly schedule and staff directory to admin-only editing.
 9. New query again → paste `supabase/migrations/0008_custom_sections.sql` → **Run**.
    Adds the `custom_sections` table for admin-created content blocks.
+10. New query again → paste `supabase/migrations/0009_custom_sections_nav.sql`
+    → **Run**. Adds the option to show a custom section in the main navigation menu.
 
-All eight files are safe to re-run if needed.
+All nine files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -213,6 +217,19 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed the chaotic header layout.** The logo, school name, all 8 nav links, the
+  language switch, and the login button were all competing for space in one row,
+  which broke into an overlapping, wrapped mess on medium-width screens. The header
+  is now a stable two-row layout — logo + name on top (name always shown in full,
+  never truncated), the full nav menu on its own row below, centered — so it looks
+  clean at every screen size instead of only at very wide or very narrow ones. Logo
+  size is now 88×88px (up from the original 58px, a bit smaller than the 108px from
+  last time to leave room for the always-visible name).
+- **New: a custom section can now add itself to the main navigation menu.** When
+  creating or editing a section in "🧩 Նոր բաժիններ", tick "Ցուցադրել այս բաժինը
+  գլխավոր ցանկում" and give it a short nav label (the on-page title can be longer;
+  the nav link should stay short) — it'll appear as a real link in the header
+  navigation that jumps straight to that section.
 - **New: admin can add whole new sections to the site.** The dashboard's new
   "🧩 Նոր բաժիններ" tab (admin-only) lets you create a title + text + optional image
   block that appears on the public site between "Միջոցառումներ" and "Գրանցում" — useful

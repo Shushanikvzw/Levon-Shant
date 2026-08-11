@@ -358,6 +358,15 @@
             <div class="field"><label for="ns_image_url">...կամ նկարի հղում</label><input id="ns_image_url" placeholder="https://..."></div>
           </div>
           <div class="field"><label for="ns_order">Հերթականություն (0 = ամենավերևում)</label><input type="number" id="ns_order" value="0" style="max-width:140px;"></div>
+          <div class="field" style="flex-direction:row; align-items:center; gap:10px;">
+            <input type="checkbox" id="ns_shownav" style="width:auto;">
+            <label for="ns_shownav" style="margin:0;">Ցուցադրել այս բաժինը գլխավոր ցանկում (նավիգացիայում)</label>
+          </div>
+          <div class="field-row-3" id="ns_navlabel_row" style="display:none;">
+            <div class="field"><label for="ns_navlabel_hy">Ցանկի կարճ անվանում — ՀԱՅ</label><input id="ns_navlabel_hy" placeholder="օր.՝ Ամանորյա ցուցահանդես"></div>
+            <div class="field"><label for="ns_navlabel_nl">NL (ոչ պարտադիր)</label><input id="ns_navlabel_nl"></div>
+            <div class="field"><label for="ns_navlabel_en">EN (ոչ պարտադիր)</label><input id="ns_navlabel_en"></div>
+          </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <button class="btn apricot" type="submit">Ավելացնել բաժինը</button>
             <button class="btn ghost" type="button" id="newSectionCancelEdit" style="display:none;">Չեղարկել խմբագրումը</button>

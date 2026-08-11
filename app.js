@@ -536,7 +536,7 @@ menuToggle?.addEventListener("click", ()=>{
   const open = mainNav.classList.toggle("open");
   menuToggle.setAttribute("aria-expanded", open);
 });
-document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click", ()=> mainNav?.classList.remove("open")));
+document.getElementById("mainNav")?.addEventListener("click", (e)=>{ if (e.target.closest("a")) mainNav?.classList.remove("open"); });
 
 const yearEl = document.getElementById("year");
 if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -1540,7 +1540,7 @@ async function loadCustomSections(){
       const title = customSectionText(s, "title", currentLang);
       const body = customSectionText(s, "body", currentLang);
       const imgHtml = s.image_url ? `<img src="${s.image_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:16px; box-shadow:var(--shadow); margin-bottom:24px;">` : "";
-      return `<section class="${i % 2 === 0 ? '' : 'alt ruled'}">
+      return `<section id="custom-section-${s.id}" class="${i % 2 === 0 ? '' : 'alt ruled'}">
         <div class="container" style="max-width:760px;">
           ${imgHtml}
           <h2>${escapeHtml(title)}</h2>
@@ -1548,6 +1548,16 @@ async function loadCustomSections(){
         </div>
       </section>`;
     }).join("");
+
+    const navWrap = document.getElementById("dynNavLinks");
+    if (navWrap){
+      const navSections = sections.filter(s=>s.show_in_nav);
+      navWrap.innerHTML = navSections.map(s=>{
+        const label = (currentLang === "nl" ? s.nav_label_nl : currentLang === "en" ? s.nav_label_en : s.nav_label_hy)
+          || s.nav_label_hy || customSectionText(s, "title", currentLang);
+        return `<a href="#custom-section-${s.id}">${escapeHtml(label)}</a>`;
+      }).join("");
+    }
   }catch(err){
     console.warn("Could not load custom sections:", err.message);
   }

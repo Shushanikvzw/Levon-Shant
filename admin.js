@@ -603,6 +603,10 @@ function setSectionFormMode(editing){
   cancelBtn.style.display = editing ? "" : "none";
 }
 
+document.getElementById("ns_shownav")?.addEventListener("change", (e)=>{
+  document.getElementById("ns_navlabel_row").style.display = e.target.checked ? "" : "none";
+});
+
 document.getElementById("newSectionForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("newSectionMsg");
@@ -621,6 +625,7 @@ document.getElementById("newSectionForm")?.addEventListener("submit", async (e)=
       const { data: pub } = supabase.storage.from("site-assets").getPublicUrl(path);
       imageUrl = pub.publicUrl;
     }
+    const showInNav = document.getElementById("ns_shownav").checked;
     const payload = {
       title_hy: document.getElementById("ns_title_hy").value.trim(),
       title_nl: document.getElementById("ns_title_nl").value.trim() || null,
@@ -629,7 +634,11 @@ document.getElementById("newSectionForm")?.addEventListener("submit", async (e)=
       body_nl: document.getElementById("ns_body_nl").value.trim() || null,
       body_en: document.getElementById("ns_body_en").value.trim() || null,
       image_url: imageUrl || null,
-      sort_order: parseInt(document.getElementById("ns_order").value, 10) || 0
+      sort_order: parseInt(document.getElementById("ns_order").value, 10) || 0,
+      show_in_nav: showInNav,
+      nav_label_hy: showInNav ? (document.getElementById("ns_navlabel_hy").value.trim() || document.getElementById("ns_title_hy").value.trim()) : null,
+      nav_label_nl: showInNav ? (document.getElementById("ns_navlabel_nl").value.trim() || null) : null,
+      nav_label_en: showInNav ? (document.getElementById("ns_navlabel_en").value.trim() || null) : null
     };
     if (editingSectionId){
       const { error } = await supabase.from("custom_sections").update(payload).eq("id", editingSectionId);
@@ -644,6 +653,7 @@ document.getElementById("newSectionForm")?.addEventListener("submit", async (e)=
     msg.classList.add("show","ok");
     e.target.reset();
     document.getElementById("ns_order").value = "0";
+    document.getElementById("ns_navlabel_row").style.display = "none";
     loadNewSectionsAdmin();
   }catch(err){
     msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
@@ -665,7 +675,7 @@ async function loadNewSectionsAdmin(){
     wrap.innerHTML = rows.length ? rows.map(s=>`
       <div class="album-admin-card">
         <div class="album-admin-head">
-          <h4>${escapeHtml(s.title_hy||"")} <span class="helper">— հերթ. ${s.sort_order}${s.is_visible === false ? " — թաքցված" : ""}</span></h4>
+          <h4>${escapeHtml(s.title_hy||"")} <span class="helper">— հերթ. ${s.sort_order}${s.is_visible === false ? " — թաքցված" : ""}${s.show_in_nav ? " — 📍 ցանկում" : ""}</span></h4>
           <div style="display:flex; gap:6px;">
             <button class="btn ghost small" data-togglevis="${s.id}">${s.is_visible === false ? "Ցուցադրել" : "Թաքցնել"}</button>
             <button class="btn ghost small" data-editsection="${s.id}">Խմբագրել</button>
@@ -704,6 +714,11 @@ async function loadNewSectionsAdmin(){
         document.getElementById("ns_body_en").value = row.body_en || "";
         document.getElementById("ns_image_url").value = row.image_url || "";
         document.getElementById("ns_order").value = row.sort_order || 0;
+        document.getElementById("ns_shownav").checked = !!row.show_in_nav;
+        document.getElementById("ns_navlabel_hy").value = row.nav_label_hy || "";
+        document.getElementById("ns_navlabel_nl").value = row.nav_label_nl || "";
+        document.getElementById("ns_navlabel_en").value = row.nav_label_en || "";
+        document.getElementById("ns_navlabel_row").style.display = row.show_in_nav ? "" : "none";
         editingSectionId = row.id;
         setSectionFormMode(true);
         document.getElementById("newSectionForm").scrollIntoView({ behavior:"smooth", block:"start" });
