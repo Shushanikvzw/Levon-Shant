@@ -110,6 +110,7 @@
         <button class="sidebar-link" data-panel="panel-schedule" data-title="🗓️ Դասացուցակ">🗓️ Դասացուցակ</button>
         <button class="sidebar-link" data-panel="panel-staff" data-title="🧑‍🏫 Անձնակազմ">🧑‍🏫 Անձնակազմ</button>
         <button class="sidebar-link" data-panel="panel-yearcal" data-title="📅 Տարեկան օրացույց">📅 Տարեկան օրացույց</button>
+        <button class="sidebar-link" data-panel="panel-albums" data-title="🖼️ Լուսանկարների ալբոմներ">🖼️ Լուսանկարների ալբոմներ</button>
         <button class="sidebar-link" data-panel="panel-manage" data-title="🗂️ Իմ հրապարակումները">🗂️ Իմ հրապարակումները</button>
       </div>
     </div>
@@ -253,6 +254,32 @@
             <tbody id="yearCalAdminBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Event photo/video albums -->
+      <div class="dash-panel" id="panel-albums">
+        <div class="banner warn">Ստեղծեք մեկ ալբոմ մեկ միջոցառման համար և վերբեռնեք բոլոր լուսանկարները/տեսանյութերը միասին։ Այցելուները կտեսնեն դրանք որպես մեկ դիտելի ալբոմ։</div>
+        <form class="card-form" id="albumForm" style="max-width:760px; margin-bottom:24px;">
+          <div class="field-row">
+            <div class="field"><label for="al_date">Միջոցառման ամսաթիվ</label><input type="date" id="al_date"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="al_title_hy">Անվանում — ՀԱՅ</label><input id="al_title_hy" required placeholder="օր.՝ Ամանորյա տոնավաճառ"></div>
+            <div class="field"><label for="al_title_nl">Titel — NL (ոչ պարտադիր)</label><input id="al_title_nl"></div>
+            <div class="field"><label for="al_title_en">Title — EN (ոչ պարտադիր)</label><input id="al_title_en"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="al_desc_hy">Նկարագրություն — ՀԱՅ (ոչ պարտադիր)</label><textarea id="al_desc_hy" rows="2"></textarea></div>
+            <div class="field"><label for="al_desc_nl">Omschrijving — NL</label><textarea id="al_desc_nl" rows="2"></textarea></div>
+            <div class="field"><label for="al_desc_en">Description — EN</label><textarea id="al_desc_en" rows="2"></textarea></div>
+          </div>
+          <div class="field"><label for="al_files">Լուսանկարներ/տեսանյութեր (ընտրեք մեկ կամ մի քանիսը)</label><input type="file" id="al_files" accept="image/*,video/*" multiple></div>
+          <button class="btn apricot" type="submit">Ստեղծել ալբոմ</button>
+          <div class="form-msg" id="albumMsg"></div>
+        </form>
+
+        <h3 style="margin-bottom:14px;">Առկա ալբոմները</h3>
+        <div id="albumsAdminList" class="albums-admin-list"><p class="helper">Բեռնվում է…</p></div>
       </div>
 
       <!-- Manage own posts -->

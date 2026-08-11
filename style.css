@@ -214,6 +214,57 @@ section.alt{background:var(--paper-dim);}
 }
 .post-card:hover .post-more{ background:var(--apricot-deep); }
 .post-actions{display:flex; gap:6px;}
+
+/* Event photo albums */
+.gallery-subheading{
+  font-family:'Noto Serif Armenian',serif; font-size:1.1rem; margin:0 0 18px;
+  padding-top:10px; border-top:1px dashed var(--line);
+}
+.album-card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column;
+  cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
+}
+.album-card:hover, .album-card:focus-visible{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(18,28,20,0.14); }
+.album-cover{aspect-ratio:16/10; background:var(--paper-dim); position:relative; overflow:hidden;}
+.album-cover img{width:100%; height:100%; object-fit:cover; object-position:center;}
+.album-cover .count-badge{
+  position:absolute; top:10px; right:10px; background:rgba(36,27,21,.72); color:#fff;
+  font-size:.75rem; font-weight:700; padding:5px 11px; border-radius:999px; display:flex; align-items:center; gap:5px;
+}
+.album-cover .stack-hint{
+  position:absolute; inset:8px 8px auto auto; width:calc(100% - 20px); height:calc(100% - 20px);
+  border:2px solid rgba(255,255,255,.5); border-radius:10px; pointer-events:none;
+}
+.album-body{padding:16px 18px; display:flex; flex-direction:column; gap:6px; flex:1;}
+.album-body h3{margin:0; font-size:1.02rem;}
+.album-body p{margin:0; color:var(--ink-soft); font-size:.85rem;}
+.album-open-hint{color:var(--blue); font-weight:700; font-size:.78rem; align-self:flex-start; margin-top:auto;}
+
+/* Lightbox */
+.lightbox-modal{max-width:900px; padding:24px;}
+#albumLightboxHead{margin-bottom:14px; padding-right:36px;}
+#albumLightboxHead h2{margin:2px 0 4px; font-size:1.25rem;}
+#albumLightboxHead p{margin:0; color:var(--ink-soft); font-size:.88rem;}
+.lightbox-stage{position:relative; display:flex; align-items:center; gap:8px;}
+.lightbox-media{
+  flex:1; aspect-ratio:16/10; background:#000; border-radius:12px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.lightbox-media img, .lightbox-media video{width:100%; height:100%; object-fit:contain; background:#000;}
+.lightbox-nav{
+  flex:none; width:42px; height:42px; border-radius:50%; border:none; background:var(--card);
+  box-shadow:0 4px 14px rgba(0,0,0,.2); font-size:1.4rem; cursor:pointer; color:var(--ink);
+}
+.lightbox-nav:hover{ background:var(--blue); color:#fff; }
+.lightbox-counter{ text-align:center; font-size:.8rem; color:var(--ink-soft); margin-top:10px; }
+.lightbox-thumbs{ display:flex; gap:6px; margin-top:12px; overflow-x:auto; padding-bottom:4px; }
+.lightbox-thumbs img, .lightbox-thumbs .vid-thumb{
+  width:60px; height:44px; object-fit:cover; border-radius:6px; flex:none; cursor:pointer;
+  border:2px solid transparent; opacity:.6; transition:opacity .15s ease, border-color .15s ease;
+}
+.lightbox-thumbs img.active, .lightbox-thumbs .vid-thumb.active{ opacity:1; border-color:var(--apricot); }
+.vid-thumb{background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1rem;}
 .empty-state{
   border:1.5px dashed var(--line); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--ink-soft); background:var(--card);
 }
@@ -470,6 +521,19 @@ footer.site a:hover{color:var(--apricot);}
 }
 .content-nav-link:hover{ background:var(--blue); color:#fff; }
 .dash-panel.active{display:block;}
+.albums-admin-list{display:flex; flex-direction:column; gap:14px;}
+.album-admin-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px;}
+.album-admin-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px;}
+.album-admin-head h4{margin:0; font-size:1rem;}
+.album-admin-thumbs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+.album-admin-thumbs .thumb-wrap{position:relative; width:70px; height:52px;}
+.album-admin-thumbs img, .album-admin-thumbs .vid-thumb{width:70px; height:52px; object-fit:cover; border-radius:6px;}
+.album-admin-thumbs .vid-thumb{background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center;}
+.album-admin-thumbs .thumb-del{
+  position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:var(--pomegranate);
+  color:#fff; border:none; font-size:.7rem; cursor:pointer; line-height:20px; padding:0;
+}
+.album-add-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
 @keyframes dashFadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
 
 .table-wrap{overflow-x:auto; background:var(--card); border-radius:var(--radius); border:1px solid var(--line); box-shadow:var(--shadow);}

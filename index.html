@@ -238,11 +238,32 @@
         <h2 data-i18n="gal.title">Լուսանկարներ և տեսանյութեր</h2>
         <p data-i18n="gal.lede">Դասադասընթացների և միջոցառումների պատկերներ, որոնք հրապարակվում են դպրոցի անձնակազմի կողմից։</p>
       </div>
+
+      <div class="card-grid" id="albumsGrid" style="margin-bottom:30px;">
+        <div class="empty-state" data-i18n="gal.loading">Բեռնվում է…</div>
+      </div>
+
+      <h3 class="gallery-subheading" id="galleryFeedHeading" style="display:none;" data-i18n="gal.otherPhotos">Այլ նկարներ</h3>
       <div class="card-grid" id="galleryFeed">
         <div class="empty-state" data-i18n="gal.loading">Բեռնվում է…</div>
       </div>
     </div>
   </section>
+
+  <!-- ============ ALBUM LIGHTBOX ============ -->
+  <div class="modal-backdrop" id="albumLightbox">
+    <div class="modal wide lightbox-modal">
+      <button class="modal-close" id="closeAlbumLightbox" aria-label="Փակել">✕</button>
+      <div id="albumLightboxHead"></div>
+      <div class="lightbox-stage">
+        <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Նախորդ">‹</button>
+        <div class="lightbox-media" id="lightboxMedia"></div>
+        <button class="lightbox-nav next" id="lightboxNext" aria-label="Հաջորդ">›</button>
+      </div>
+      <div class="lightbox-counter" id="lightboxCounter"></div>
+      <div class="lightbox-thumbs" id="lightboxThumbs"></div>
+    </div>
+  </div>
 
   <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
 

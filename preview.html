@@ -222,6 +222,57 @@ section.alt{background:var(--paper-dim);}
 }
 .post-card:hover .post-more{ background:var(--apricot-deep); }
 .post-actions{display:flex; gap:6px;}
+
+/* Event photo albums */
+.gallery-subheading{
+  font-family:'Noto Serif Armenian',serif; font-size:1.1rem; margin:0 0 18px;
+  padding-top:10px; border-top:1px dashed var(--line);
+}
+.album-card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column;
+  cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
+}
+.album-card:hover, .album-card:focus-visible{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(18,28,20,0.14); }
+.album-cover{aspect-ratio:16/10; background:var(--paper-dim); position:relative; overflow:hidden;}
+.album-cover img{width:100%; height:100%; object-fit:cover; object-position:center;}
+.album-cover .count-badge{
+  position:absolute; top:10px; right:10px; background:rgba(36,27,21,.72); color:#fff;
+  font-size:.75rem; font-weight:700; padding:5px 11px; border-radius:999px; display:flex; align-items:center; gap:5px;
+}
+.album-cover .stack-hint{
+  position:absolute; inset:8px 8px auto auto; width:calc(100% - 20px); height:calc(100% - 20px);
+  border:2px solid rgba(255,255,255,.5); border-radius:10px; pointer-events:none;
+}
+.album-body{padding:16px 18px; display:flex; flex-direction:column; gap:6px; flex:1;}
+.album-body h3{margin:0; font-size:1.02rem;}
+.album-body p{margin:0; color:var(--ink-soft); font-size:.85rem;}
+.album-open-hint{color:var(--blue); font-weight:700; font-size:.78rem; align-self:flex-start; margin-top:auto;}
+
+/* Lightbox */
+.lightbox-modal{max-width:900px; padding:24px;}
+#albumLightboxHead{margin-bottom:14px; padding-right:36px;}
+#albumLightboxHead h2{margin:2px 0 4px; font-size:1.25rem;}
+#albumLightboxHead p{margin:0; color:var(--ink-soft); font-size:.88rem;}
+.lightbox-stage{position:relative; display:flex; align-items:center; gap:8px;}
+.lightbox-media{
+  flex:1; aspect-ratio:16/10; background:#000; border-radius:12px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.lightbox-media img, .lightbox-media video{width:100%; height:100%; object-fit:contain; background:#000;}
+.lightbox-nav{
+  flex:none; width:42px; height:42px; border-radius:50%; border:none; background:var(--card);
+  box-shadow:0 4px 14px rgba(0,0,0,.2); font-size:1.4rem; cursor:pointer; color:var(--ink);
+}
+.lightbox-nav:hover{ background:var(--blue); color:#fff; }
+.lightbox-counter{ text-align:center; font-size:.8rem; color:var(--ink-soft); margin-top:10px; }
+.lightbox-thumbs{ display:flex; gap:6px; margin-top:12px; overflow-x:auto; padding-bottom:4px; }
+.lightbox-thumbs img, .lightbox-thumbs .vid-thumb{
+  width:60px; height:44px; object-fit:cover; border-radius:6px; flex:none; cursor:pointer;
+  border:2px solid transparent; opacity:.6; transition:opacity .15s ease, border-color .15s ease;
+}
+.lightbox-thumbs img.active, .lightbox-thumbs .vid-thumb.active{ opacity:1; border-color:var(--apricot); }
+.vid-thumb{background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1rem;}
 .empty-state{
   border:1.5px dashed var(--line); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--ink-soft); background:var(--card);
 }
@@ -478,6 +529,19 @@ footer.site a:hover{color:var(--apricot);}
 }
 .content-nav-link:hover{ background:var(--blue); color:#fff; }
 .dash-panel.active{display:block;}
+.albums-admin-list{display:flex; flex-direction:column; gap:14px;}
+.album-admin-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px;}
+.album-admin-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px;}
+.album-admin-head h4{margin:0; font-size:1rem;}
+.album-admin-thumbs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+.album-admin-thumbs .thumb-wrap{position:relative; width:70px; height:52px;}
+.album-admin-thumbs img, .album-admin-thumbs .vid-thumb{width:70px; height:52px; object-fit:cover; border-radius:6px;}
+.album-admin-thumbs .vid-thumb{background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center;}
+.album-admin-thumbs .thumb-del{
+  position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:var(--pomegranate);
+  color:#fff; border:none; font-size:.7rem; cursor:pointer; line-height:20px; padding:0;
+}
+.album-add-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
 @keyframes dashFadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
 
 .table-wrap{overflow-x:auto; background:var(--card); border-radius:var(--radius); border:1px solid var(--line); box-shadow:var(--shadow);}
@@ -728,11 +792,32 @@ tbody tr:hover{background:var(--paper-dim);}
         <h2 data-i18n="gal.title">Լուսանկարներ և տեսանյութեր</h2>
         <p data-i18n="gal.lede">Դասադասընթացների և միջոցառումների պատկերներ, որոնք հրապարակվում են դպրոցի անձնակազմի կողմից։</p>
       </div>
+
+      <div class="card-grid" id="albumsGrid" style="margin-bottom:30px;">
+        <div class="empty-state" data-i18n="gal.loading">Բեռնվում է…</div>
+      </div>
+
+      <h3 class="gallery-subheading" id="galleryFeedHeading" style="display:none;" data-i18n="gal.otherPhotos">Այլ նկարներ</h3>
       <div class="card-grid" id="galleryFeed">
         <div class="empty-state" data-i18n="gal.loading">Բեռնվում է…</div>
       </div>
     </div>
   </section>
+
+  <!-- ============ ALBUM LIGHTBOX ============ -->
+  <div class="modal-backdrop" id="albumLightbox">
+    <div class="modal wide lightbox-modal">
+      <button class="modal-close" id="closeAlbumLightbox" aria-label="Փակել">✕</button>
+      <div id="albumLightboxHead"></div>
+      <div class="lightbox-stage">
+        <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Նախորդ">‹</button>
+        <div class="lightbox-media" id="lightboxMedia"></div>
+        <button class="lightbox-nav next" id="lightboxNext" aria-label="Հաջորդ">›</button>
+      </div>
+      <div class="lightbox-counter" id="lightboxCounter"></div>
+      <div class="lightbox-thumbs" id="lightboxThumbs"></div>
+    </div>
+  </div>
 
   <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
 
@@ -1065,6 +1150,7 @@ const i18n = {
     "gal.title": "Foto's en video's",
     "gal.lede": "Beelden van lessen en evenementen, gepubliceerd door het schoolteam.",
     "gal.loading": "Laden…",
+    "gal.otherPhotos": "Andere foto\u2019s",
     "reg.eyebrow": "INSCHRIJVINGEN",
     "reg.title": "Schrijf u in bij de school",
     "reg.lede": "Vul het formulier in en de schoolverantwoordelijke neemt contact met u op om de inschrijving te bevestigen. Uw gegevens zijn alleen zichtbaar voor de beheerder.",
@@ -1214,6 +1300,7 @@ const i18n = {
     "gal.title": "Photos and videos",
     "gal.lede": "Images from classes and activities, published by the school team.",
     "gal.loading": "Loading…",
+    "gal.otherPhotos": "Other photos",
     "reg.eyebrow": "REGISTRATION",
     "reg.title": "Register with the school",
     "reg.lede": "Fill in the form and the school coordinator will contact you to confirm the registration. Your details are only visible to the administrator.",
@@ -1432,6 +1519,7 @@ function applyLang(lang){
   loadStaff();
   loadFeed();
   loadGallery();
+  loadAlbums();
   updateHistoryToggleLabel();
 }
 document.querySelectorAll("[data-i18n]").forEach(el=> el.dataset.orig = el.textContent);
@@ -1617,12 +1705,148 @@ async function loadGallery(){
     const posts = await fetchPosts();
     allKnownPosts = [...allKnownPosts.filter(p=>!posts.some(np=>np.id===p.id)), ...posts];
     const items = posts.filter(p=> p.type==="gallery" || p.media_url);
-    el.innerHTML = items.length ? items.map(postCardHTML).join("") : `<div class="empty-state">Դեռ նկարներ/տեսանյութեր չկան։</div>`;
+    const heading = document.getElementById("galleryFeedHeading");
+    if (heading) heading.style.display = items.length ? "" : "none";
+    el.innerHTML = items.length ? items.map(postCardHTML).join("") : "";
     wireCardClicks(el);
   }catch(err){
     el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
   }
 }
+
+// ---------------------------------------------------------
+// 4b. Event photo/video albums — one card per event, opens a
+//     lightbox with every photo/video from that event.
+// ---------------------------------------------------------
+function albumText(a, field, lang){
+  const key = field + (lang === "nl" ? "_nl" : lang === "en" ? "_en" : "");
+  return a[key] || a[field] || "";
+}
+
+async function fetchAlbums(){
+  if (!SUPABASE_READY) return [];
+  const { data, error } = await supabase.from("gallery_albums").select("*").order("event_date", { ascending:false });
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+function albumCardHTML(a){
+  const media = Array.isArray(a.media) ? a.media : [];
+  const cover = media[0];
+  const title = albumText(a, "title", currentLang);
+  const desc = albumText(a, "description", currentLang);
+  const coverHtml = cover
+    ? (cover.type === "video"
+        ? `<video src="${cover.url}" muted></video>`
+        : `<img src="${cover.url}" alt="${escapeHtml(title)}">`)
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.85rem;">${pickLang({hy:"Առանց պատկերի", nl:"Geen afbeelding", en:"No image"})}</div>`;
+
+  return `<article class="album-card" data-album-id="${a.id}" tabindex="0" role="button" aria-label="${escapeHtml(title)}">
+    <div class="album-cover">
+      ${coverHtml}
+      <span class="count-badge">📷 ${media.length}</span>
+    </div>
+    <div class="album-body">
+      <span class="post-date">${a.event_date || ""}</span>
+      <h3>${escapeHtml(title)}</h3>
+      ${desc ? `<p>${escapeHtml(desc)}</p>` : ""}
+      <span class="album-open-hint">${pickLang({hy:"Դիտել ալբոմը ↗", nl:"Bekijk album ↗", en:"View album ↗"})}</span>
+    </div>
+  </article>`;
+}
+
+let albumsCache = [];
+async function loadAlbums(){
+  const el = document.getElementById("albumsGrid");
+  if (!el) return;
+  try{
+    albumsCache = await fetchAlbums();
+    el.innerHTML = albumsCache.length ? albumsCache.map(albumCardHTML).join("") : `<div class="empty-state">${pickLang({hy:"Դեռ ալբոմներ չկան։", nl:"Nog geen albums.", en:"No albums yet."})}</div>`;
+    el.querySelectorAll(".album-card").forEach(card=>{
+      const open = ()=>{
+        const album = albumsCache.find(a=>String(a.id) === card.dataset.albumId);
+        if (album) openAlbumLightbox(album);
+      };
+      card.addEventListener("click", open);
+      card.addEventListener("keydown", (e)=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
+    });
+  }catch(err){
+    el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
+  }
+}
+
+let lightboxAlbum = null;
+let lightboxIndex = 0;
+
+function renderLightboxMedia(){
+  if (!lightboxAlbum) return;
+  const media = lightboxAlbum.media || [];
+  const item = media[lightboxIndex];
+  const stage = document.getElementById("lightboxMedia");
+  const counter = document.getElementById("lightboxCounter");
+  const thumbs = document.getElementById("lightboxThumbs");
+  if (!stage || !item) return;
+
+  stage.innerHTML = item.type === "video"
+    ? `<video src="${item.url}" controls autoplay></video>`
+    : `<img src="${item.url}" alt="">`;
+  counter.textContent = `${lightboxIndex + 1} / ${media.length}`;
+
+  thumbs.innerHTML = media.map((m, i)=>
+    m.type === "video"
+      ? `<div class="vid-thumb${i===lightboxIndex ? ' active' : ''}" data-idx="${i}">▶</div>`
+      : `<img src="${m.url}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
+  ).join("");
+  thumbs.querySelectorAll("[data-idx]").forEach(t=>{
+    t.addEventListener("click", ()=>{ lightboxIndex = parseInt(t.dataset.idx, 10); renderLightboxMedia(); });
+  });
+
+  const prevBtn = document.getElementById("lightboxPrev");
+  const nextBtn = document.getElementById("lightboxNext");
+  if (prevBtn) prevBtn.style.visibility = media.length > 1 ? "visible" : "hidden";
+  if (nextBtn) nextBtn.style.visibility = media.length > 1 ? "visible" : "hidden";
+}
+
+function openAlbumLightbox(album){
+  lightboxAlbum = album;
+  lightboxIndex = 0;
+  const head = document.getElementById("albumLightboxHead");
+  if (head){
+    const title = albumText(album, "title", currentLang);
+    const desc = albumText(album, "description", currentLang);
+    head.innerHTML = `
+      <span class="post-date">${album.event_date || ""}</span>
+      <h2>${escapeHtml(title)}</h2>
+      ${desc ? `<p>${escapeHtml(desc)}</p>` : ""}`;
+  }
+  renderLightboxMedia();
+  document.getElementById("albumLightbox")?.classList.add("open");
+}
+
+document.getElementById("closeAlbumLightbox")?.addEventListener("click", ()=>{
+  document.getElementById("albumLightbox")?.classList.remove("open");
+});
+document.getElementById("albumLightbox")?.addEventListener("click", (e)=>{
+  if (e.target.id === "albumLightbox") e.target.classList.remove("open");
+});
+document.getElementById("lightboxPrev")?.addEventListener("click", ()=>{
+  if (!lightboxAlbum) return;
+  const len = (lightboxAlbum.media||[]).length;
+  lightboxIndex = (lightboxIndex - 1 + len) % len;
+  renderLightboxMedia();
+});
+document.getElementById("lightboxNext")?.addEventListener("click", ()=>{
+  if (!lightboxAlbum) return;
+  const len = (lightboxAlbum.media||[]).length;
+  lightboxIndex = (lightboxIndex + 1) % len;
+  renderLightboxMedia();
+});
+document.addEventListener("keydown", (e)=>{
+  if (!document.getElementById("albumLightbox")?.classList.contains("open")) return;
+  if (e.key === "Escape") document.getElementById("albumLightbox").classList.remove("open");
+  if (e.key === "ArrowLeft") document.getElementById("lightboxPrev")?.click();
+  if (e.key === "ArrowRight") document.getElementById("lightboxNext")?.click();
+});
 
 // ---------------------------------------------------------
 // 5. Registrations: public write, admin-only read (viewing happens in admin.js)
@@ -2313,6 +2537,7 @@ renderClassesList("hy");
 updateHistoryToggleLabel();
 loadFeed();
 loadGallery();
+loadAlbums();
 loadSiteContent();
 loadSchedule();
 loadStaff();

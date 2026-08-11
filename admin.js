@@ -159,6 +159,7 @@ function renderDashboard(){
     el.style.display = currentRole === "admin" ? "" : "none";
   });
   loadManagePosts();
+  loadAlbumsAdmin();
   loadScheduleAdmin();
   loadStaffAdmin();
   loadYearCalAdmin();
@@ -256,6 +257,141 @@ document.getElementById("postCancelEdit")?.addEventListener("click", ()=>{
   document.getElementById("postForm").reset();
   setPostFormMode(false);
 });
+
+// ---------------------------------------------------------
+// Event photo/video albums
+// ---------------------------------------------------------
+async function fetchAlbums(){
+  if (!SUPABASE_READY) return [];
+  const { data, error } = await supabase.from("gallery_albums").select("*").order("event_date", { ascending:false });
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+async function uploadAlbumFiles(files){
+  const media = [];
+  for (const file of files){
+    const path = `${currentUser.id}/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`;
+    const { error } = await supabase.storage.from("gallery").upload(path, file);
+    if (error) throw error;
+    const { data: pub } = supabase.storage.from("gallery").getPublicUrl(path);
+    media.push({ url: pub.publicUrl, type: file.type.startsWith("video") ? "video" : "image" });
+  }
+  return media;
+}
+
+document.getElementById("albumForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("albumMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY || !currentUser){
+    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
+    msg.classList.add("show","err"); return;
+  }
+  const files = Array.from(document.getElementById("al_files").files || []);
+  if (!files.length){
+    msg.textContent = "Ընտրեք առնվազն մեկ լուսանկար կամ տեսանյութ։";
+    msg.classList.add("show","err"); return;
+  }
+  msg.textContent = `Վերբեռնվում է ${files.length} ֆայլ...`;
+  msg.classList.add("show");
+  try{
+    const media = await uploadAlbumFiles(files);
+    const { error } = await supabase.from("gallery_albums").insert({
+      title: document.getElementById("al_title_hy").value.trim(),
+      title_nl: document.getElementById("al_title_nl").value.trim() || null,
+      title_en: document.getElementById("al_title_en").value.trim() || null,
+      event_date: document.getElementById("al_date").value || null,
+      description: document.getElementById("al_desc_hy").value.trim() || null,
+      description_nl: document.getElementById("al_desc_nl").value.trim() || null,
+      description_en: document.getElementById("al_desc_en").value.trim() || null,
+      media,
+      author_id: currentUser.id, author_name: currentUser.email
+    });
+    if (error) throw error;
+    msg.textContent = "Ալբոմը ստեղծվեց ✔ (տեսանելի է հանրային կայքում)";
+    msg.className = "form-msg show ok";
+    e.target.reset();
+    loadAlbumsAdmin();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message;
+    msg.className = "form-msg show err";
+  }
+});
+
+async function loadAlbumsAdmin(){
+  const wrap = document.getElementById("albumsAdminList");
+  if (!wrap) return;
+  try{
+    const albums = await fetchAlbums();
+    const mine = currentRole === "admin" ? albums : albums.filter(a=>a.author_id === currentUser.id);
+    wrap.innerHTML = mine.length ? mine.map(a=>{
+      const media = Array.isArray(a.media) ? a.media : [];
+      return `
+      <div class="album-admin-card" data-album="${a.id}">
+        <div class="album-admin-head">
+          <h4>${escapeHtml(a.title||"")} <span class="helper">— ${a.event_date||""} — ${media.length} ֆայլ</span></h4>
+          <button class="btn danger small" data-delalbum="${a.id}">Ջնջել ալբոմը</button>
+        </div>
+        <div class="album-admin-thumbs">
+          ${media.map((m,i)=> m.type==="video"
+            ? `<div class="thumb-wrap"><div class="vid-thumb">▶</div><button class="thumb-del" data-delmedia="${a.id}:${i}" title="Ջնջել">✕</button></div>`
+            : `<div class="thumb-wrap"><img src="${m.url}"><button class="thumb-del" data-delmedia="${a.id}:${i}" title="Ջնջել">✕</button></div>`
+          ).join("")}
+        </div>
+        <div class="album-add-row">
+          <input type="file" accept="image/*,video/*" multiple data-addfiles="${a.id}" style="max-width:280px;">
+          <button class="btn ghost small" data-addmedia="${a.id}">➕ Ավելացնել այս ալբոմում</button>
+        </div>
+      </div>`;
+    }).join("") : `<p class="helper">Դեռ ալբոմներ չկան։</p>`;
+
+    wrap.querySelectorAll("[data-delalbum]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս ամբողջ ալբոմը։")) return;
+        await supabase.from("gallery_albums").delete().eq("id", b.dataset.delalbum);
+        loadAlbumsAdmin();
+      });
+    });
+    wrap.querySelectorAll("[data-delmedia]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const [albumId, idx] = b.dataset.delmedia.split(":");
+        const albums = await fetchAlbums();
+        const album = albums.find(a=>String(a.id) === albumId);
+        if (!album) return;
+        const media = (album.media || []).filter((_, i)=> String(i) !== idx);
+        const { error } = await supabase.from("gallery_albums").update({ media }).eq("id", albumId);
+        if (error) alert("Սխալ՝ " + error.message);
+        loadAlbumsAdmin();
+      });
+    });
+    wrap.querySelectorAll("[data-addmedia]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const albumId = b.dataset.addmedia;
+        const fileInput = wrap.querySelector(`[data-addfiles="${albumId}"]`);
+        const files = Array.from(fileInput?.files || []);
+        if (!files.length){ alert("Ընտրեք ֆայլ(եր) նախ։"); return; }
+        b.textContent = "Վերբեռնվում է...";
+        b.disabled = true;
+        try{
+          const newMedia = await uploadAlbumFiles(files);
+          const albums = await fetchAlbums();
+          const album = albums.find(a=>String(a.id) === albumId);
+          const media = [...(album?.media || []), ...newMedia];
+          const { error } = await supabase.from("gallery_albums").update({ media }).eq("id", albumId);
+          if (error) throw error;
+          loadAlbumsAdmin();
+        }catch(err){
+          alert("Սխալ՝ " + err.message);
+          b.textContent = "➕ Ավելացնել այս ալբոմում";
+          b.disabled = false;
+        }
+      });
+    });
+  }catch(err){
+    wrap.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
+  }
+}
 
 async function loadManagePosts(){
   const body = document.getElementById("managePostsBody");

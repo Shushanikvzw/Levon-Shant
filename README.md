@@ -44,6 +44,7 @@ supabase/migrations/0004_teacher_name_transliteration.sql adds Latin-script name
                                           staff and schedule teacher names
 supabase/migrations/0005_seed_content.sql   fills the staff, schedule, and yearly calendar
                                           tables with the school's real content (only if empty)
+supabase/migrations/0006_gallery_albums.sql  adds event photo/video albums (multi-photo galleries)
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -72,10 +73,11 @@ integration isn't picking it up, use the manual method in step 2 instead — bot
 ## 2. Set up the database (2 minutes)
 
 **If your GitHub↔Supabase integration runs migrations automatically:** just pushing
-the repo (step 1) is enough — skip to step 3 once all five migrations have run (check
+the repo (step 1) is enough — skip to step 3 once all six migrations have run (check
 **Database → Migrations** in the Supabase dashboard to confirm `0001_init`,
 `0002_add_english`, `0003_trilingual_staff_schedule_posts`,
-`0004_teacher_name_transliteration`, and `0005_seed_content` all succeeded).
+`0004_teacher_name_transliteration`, `0005_seed_content`, and `0006_gallery_albums`
+all succeeded).
 
 **Manual method (always works):**
 1. Open your Supabase project → **SQL Editor → New query**.
@@ -97,8 +99,11 @@ the repo (step 1) is enough — skip to step 3 once all five migrations have run
    weekly class times, and the full 2025–2026 calendar, so the site isn't blank the
    moment you connect it. It only inserts if a table is currently empty, so it's safe
    to re-run and will never overwrite anything you've since added or edited yourself.
+7. New query again → paste `supabase/migrations/0006_gallery_albums.sql` → **Run**. It
+   creates the `gallery_albums` table and a new `gallery` storage bucket for the
+   event-photo-album feature (see Notes below).
 
-All five files are safe to re-run if needed.
+All six files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -200,6 +205,17 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: event photo/video albums.** The Gallery section now has a proper album
+  system, built for exactly this — one event, many photos. Admin/SMM create an album
+  from the **"🖼️ Լուսանկարների ալբոմներ"** dashboard tab: a title, optional date and
+  description, and a multi-file picker that uploads as many photos/videos at once as
+  you select. Visitors see a grid of album cards (cover photo + photo count badge, e.g.
+  "📷 14") — clicking one opens a full-screen lightbox with arrow navigation, a
+  thumbnail strip, and keyboard support (arrow keys, Escape). More photos can be added
+  to an existing album later without creating a new one, and individual photos can be
+  removed from an album without deleting the whole thing. The older single-photo
+  "gallery" post type still works too and shows below the albums as "Այլ նկարներ"
+  (Other photos), for one-off images that don't belong to a specific event.
 - **Fixed the real bug behind "changes don't show on the live site."** After the admin
   area was split into its own page, one leftover line in the public site's code
   (`app.js`) still tried to call a function that had been moved to `admin.js` — every

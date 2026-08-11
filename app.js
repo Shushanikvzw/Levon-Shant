@@ -128,6 +128,7 @@ const i18n = {
     "gal.title": "Foto's en video's",
     "gal.lede": "Beelden van lessen en evenementen, gepubliceerd door het schoolteam.",
     "gal.loading": "Laden…",
+    "gal.otherPhotos": "Andere foto\u2019s",
     "reg.eyebrow": "INSCHRIJVINGEN",
     "reg.title": "Schrijf u in bij de school",
     "reg.lede": "Vul het formulier in en de schoolverantwoordelijke neemt contact met u op om de inschrijving te bevestigen. Uw gegevens zijn alleen zichtbaar voor de beheerder.",
@@ -277,6 +278,7 @@ const i18n = {
     "gal.title": "Photos and videos",
     "gal.lede": "Images from classes and activities, published by the school team.",
     "gal.loading": "Loading…",
+    "gal.otherPhotos": "Other photos",
     "reg.eyebrow": "REGISTRATION",
     "reg.title": "Register with the school",
     "reg.lede": "Fill in the form and the school coordinator will contact you to confirm the registration. Your details are only visible to the administrator.",
@@ -495,6 +497,7 @@ function applyLang(lang){
   loadStaff();
   loadFeed();
   loadGallery();
+  loadAlbums();
   updateHistoryToggleLabel();
 }
 document.querySelectorAll("[data-i18n]").forEach(el=> el.dataset.orig = el.textContent);
@@ -680,12 +683,148 @@ async function loadGallery(){
     const posts = await fetchPosts();
     allKnownPosts = [...allKnownPosts.filter(p=>!posts.some(np=>np.id===p.id)), ...posts];
     const items = posts.filter(p=> p.type==="gallery" || p.media_url);
-    el.innerHTML = items.length ? items.map(postCardHTML).join("") : `<div class="empty-state">Դեռ նկարներ/տեսանյութեր չկան։</div>`;
+    const heading = document.getElementById("galleryFeedHeading");
+    if (heading) heading.style.display = items.length ? "" : "none";
+    el.innerHTML = items.length ? items.map(postCardHTML).join("") : "";
     wireCardClicks(el);
   }catch(err){
     el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
   }
 }
+
+// ---------------------------------------------------------
+// 4b. Event photo/video albums — one card per event, opens a
+//     lightbox with every photo/video from that event.
+// ---------------------------------------------------------
+function albumText(a, field, lang){
+  const key = field + (lang === "nl" ? "_nl" : lang === "en" ? "_en" : "");
+  return a[key] || a[field] || "";
+}
+
+async function fetchAlbums(){
+  if (!SUPABASE_READY) return [];
+  const { data, error } = await supabase.from("gallery_albums").select("*").order("event_date", { ascending:false });
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+function albumCardHTML(a){
+  const media = Array.isArray(a.media) ? a.media : [];
+  const cover = media[0];
+  const title = albumText(a, "title", currentLang);
+  const desc = albumText(a, "description", currentLang);
+  const coverHtml = cover
+    ? (cover.type === "video"
+        ? `<video src="${cover.url}" muted></video>`
+        : `<img src="${cover.url}" alt="${escapeHtml(title)}">`)
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.85rem;">${pickLang({hy:"Առանց պատկերի", nl:"Geen afbeelding", en:"No image"})}</div>`;
+
+  return `<article class="album-card" data-album-id="${a.id}" tabindex="0" role="button" aria-label="${escapeHtml(title)}">
+    <div class="album-cover">
+      ${coverHtml}
+      <span class="count-badge">📷 ${media.length}</span>
+    </div>
+    <div class="album-body">
+      <span class="post-date">${a.event_date || ""}</span>
+      <h3>${escapeHtml(title)}</h3>
+      ${desc ? `<p>${escapeHtml(desc)}</p>` : ""}
+      <span class="album-open-hint">${pickLang({hy:"Դիտել ալբոմը ↗", nl:"Bekijk album ↗", en:"View album ↗"})}</span>
+    </div>
+  </article>`;
+}
+
+let albumsCache = [];
+async function loadAlbums(){
+  const el = document.getElementById("albumsGrid");
+  if (!el) return;
+  try{
+    albumsCache = await fetchAlbums();
+    el.innerHTML = albumsCache.length ? albumsCache.map(albumCardHTML).join("") : `<div class="empty-state">${pickLang({hy:"Դեռ ալբոմներ չկան։", nl:"Nog geen albums.", en:"No albums yet."})}</div>`;
+    el.querySelectorAll(".album-card").forEach(card=>{
+      const open = ()=>{
+        const album = albumsCache.find(a=>String(a.id) === card.dataset.albumId);
+        if (album) openAlbumLightbox(album);
+      };
+      card.addEventListener("click", open);
+      card.addEventListener("keydown", (e)=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
+    });
+  }catch(err){
+    el.innerHTML = `<div class="empty-state">Չհաջողվեց բեռնել։ (${err.message})</div>`;
+  }
+}
+
+let lightboxAlbum = null;
+let lightboxIndex = 0;
+
+function renderLightboxMedia(){
+  if (!lightboxAlbum) return;
+  const media = lightboxAlbum.media || [];
+  const item = media[lightboxIndex];
+  const stage = document.getElementById("lightboxMedia");
+  const counter = document.getElementById("lightboxCounter");
+  const thumbs = document.getElementById("lightboxThumbs");
+  if (!stage || !item) return;
+
+  stage.innerHTML = item.type === "video"
+    ? `<video src="${item.url}" controls autoplay></video>`
+    : `<img src="${item.url}" alt="">`;
+  counter.textContent = `${lightboxIndex + 1} / ${media.length}`;
+
+  thumbs.innerHTML = media.map((m, i)=>
+    m.type === "video"
+      ? `<div class="vid-thumb${i===lightboxIndex ? ' active' : ''}" data-idx="${i}">▶</div>`
+      : `<img src="${m.url}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
+  ).join("");
+  thumbs.querySelectorAll("[data-idx]").forEach(t=>{
+    t.addEventListener("click", ()=>{ lightboxIndex = parseInt(t.dataset.idx, 10); renderLightboxMedia(); });
+  });
+
+  const prevBtn = document.getElementById("lightboxPrev");
+  const nextBtn = document.getElementById("lightboxNext");
+  if (prevBtn) prevBtn.style.visibility = media.length > 1 ? "visible" : "hidden";
+  if (nextBtn) nextBtn.style.visibility = media.length > 1 ? "visible" : "hidden";
+}
+
+function openAlbumLightbox(album){
+  lightboxAlbum = album;
+  lightboxIndex = 0;
+  const head = document.getElementById("albumLightboxHead");
+  if (head){
+    const title = albumText(album, "title", currentLang);
+    const desc = albumText(album, "description", currentLang);
+    head.innerHTML = `
+      <span class="post-date">${album.event_date || ""}</span>
+      <h2>${escapeHtml(title)}</h2>
+      ${desc ? `<p>${escapeHtml(desc)}</p>` : ""}`;
+  }
+  renderLightboxMedia();
+  document.getElementById("albumLightbox")?.classList.add("open");
+}
+
+document.getElementById("closeAlbumLightbox")?.addEventListener("click", ()=>{
+  document.getElementById("albumLightbox")?.classList.remove("open");
+});
+document.getElementById("albumLightbox")?.addEventListener("click", (e)=>{
+  if (e.target.id === "albumLightbox") e.target.classList.remove("open");
+});
+document.getElementById("lightboxPrev")?.addEventListener("click", ()=>{
+  if (!lightboxAlbum) return;
+  const len = (lightboxAlbum.media||[]).length;
+  lightboxIndex = (lightboxIndex - 1 + len) % len;
+  renderLightboxMedia();
+});
+document.getElementById("lightboxNext")?.addEventListener("click", ()=>{
+  if (!lightboxAlbum) return;
+  const len = (lightboxAlbum.media||[]).length;
+  lightboxIndex = (lightboxIndex + 1) % len;
+  renderLightboxMedia();
+});
+document.addEventListener("keydown", (e)=>{
+  if (!document.getElementById("albumLightbox")?.classList.contains("open")) return;
+  if (e.key === "Escape") document.getElementById("albumLightbox").classList.remove("open");
+  if (e.key === "ArrowLeft") document.getElementById("lightboxPrev")?.click();
+  if (e.key === "ArrowRight") document.getElementById("lightboxNext")?.click();
+});
 
 // ---------------------------------------------------------
 // 5. Registrations: public write, admin-only read (viewing happens in admin.js)
@@ -1376,6 +1515,7 @@ renderClassesList("hy");
 updateHistoryToggleLabel();
 loadFeed();
 loadGallery();
+loadAlbums();
 loadSiteContent();
 loadSchedule();
 loadStaff();
