@@ -1,5 +1,5 @@
 /* =========================================================
-   Լևոն Շանթ շաբաթօրյա դպրոց — app.js (Supabase edition)
+   Լևոն Շանթի անվան շաբաթօրյա դպրոց — app.js (Supabase edition)
    Handles: language toggle, Supabase auth (sign-up + admin
    approval → admin/smm roles), Postgres CRUD for posts/
    registrations/schedule/staff/site content/yearly events,

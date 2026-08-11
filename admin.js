@@ -1,5 +1,5 @@
 /* =========================================================
-   Լևոն Շանթ շաբաթօրյա դպրոց — admin.js
+   Լևոն Շանթի անվան շաբաթօրյա դպրոց — admin.js
    Everything that requires signing in: auth (sign-up + admin
    approval), publishing posts, managing the weekly schedule,
    staff directory, yearly calendar, accounts, site text,

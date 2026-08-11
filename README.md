@@ -1,4 +1,4 @@
-# Լևոն Շանթ շաբաթօրյա դպրոց — website (Supabase edition, trilingual)
+# Լևոն Շանթի անվան շաբաթօրյա դպրոց — website (Supabase edition, trilingual)
 
 A trilingual (Armenian / Dutch / English) website for the school: history timeline,
 Hamazkayin background, teaching staff directory, full course list, a weekly lesson
