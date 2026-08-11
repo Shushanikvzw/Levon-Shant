@@ -92,13 +92,13 @@ header.site{
 .nav-row{display:flex; flex-wrap:wrap; align-items:stretch; justify-content:space-between; padding:0 24px 12px 0; gap:10px 20px;}
 .brand{display:flex; align-items:stretch; gap:16px; min-width:0; flex:none; order:1;}
 .brand .crest{
-  width:118px; flex:none; align-self:stretch; min-height:96px;
+  width:230px; flex:none; align-self:stretch; min-height:120px;
   border-radius:0 22px 22px 0; margin-left:0;
   background:linear-gradient(155deg,var(--apricot),var(--pomegranate));
-  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:1.7rem;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:2.4rem;
   overflow:hidden;
 }
-.brand .crest img{width:100%; height:100%; object-fit:contain; padding:9px; background:#fff;}
+.brand .crest img{width:100%; height:100%; object-fit:contain; padding:14px; background:#fff;}
 @media (max-width:640px){
   .brand .crest{width:70px; min-height:70px; border-radius:0 14px 14px 0; font-size:1.05rem;}
   .brand .crest img{padding:5px;}
