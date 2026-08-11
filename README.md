@@ -177,12 +177,16 @@ generated or handled by you — you're only approving access and assigning the r
 
 Every registration is always saved to the database and visible in the dashboard's
 "Գրանցումներ" tab regardless of this step — this just adds an automatic, clearly
-organized email to the school's inbox the moment someone submits either form.
+organized email to the school's inbox the moment someone submits either form, **and**
+a confirmation email back to the family who registered, so they have something in
+their inbox confirming it went through.
 
-1. Go to https://www.emailjs.com → sign up (free tier: 200 emails/month).
+1. Go to https://www.emailjs.com → sign up (free tier: 200 emails/month, shared across
+   both templates below).
 2. **Email Services → Add New Service → Gmail** → connect
-   `levon.shant.dproc@gmail.com` → note the **Service ID**.
-3. **Email Templates → Create New Template**:
+   `levon.shant.dproc@gmail.com` → note the **Service ID** (both templates below use
+   this same service).
+3. **Email Templates → Create New Template** (this one notifies the school):
    - **To email**: `levon.shant.dproc@gmail.com` (typed directly — this is what makes
      every registration always land in the school's inbox)
    - **Subject**: `{{subject}}`
@@ -190,19 +194,30 @@ organized email to the school's inbox the moment someone submits either form.
    - **Reply To**: `{{reply_to}}`
 
    Save it and note the **Template ID**.
-4. **Account → General** → copy your **Public Key**.
-5. Open `app.js` and fill in the `emailjsConfig` block right after the Supabase config:
+4. **Email Templates → Create New Template** again (this second one confirms receipt
+   to the family — note the **To email** is different this time):
+   - **To email**: `{{to_email}}` (a variable, not typed directly — this is what lets
+     it go to whichever family just registered, instead of always going to the school)
+   - **Subject**: `{{subject}}`
+   - **Content**: `{{message}}`
+
+   Save it and note this **Template ID** too (a different one from step 3).
+5. **Account → General** → copy your **Public Key**.
+6. Open `app.js` and fill in the `emailjsConfig` block right after the Supabase config:
 
    ```js
    const emailjsConfig = {
      publicKey: "your public key",
      serviceId: "service_abc1234",
-     templateId: "template_xyz789"
+     templateId: "template_xyz789",              // from step 3, notifies the school
+     confirmationTemplateId: "template_abc456"    // from step 4, confirms to the family
    };
    ```
 
 Until this is filled in, registrations still save normally — only the email
-notification is skipped, silently.
+notifications are skipped, silently. The two are independent: if you only set up the
+first template (step 3) and leave `confirmationTemplateId` as-is, the school still
+gets notified as before, the family just won't get a confirmation email yet.
 
 ## 7. Put the site online
 
@@ -216,6 +231,16 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: families now get a confirmation email too.** Previously only the school got
+  notified when someone registered — the family just saw an on-page "submitted"
+  message with nothing in their inbox. Now, right after a successful registration, a
+  second, separate email goes to the family confirming their registration was
+  received, listing the classes they selected, and letting them know the school will
+  follow up. It's written in Armenian, Dutch, and English together, since there's no
+  way to know which language the family prefers to read. Needs the second EmailJS
+  template from step 4 in section 6 above — if you skip it, everything else keeps
+  working exactly as before, the family just won't get that email yet.
 
 - **Fixed the chaotic header layout.** The logo, school name, all 8 nav links, the
   language switch, and the login button were all competing for space in one row,

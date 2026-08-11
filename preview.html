@@ -1164,13 +1164,18 @@ const SUPABASE_READY = !!supabase;
 const emailjsConfig = {
   publicKey: "YOUR_EMAILJS_PUBLIC_KEY",
   serviceId: "YOUR_EMAILJS_SERVICE_ID",
-  templateId: "YOUR_EMAILJS_TEMPLATE_ID"
+  templateId: "YOUR_EMAILJS_TEMPLATE_ID",
+  confirmationTemplateId: "YOUR_EMAILJS_CONFIRMATION_TEMPLATE_ID"
 };
 const EMAILJS_READY = emailjsConfig.publicKey !== "YOUR_EMAILJS_PUBLIC_KEY" && typeof window.emailjs !== "undefined";
+const CONFIRMATION_READY = EMAILJS_READY && emailjsConfig.confirmationTemplateId !== "YOUR_EMAILJS_CONFIRMATION_TEMPLATE_ID";
 if (EMAILJS_READY) {
   window.emailjs.init({ publicKey: emailjsConfig.publicKey });
 } else {
   console.warn("EmailJS is not configured yet — registration emails to the school won't be sent. See README.md.");
+}
+if (EMAILJS_READY && !CONFIRMATION_READY){
+  console.warn("Confirmation-to-registrant emails aren't configured yet (confirmationTemplateId) — the school still gets notified normally. See README.md.");
 }
 
 // ---------------------------------------------------------
@@ -2007,6 +2012,7 @@ async function submitRegistration(payload, msgEl, formEl){
     msgEl.classList.add("show","ok");
     formEl.reset();
     sendRegistrationEmail(payload); // best-effort; never blocks the confirmation above
+    sendConfirmationEmail(payload); // best-effort email back to the family, independent of the one above
   }catch(err){
     msgEl.textContent = "Սխալ՝ " + err.message;
     msgEl.classList.add("show","err");
@@ -2072,6 +2078,54 @@ async function sendRegistrationEmail(payload){
     });
   }catch(err){
     console.warn("Registration email could not be sent (saved regardless):", err.message || err);
+  }
+}
+
+// Confirmation sent back to the family that just registered, so they have
+// something in their inbox confirming it went through — separate from the
+// notification email sent to the school above. Written in Armenian, Dutch,
+// and English together, since we don't know which language the family reads.
+function buildConfirmationEmail(payload){
+  const isChild = payload.type === "child";
+  const name = isChild ? payload.childName : payload.name;
+  const coursesList = (payload.courses && payload.courses.length) ? payload.courses.join(", ") : "—";
+
+  const subject = isChild
+    ? `Գրանցումը ստացվեց ✔ / Inschrijving ontvangen ✔ / Registration received ✔ — ${name || ""}`
+    : `Գրանցումը ստացվեց ✔ / Inschrijving ontvangen ✔ / Registration received ✔ — ${name || ""}`;
+
+  const lines = [
+    "Հայերեն",
+    "—".repeat(20),
+    `Բարև ձեզ,`,
+    ``,
+    `Շնորհակալություն։ Ձեր գրանցումը (${isChild ? "երեխայի համար՝ " + (name||"") : (name||"")}) հաջողությամբ ստացվեց Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցի կողմից։`,
+    `Ընտրված դասընթացներ. ${coursesList}`,
+    `Դպրոցի պատասխանատուն շուտով կապ կհաստատի ձեզ հետ՝ գրանցումը հաստատելու համար։`,
+    `Հարցերի դեպքում կարող եք պատասխանել այս նամակին կամ գրել՝ levon.shant.dproc@gmail.com։`,
+    ``,
+    `Bedankt! Uw inschrijving${isChild ? " voor uw kind" : ""} (${name||""}) is succesvol ontvangen door de Hamazkayin Levon Shant Zaterdagschool.`,
+    `Gekozen lessen: ${coursesList}`,
+    `De schoolverantwoordelijke neemt binnenkort contact met u op om de inschrijving te bevestigen.`,
+    `Bij vragen kunt u dit e-mailbericht beantwoorden of schrijven naar levon.shant.dproc@gmail.com.`,
+    ``,
+    `Thank you! Your registration${isChild ? " for your child" : ""} (${name||""}) was successfully received by the Hamazkayin Levon Shant Saturday School.`,
+    `Selected classes: ${coursesList}`,
+    `The school coordinator will contact you soon to confirm the registration.`,
+    `If you have any questions, you can reply to this email or write to levon.shant.dproc@gmail.com.`
+  ];
+  return { subject, message: lines.join("\n"), toEmail: payload.email || "" };
+}
+
+async function sendConfirmationEmail(payload){
+  if (!CONFIRMATION_READY || !payload.email) return;
+  const { subject, message, toEmail } = buildConfirmationEmail(payload);
+  try{
+    await window.emailjs.send(emailjsConfig.serviceId, emailjsConfig.confirmationTemplateId, {
+      subject, message, to_email: toEmail
+    });
+  }catch(err){
+    console.warn("Confirmation email to registrant could not be sent (registration saved regardless):", err.message || err);
   }
 }
 
