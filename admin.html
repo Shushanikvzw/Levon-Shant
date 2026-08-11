@@ -52,10 +52,19 @@
   .admin-main-head h1{ font-size:1.6rem; margin:0; }
   @media (max-width:860px){
     .admin-shell{ flex-direction:column; }
-    .admin-sidebar{ width:100%; flex-direction:row; flex-wrap:wrap; gap:8px; padding:14px; }
-    .sidebar-user, .sidebar-foot{ display:none; }
+    .admin-sidebar{ width:100%; flex-direction:row; flex-wrap:wrap; gap:8px; padding:12px; align-items:center; }
+    .sidebar-user{ display:none; }
+    .sidebar-group-label{ display:none; }
     .sidebar-group{ flex-direction:row; flex-wrap:wrap; }
-    .admin-main{ max-height:none; padding:24px 18px; }
+    .sidebar-foot{ margin-top:0; padding-top:0; border-top:none; width:auto; margin-left:auto; }
+    .sidebar-foot .btn{ width:auto; padding:9px 14px; }
+    .admin-main{ max-height:none; padding:20px 16px; }
+    .admin-main-head h1{ font-size:1.3rem; }
+  }
+  @media (max-width:480px){
+    .admin-topbar{ padding:10px 14px; font-size:.85rem; }
+    .sidebar-link{ font-size:.78rem; padding:8px 10px; }
+    .auth-card{ padding:24px 20px; }
   }
 </style>
 </head>
@@ -107,8 +116,8 @@
       <div class="sidebar-group-label">Բովանդակություն</div>
       <div class="sidebar-group">
         <button class="sidebar-link active" data-panel="panel-publish" data-title="✍️ Հրապարակել">✍️ Հրապարակել</button>
-        <button class="sidebar-link" data-panel="panel-schedule" data-title="🗓️ Դասացուցակ">🗓️ Դասացուցակ</button>
-        <button class="sidebar-link" data-panel="panel-staff" data-title="🧑‍🏫 Անձնակազմ">🧑‍🏫 Անձնակազմ</button>
+        <button class="sidebar-link" data-panel="panel-schedule" data-title="🗓️ Դասացուցակ" data-admin-only="1">🗓️ Դասացուցակ</button>
+        <button class="sidebar-link" data-panel="panel-staff" data-title="🧑‍🏫 Անձնակազմ" data-admin-only="1">🧑‍🏫 Անձնակազմ</button>
         <button class="sidebar-link" data-panel="panel-yearcal" data-title="📅 Տարեկան օրացույց">📅 Տարեկան օրացույց</button>
         <button class="sidebar-link" data-panel="panel-albums" data-title="🖼️ Լուսանկարների ալբոմներ">🖼️ Լուսանկարների ալբոմներ</button>
         <button class="sidebar-link" data-panel="panel-manage" data-title="🗂️ Իմ հրապարակումները">🗂️ Իմ հրապարակումները</button>
@@ -121,6 +130,7 @@
         <button class="sidebar-link" data-panel="panel-reg" data-title="📋 Գրանցումներ" data-admin-only="1">📋 Գրանցումներ</button>
         <button class="sidebar-link" data-panel="panel-users" data-title="👤 Հաշիվներ" data-admin-only="1">👤 Հաշիվներ</button>
         <button class="sidebar-link" data-panel="panel-content" data-title="📝 Կայքի բովանդակություն" data-admin-only="1">📝 Կայքի բովանդակություն</button>
+        <button class="sidebar-link" data-panel="panel-newsections" data-title="🧩 Նոր բաժիններ" data-admin-only="1">🧩 Նոր բաժիններ</button>
         <button class="sidebar-link" data-panel="panel-settings" data-title="⚙️ Կարգավորումներ" data-admin-only="1">⚙️ Կարգավորումներ</button>
       </div>
     </div>
@@ -273,7 +283,8 @@
             <div class="field"><label for="al_desc_nl">Omschrijving — NL</label><textarea id="al_desc_nl" rows="2"></textarea></div>
             <div class="field"><label for="al_desc_en">Description — EN</label><textarea id="al_desc_en" rows="2"></textarea></div>
           </div>
-          <div class="field"><label for="al_files">Լուսանկարներ/տեսանյութեր (ընտրեք մեկ կամ մի քանիսը)</label><input type="file" id="al_files" accept="image/*,video/*" multiple></div>
+          <div class="field"><label for="al_files">Լուսանկարներ/տեսանյութեր (վերբեռնել ուղղակիորեն, ընտրեք մեկ կամ մի քանիսը)</label><input type="file" id="al_files" accept="image/*,video/*" multiple></div>
+          <div class="field"><label for="al_youtube">...կամ YouTube հղում (ոչ պարտադիր, կարող եք ավելացնել մի քանիսը՝ մեկական տողում)</label><textarea id="al_youtube" rows="2" placeholder="https://www.youtube.com/watch?v=..."></textarea></div>
           <button class="btn apricot" type="submit">Ստեղծել ալբոմ</button>
           <div class="form-msg" id="albumMsg"></div>
         </form>
@@ -326,6 +337,35 @@
           <button class="btn blue" type="submit" style="position:sticky; bottom:16px;">Պահպանել փոփոխությունները</button>
           <div class="form-msg" id="contentMsg"></div>
         </form>
+      </div>
+
+      <!-- Custom sections: admin can add whole new content blocks to the public site -->
+      <div class="dash-panel" id="panel-newsections">
+        <div class="banner warn">🧩 Ավելացրեք կայքում լրիվ նոր բաժին՝ վերնագրով, տեքստով և (ցանկության դեպքում) նկարով։ Նոր բաժինները ցուցադրվում են հանրային կայքում «Միջոցառումներ» և «Գրանցում» բաժինների միջև, «Հերթականություն» դաշտով սահմանված կարգով (փոքր թիվը՝ վերևում)։</div>
+        <form class="card-form" id="newSectionForm" style="max-width:760px; margin-bottom:24px;">
+          <div class="field-row-3">
+            <div class="field"><label for="ns_title_hy">Վերնագիր — ՀԱՅ</label><input id="ns_title_hy" required></div>
+            <div class="field"><label for="ns_title_nl">Titel — NL (ոչ պարտադիր)</label><input id="ns_title_nl"></div>
+            <div class="field"><label for="ns_title_en">Title — EN (ոչ պարտադիր)</label><input id="ns_title_en"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label for="ns_body_hy">Տեքստ — ՀԱՅ</label><textarea id="ns_body_hy" rows="4"></textarea></div>
+            <div class="field"><label for="ns_body_nl">Tekst — NL</label><textarea id="ns_body_nl" rows="4"></textarea></div>
+            <div class="field"><label for="ns_body_en">Text — EN</label><textarea id="ns_body_en" rows="4"></textarea></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="ns_image_file">Նկար (ոչ պարտադիր)</label><input type="file" id="ns_image_file" accept="image/*"></div>
+            <div class="field"><label for="ns_image_url">...կամ նկարի հղում</label><input id="ns_image_url" placeholder="https://..."></div>
+          </div>
+          <div class="field"><label for="ns_order">Հերթականություն (0 = ամենավերևում)</label><input type="number" id="ns_order" value="0" style="max-width:140px;"></div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn apricot" type="submit">Ավելացնել բաժինը</button>
+            <button class="btn ghost" type="button" id="newSectionCancelEdit" style="display:none;">Չեղարկել խմբագրումը</button>
+          </div>
+          <div class="form-msg" id="newSectionMsg"></div>
+        </form>
+        <h3 style="margin-bottom:14px;">Առկա նոր բաժինները</h3>
+        <div id="newSectionsAdminList"><p class="helper">Բեռնվում է…</p></div>
       </div>
 
       <!-- Settings: contact/social links, logo, yearly calendar image -->

@@ -45,6 +45,10 @@ supabase/migrations/0004_teacher_name_transliteration.sql adds Latin-script name
 supabase/migrations/0005_seed_content.sql   fills the staff, schedule, and yearly calendar
                                           tables with the school's real content (only if empty)
 supabase/migrations/0006_gallery_albums.sql  adds event photo/video albums (multi-photo galleries)
+supabase/migrations/0007_schedule_staff_admin_only.sql  restricts the weekly schedule and
+                                          staff directory to admin-only editing (SMM loses write access)
+supabase/migrations/0008_custom_sections.sql  adds admin-manageable custom sections — whole
+                                          new content blocks addable to the public site
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -102,8 +106,12 @@ all succeeded).
 7. New query again → paste `supabase/migrations/0006_gallery_albums.sql` → **Run**. It
    creates the `gallery_albums` table and a new `gallery` storage bucket for the
    event-photo-album feature (see Notes below).
+8. New query again → paste `supabase/migrations/0007_schedule_staff_admin_only.sql`
+   → **Run**. Restricts the weekly schedule and staff directory to admin-only editing.
+9. New query again → paste `supabase/migrations/0008_custom_sections.sql` → **Run**.
+   Adds the `custom_sections` table for admin-created content blocks.
 
-All six files are safe to re-run if needed.
+All eight files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -205,6 +213,26 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: admin can add whole new sections to the site.** The dashboard's new
+  "🧩 Նոր բաժիններ" tab (admin-only) lets you create a title + text + optional image
+  block that appears on the public site between "Միջոցառումներ" and "Գրանցում" — useful
+  for things that don't fit the existing sections (a special announcement, a new
+  program, anything). Set the "Հերթականություն" (order) number to control where each
+  one appears relative to the others; use "Թաքցնել" to hide one temporarily without
+  deleting it.
+- **The logo is now much bigger** in the header (108×108px, roughly double the previous
+  58px) so it's clearly visible, with a smaller version on phones so it doesn't crowd
+  the header there.
+- **The staff login button has its own polished look** now — a green pill with a
+  circular icon badge and a hover lift — instead of sharing the plain generic button
+  style with everything else.
+- **Phone-friendliness pass.** Went through the site on iPhone/Samsung-width screens
+  and fixed several cramped spots: the photo/video lightbox no longer squeezes the
+  image to fit prev/next buttons (they float over the edges instead); modals use less
+  padding and fit within the screen without needing to scroll sideways; the calendar
+  grid keeps day cells at a comfortable tap size instead of shrinking too small; and
+  the admin dashboard's sidebar — including the sign-out button, which was previously
+  hidden entirely on phones — now stays fully usable as a wrapping row of chips.
 - **New: event photo/video albums.** The Gallery section now has a proper album
   system, built for exactly this — one event, many photos. Admin/SMM create an album
   from the **"🖼️ Լուսանկարների ալբոմներ"** dashboard tab: a title, optional date and

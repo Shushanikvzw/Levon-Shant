@@ -163,7 +163,7 @@ function renderDashboard(){
   loadScheduleAdmin();
   loadStaffAdmin();
   loadYearCalAdmin();
-  if (currentRole === "admin"){ loadRegistrations(); loadUsers(); renderContentForm(); loadContactInfoForm(); }
+  if (currentRole === "admin"){ loadRegistrations(); loadUsers(); renderContentForm(); loadContactInfoForm(); loadNewSectionsAdmin(); }
 }
 
 // ---------------------------------------------------------
@@ -268,6 +268,16 @@ async function fetchAlbums(){
   return data || [];
 }
 
+// Turns a textarea of pasted YouTube links (one per line) into media entries.
+// Accepts full watch URLs, youtu.be short links, or already-normalized embed URLs.
+function parseYoutubeLinks(text){
+  return (text || "")
+    .split("\n")
+    .map(s => s.trim())
+    .filter(Boolean)
+    .map(link => ({ url: normalizeUrl(link), type: "youtube" }));
+}
+
 async function uploadAlbumFiles(files){
   const media = [];
   for (const file of files){
@@ -289,14 +299,16 @@ document.getElementById("albumForm")?.addEventListener("submit", async (e)=>{
     msg.classList.add("show","err"); return;
   }
   const files = Array.from(document.getElementById("al_files").files || []);
-  if (!files.length){
-    msg.textContent = "Ընտրեք առնվազն մեկ լուսանկար կամ տեսանյութ։";
+  const youtubeLinks = parseYoutubeLinks(document.getElementById("al_youtube").value);
+  if (!files.length && !youtubeLinks.length){
+    msg.textContent = "Ընտրեք առնվազն մեկ լուսանկար/տեսանյութ կամ լրացրեք YouTube հղում։";
     msg.classList.add("show","err"); return;
   }
-  msg.textContent = `Վերբեռնվում է ${files.length} ֆայլ...`;
+  msg.textContent = files.length ? `Վերբեռնվում է ${files.length} ֆայլ...` : "Ստեղծվում է ալբոմը...";
   msg.classList.add("show");
   try{
-    const media = await uploadAlbumFiles(files);
+    const uploaded = files.length ? await uploadAlbumFiles(files) : [];
+    const media = [...uploaded, ...youtubeLinks];
     const { error } = await supabase.from("gallery_albums").insert({
       title: document.getElementById("al_title_hy").value.trim(),
       title_nl: document.getElementById("al_title_nl").value.trim() || null,
@@ -336,11 +348,14 @@ async function loadAlbumsAdmin(){
         <div class="album-admin-thumbs">
           ${media.map((m,i)=> m.type==="video"
             ? `<div class="thumb-wrap"><div class="vid-thumb">▶</div><button class="thumb-del" data-delmedia="${a.id}:${i}" title="Ջնջել">✕</button></div>`
-            : `<div class="thumb-wrap"><img src="${m.url}"><button class="thumb-del" data-delmedia="${a.id}:${i}" title="Ջնջել">✕</button></div>`
+            : m.type==="youtube"
+              ? `<div class="thumb-wrap"><div class="vid-thumb yt-thumb">▶ YouTube</div><button class="thumb-del" data-delmedia="${a.id}:${i}" title="Ջնջել">✕</button></div>`
+              : `<div class="thumb-wrap"><img src="${m.url}"><button class="thumb-del" data-delmedia="${a.id}:${i}" title="Ջնջել">✕</button></div>`
           ).join("")}
         </div>
         <div class="album-add-row">
-          <input type="file" accept="image/*,video/*" multiple data-addfiles="${a.id}" style="max-width:280px;">
+          <input type="file" accept="image/*,video/*" multiple data-addfiles="${a.id}" style="max-width:220px;">
+          <input type="text" placeholder="...կամ YouTube հղում" data-addyoutube="${a.id}" style="max-width:220px; border:1.5px solid var(--line); border-radius:10px; padding:9px 12px;">
           <button class="btn ghost small" data-addmedia="${a.id}">➕ Ավելացնել այս ալբոմում</button>
         </div>
       </div>`;
@@ -369,12 +384,15 @@ async function loadAlbumsAdmin(){
       b.addEventListener("click", async ()=>{
         const albumId = b.dataset.addmedia;
         const fileInput = wrap.querySelector(`[data-addfiles="${albumId}"]`);
+        const youtubeInput = wrap.querySelector(`[data-addyoutube="${albumId}"]`);
         const files = Array.from(fileInput?.files || []);
-        if (!files.length){ alert("Ընտրեք ֆայլ(եր) նախ։"); return; }
-        b.textContent = "Վերբեռնվում է...";
+        const youtubeLinks = parseYoutubeLinks(youtubeInput?.value || "");
+        if (!files.length && !youtubeLinks.length){ alert("Ընտրեք ֆայլ(եր) կամ լրացրեք YouTube հղում։"); return; }
+        b.textContent = "Ավելացվում է...";
         b.disabled = true;
         try{
-          const newMedia = await uploadAlbumFiles(files);
+          const uploaded = files.length ? await uploadAlbumFiles(files) : [];
+          const newMedia = [...uploaded, ...youtubeLinks];
           const albums = await fetchAlbums();
           const album = albums.find(a=>String(a.id) === albumId);
           const media = [...(album?.media || []), ...newMedia];
@@ -562,6 +580,137 @@ async function loadUsers(){
     });
   }catch(err){
     body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// Custom sections — admin can add whole new content blocks
+// to the public site (title/body in 3 languages + image).
+// ---------------------------------------------------------
+async function fetchCustomSections(){
+  if (!SUPABASE_READY) return [];
+  const { data, error } = await supabase.from("custom_sections").select("*").order("sort_order");
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+let editingSectionId = null;
+function setSectionFormMode(editing){
+  const btn = document.querySelector('#newSectionForm button[type="submit"]');
+  const cancelBtn = document.getElementById("newSectionCancelEdit");
+  if (!btn) return;
+  btn.textContent = editing ? "Պահպանել փոփոխությունը" : "Ավելացնել բաժինը";
+  cancelBtn.style.display = editing ? "" : "none";
+}
+
+document.getElementById("newSectionForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("newSectionMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY || !currentUser){
+    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const file = document.getElementById("ns_image_file").files[0];
+    let imageUrl = normalizeUrl(document.getElementById("ns_image_url").value);
+    if (file){
+      const path = `${Date.now()}_${file.name}`;
+      const { error: upErr } = await supabase.storage.from("site-assets").upload(path, file);
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("site-assets").getPublicUrl(path);
+      imageUrl = pub.publicUrl;
+    }
+    const payload = {
+      title_hy: document.getElementById("ns_title_hy").value.trim(),
+      title_nl: document.getElementById("ns_title_nl").value.trim() || null,
+      title_en: document.getElementById("ns_title_en").value.trim() || null,
+      body_hy: document.getElementById("ns_body_hy").value.trim() || null,
+      body_nl: document.getElementById("ns_body_nl").value.trim() || null,
+      body_en: document.getElementById("ns_body_en").value.trim() || null,
+      image_url: imageUrl || null,
+      sort_order: parseInt(document.getElementById("ns_order").value, 10) || 0
+    };
+    if (editingSectionId){
+      const { error } = await supabase.from("custom_sections").update(payload).eq("id", editingSectionId);
+      if (error) throw error;
+      msg.textContent = "Թարմացվեց ✔"; editingSectionId = null; setSectionFormMode(false);
+    } else {
+      payload.created_by = currentUser.id;
+      const { error } = await supabase.from("custom_sections").insert(payload);
+      if (error) throw error;
+      msg.textContent = "Ավելացվեց ✔ (տեսանելի է հանրային կայքում)";
+    }
+    msg.classList.add("show","ok");
+    e.target.reset();
+    document.getElementById("ns_order").value = "0";
+    loadNewSectionsAdmin();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+document.getElementById("newSectionCancelEdit")?.addEventListener("click", ()=>{
+  editingSectionId = null;
+  document.getElementById("newSectionForm").reset();
+  document.getElementById("ns_order").value = "0";
+  setSectionFormMode(false);
+});
+
+async function loadNewSectionsAdmin(){
+  const wrap = document.getElementById("newSectionsAdminList");
+  if (!wrap) return;
+  try{
+    const rows = await fetchCustomSections();
+    wrap.innerHTML = rows.length ? rows.map(s=>`
+      <div class="album-admin-card">
+        <div class="album-admin-head">
+          <h4>${escapeHtml(s.title_hy||"")} <span class="helper">— հերթ. ${s.sort_order}${s.is_visible === false ? " — թաքցված" : ""}</span></h4>
+          <div style="display:flex; gap:6px;">
+            <button class="btn ghost small" data-togglevis="${s.id}">${s.is_visible === false ? "Ցուցադրել" : "Թաքցնել"}</button>
+            <button class="btn ghost small" data-editsection="${s.id}">Խմբագրել</button>
+            <button class="btn danger small" data-delsection="${s.id}">Ջնջել</button>
+          </div>
+        </div>
+        ${s.image_url ? `<img src="${s.image_url}" style="max-width:220px; border-radius:10px; margin-top:8px;">` : ""}
+      </div>`).join("") : `<p class="helper">Դեռ նոր բաժիններ չկան։</p>`;
+
+    wrap.querySelectorAll("[data-delsection]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս բաժինը։")) return;
+        await supabase.from("custom_sections").delete().eq("id", b.dataset.delsection);
+        loadNewSectionsAdmin();
+      });
+    });
+    wrap.querySelectorAll("[data-togglevis]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const rows2 = await fetchCustomSections();
+        const row = rows2.find(r=>r.id === b.dataset.togglevis);
+        if (!row) return;
+        await supabase.from("custom_sections").update({ is_visible: row.is_visible === false }).eq("id", row.id);
+        loadNewSectionsAdmin();
+      });
+    });
+    wrap.querySelectorAll("[data-editsection]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const rows2 = await fetchCustomSections();
+        const row = rows2.find(r=>r.id === b.dataset.editsection);
+        if (!row) return;
+        document.getElementById("ns_title_hy").value = row.title_hy || "";
+        document.getElementById("ns_title_nl").value = row.title_nl || "";
+        document.getElementById("ns_title_en").value = row.title_en || "";
+        document.getElementById("ns_body_hy").value = row.body_hy || "";
+        document.getElementById("ns_body_nl").value = row.body_nl || "";
+        document.getElementById("ns_body_en").value = row.body_en || "";
+        document.getElementById("ns_image_url").value = row.image_url || "";
+        document.getElementById("ns_order").value = row.sort_order || 0;
+        editingSectionId = row.id;
+        setSectionFormMode(true);
+        document.getElementById("newSectionForm").scrollIntoView({ behavior:"smooth", block:"start" });
+      });
+    });
+  }catch(err){
+    wrap.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
   }
 }
 

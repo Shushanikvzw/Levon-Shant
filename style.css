@@ -92,12 +92,16 @@ header.site{
 .nav-row{display:flex; align-items:center; justify-content:space-between; padding:14px 24px; gap:16px;}
 .brand{display:flex; align-items:center; gap:12px; min-width:0;}
 .brand .crest{
-  width:58px; height:58px; border-radius:12px; flex:none;
+  width:108px; height:108px; border-radius:20px; flex:none;
   background:linear-gradient(155deg,var(--apricot),var(--pomegranate));
-  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:1.05rem;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:1.8rem;
   overflow:hidden;
 }
-.brand .crest img{width:100%; height:100%; object-fit:contain; padding:4px; background:#fff;}
+.brand .crest img{width:100%; height:100%; object-fit:contain; padding:8px; background:#fff;}
+@media (max-width:640px){
+  .brand .crest{width:60px; height:60px; border-radius:13px; font-size:1.05rem;}
+  .brand .crest img{padding:4px;}
+}
 .brand-text{min-width:0;}
 .brand-text strong{display:block; font-family:'Noto Serif Armenian',serif; font-size:1.02rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .brand-text span{display:block; font-size:.72rem; color:var(--ink-soft);}
@@ -128,6 +132,29 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
 .lang-toggle button.active{ color:#fff; }
 .lang-toggle button:hover:not(.active){ color:var(--ink); }
 .menu-toggle{display:none; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--ink);}
+
+.staff-login-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 18px 9px 10px; border-radius:999px;
+  background:linear-gradient(135deg, var(--blue), var(--blue-deep));
+  color:#fff; font-weight:600; font-size:.86rem;
+  box-shadow:0 4px 14px rgba(18,48,39,.22);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  flex:none; white-space:nowrap;
+}
+.staff-login-icon{
+  display:flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.18); font-size:.9rem;
+}
+.staff-login-btn:hover{
+  color:#fff; transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(18,48,39,.32);
+  filter:brightness(1.08);
+}
+@media (max-width:640px){
+  .staff-login-btn{ padding:8px 14px 8px 8px; font-size:.8rem; }
+  .staff-login-icon{ width:22px; height:22px; font-size:.78rem; }
+}
 
 @media (max-width:920px){
   nav.main{display:none; width:100%; flex-direction:column; align-items:stretch; gap:2px; padding-top:10px; border-top:1px solid var(--line); margin-top:10px;}
@@ -231,6 +258,11 @@ section.alt{background:var(--paper-dim);}
 .album-cover .count-badge{
   position:absolute; top:10px; right:10px; background:rgba(36,27,21,.72); color:#fff;
   font-size:.75rem; font-weight:700; padding:5px 11px; border-radius:999px; display:flex; align-items:center; gap:5px;
+}
+.album-cover .play-badge{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:52px; height:52px; border-radius:50%; background:rgba(36,27,21,.72); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:1.2rem; pointer-events:none;
 }
 .album-cover .stack-hint{
   position:absolute; inset:8px 8px auto auto; width:calc(100% - 20px); height:calc(100% - 20px);
@@ -550,3 +582,59 @@ tbody tr:hover{background:var(--paper-dim);}
 .banner.warn{background:#F6EBD2; color:#6b4f14; border:1px solid #e3c877; border-left:4px solid #C9942E;}
 
 .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;}
+
+/* =========================================================
+   Phone-friendly pass (iPhone SE/standard, Galaxy widths etc.)
+   ========================================================= */
+@media (max-width:480px){
+  .container{padding:0 16px;}
+  section{padding-top:48px !important; padding-bottom:48px !important;}
+  .hero{padding:52px 0 40px;}
+
+  /* Modals: less padding, closer to full width, and never scroll the
+     backdrop's own outer edges off screen */
+  .modal-backdrop{padding:10px;}
+  .modal{padding:20px; border-radius:14px; max-height:92vh;}
+  .modal.wide{max-width:100%;}
+  .modal-close{top:10px; right:10px; width:32px; height:32px;}
+
+  /* Calendar: tighter panel padding & gaps so day cells stay a
+     comfortable tap size instead of shrinking to almost nothing */
+  .calendar-panel{padding:14px;}
+  .cal-grid, .cal-weekdays{gap:3px;}
+  .cal-day{font-size:.76rem; border-radius:7px;}
+  .cal-header span{font-size:.95rem;}
+
+  /* Lightbox: move prev/next off to the sides of the image instead
+     of squeezing the media down to make room for them */
+  .lightbox-modal{padding:14px;}
+  #albumLightboxHead{padding-right:30px;}
+  #albumLightboxHead h2{font-size:1.05rem;}
+  .lightbox-stage{display:block; position:relative;}
+  .lightbox-media{aspect-ratio:4/3;}
+  .lightbox-nav{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:38px; height:38px; font-size:1.2rem;
+  }
+  .lightbox-nav.prev{left:6px;}
+  .lightbox-nav.next{right:6px;}
+
+  /* Cards / grids that were 2-up still feel cramped on the smallest
+     phones (iPhone SE ~375px, small Android ~360px) — drop to 1 column */
+  .card-grid, .staff-grid, .dept-grid, .year-cal-list{grid-template-columns:1fr !important;}
+
+  /* Forms */
+  .field-row, .field-row-3{grid-template-columns:1fr;}
+  .card-form{padding:20px;}
+
+  /* Admin sidebar chips wrap tighter on narrow phones */
+  .sidebar-link{font-size:.82rem; padding:9px 10px;}
+}
+
+/* Ensure nothing anywhere causes horizontal scroll on any phone width */
+@media (max-width:640px){
+  html, body{overflow-x:hidden;}
+  .nav-row{padding:12px 16px;}
+  table{font-size:.8rem;}
+  th, td{padding:10px 12px;}
+}

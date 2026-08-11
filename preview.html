@@ -100,12 +100,16 @@ header.site{
 .nav-row{display:flex; align-items:center; justify-content:space-between; padding:14px 24px; gap:16px;}
 .brand{display:flex; align-items:center; gap:12px; min-width:0;}
 .brand .crest{
-  width:58px; height:58px; border-radius:12px; flex:none;
+  width:108px; height:108px; border-radius:20px; flex:none;
   background:linear-gradient(155deg,var(--apricot),var(--pomegranate));
-  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:1.05rem;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Noto Serif Armenian',serif; font-weight:700; font-size:1.8rem;
   overflow:hidden;
 }
-.brand .crest img{width:100%; height:100%; object-fit:contain; padding:4px; background:#fff;}
+.brand .crest img{width:100%; height:100%; object-fit:contain; padding:8px; background:#fff;}
+@media (max-width:640px){
+  .brand .crest{width:60px; height:60px; border-radius:13px; font-size:1.05rem;}
+  .brand .crest img{padding:4px;}
+}
 .brand-text{min-width:0;}
 .brand-text strong{display:block; font-family:'Noto Serif Armenian',serif; font-size:1.02rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .brand-text span{display:block; font-size:.72rem; color:var(--ink-soft);}
@@ -136,6 +140,29 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
 .lang-toggle button.active{ color:#fff; }
 .lang-toggle button:hover:not(.active){ color:var(--ink); }
 .menu-toggle{display:none; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--ink);}
+
+.staff-login-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 18px 9px 10px; border-radius:999px;
+  background:linear-gradient(135deg, var(--blue), var(--blue-deep));
+  color:#fff; font-weight:600; font-size:.86rem;
+  box-shadow:0 4px 14px rgba(18,48,39,.22);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  flex:none; white-space:nowrap;
+}
+.staff-login-icon{
+  display:flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.18); font-size:.9rem;
+}
+.staff-login-btn:hover{
+  color:#fff; transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(18,48,39,.32);
+  filter:brightness(1.08);
+}
+@media (max-width:640px){
+  .staff-login-btn{ padding:8px 14px 8px 8px; font-size:.8rem; }
+  .staff-login-icon{ width:22px; height:22px; font-size:.78rem; }
+}
 
 @media (max-width:920px){
   nav.main{display:none; width:100%; flex-direction:column; align-items:stretch; gap:2px; padding-top:10px; border-top:1px solid var(--line); margin-top:10px;}
@@ -239,6 +266,11 @@ section.alt{background:var(--paper-dim);}
 .album-cover .count-badge{
   position:absolute; top:10px; right:10px; background:rgba(36,27,21,.72); color:#fff;
   font-size:.75rem; font-weight:700; padding:5px 11px; border-radius:999px; display:flex; align-items:center; gap:5px;
+}
+.album-cover .play-badge{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:52px; height:52px; border-radius:50%; background:rgba(36,27,21,.72); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:1.2rem; pointer-events:none;
 }
 .album-cover .stack-hint{
   position:absolute; inset:8px 8px auto auto; width:calc(100% - 20px); height:calc(100% - 20px);
@@ -559,6 +591,62 @@ tbody tr:hover{background:var(--paper-dim);}
 
 .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;}
 
+/* =========================================================
+   Phone-friendly pass (iPhone SE/standard, Galaxy widths etc.)
+   ========================================================= */
+@media (max-width:480px){
+  .container{padding:0 16px;}
+  section{padding-top:48px !important; padding-bottom:48px !important;}
+  .hero{padding:52px 0 40px;}
+
+  /* Modals: less padding, closer to full width, and never scroll the
+     backdrop's own outer edges off screen */
+  .modal-backdrop{padding:10px;}
+  .modal{padding:20px; border-radius:14px; max-height:92vh;}
+  .modal.wide{max-width:100%;}
+  .modal-close{top:10px; right:10px; width:32px; height:32px;}
+
+  /* Calendar: tighter panel padding & gaps so day cells stay a
+     comfortable tap size instead of shrinking to almost nothing */
+  .calendar-panel{padding:14px;}
+  .cal-grid, .cal-weekdays{gap:3px;}
+  .cal-day{font-size:.76rem; border-radius:7px;}
+  .cal-header span{font-size:.95rem;}
+
+  /* Lightbox: move prev/next off to the sides of the image instead
+     of squeezing the media down to make room for them */
+  .lightbox-modal{padding:14px;}
+  #albumLightboxHead{padding-right:30px;}
+  #albumLightboxHead h2{font-size:1.05rem;}
+  .lightbox-stage{display:block; position:relative;}
+  .lightbox-media{aspect-ratio:4/3;}
+  .lightbox-nav{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:38px; height:38px; font-size:1.2rem;
+  }
+  .lightbox-nav.prev{left:6px;}
+  .lightbox-nav.next{right:6px;}
+
+  /* Cards / grids that were 2-up still feel cramped on the smallest
+     phones (iPhone SE ~375px, small Android ~360px) — drop to 1 column */
+  .card-grid, .staff-grid, .dept-grid, .year-cal-list{grid-template-columns:1fr !important;}
+
+  /* Forms */
+  .field-row, .field-row-3{grid-template-columns:1fr;}
+  .card-form{padding:20px;}
+
+  /* Admin sidebar chips wrap tighter on narrow phones */
+  .sidebar-link{font-size:.82rem; padding:9px 10px;}
+}
+
+/* Ensure nothing anywhere causes horizontal scroll on any phone width */
+@media (max-width:640px){
+  html, body{overflow-x:hidden;}
+  .nav-row{padding:12px 16px;}
+  table{font-size:.8rem;}
+  th, td{padding:10px 12px;}
+}
+
 </style>
 </head>
 <body>
@@ -589,7 +677,7 @@ tbody tr:hover{background:var(--paper-dim);}
         <button type="button" data-lang="nl">NL</button>
         <button type="button" data-lang="en">EN</button>
       </div>
-      <a href="admin.html" target="_blank" rel="noopener" class="btn ghost small" title="Աշխատում է միայն, երբ admin.html ֆայլը կողքին է">🔐 Անձնակազմի մուտք</a>
+      <a href="admin.html" target="_blank" rel="noopener" class="staff-login-btn"><span class="staff-login-icon">🔐</span> Անձնակազմի մուտք</a>
       <button class="menu-toggle" id="menuToggle" aria-label="Ցանկ" data-i18n-aria="aria.menu" aria-expanded="false">☰</button>
     </div>
   </div>
@@ -820,6 +908,9 @@ tbody tr:hover{background:var(--paper-dim);}
   </div>
 
   <div class="divider" aria-hidden="true"><svg viewBox="0 0 220 22"><path d="M0 11 Q 20 0 40 11 T 80 11 T 120 11 T 160 11 T 200 11 T 220 11" fill="none" stroke-width="2"/></svg></div>
+
+  <!-- ============ CUSTOM SECTIONS (admin-managed) ============ -->
+  <div id="customSections"></div>
 
   <!-- ============ REGISTRATION ============ -->
   <section id="register" class="alt ruled">
@@ -1520,6 +1611,7 @@ function applyLang(lang){
   loadFeed();
   loadGallery();
   loadAlbums();
+  loadCustomSections();
   updateHistoryToggleLabel();
 }
 document.querySelectorAll("[data-i18n]").forEach(el=> el.dataset.orig = el.textContent);
@@ -1723,6 +1815,15 @@ function albumText(a, field, lang){
   return a[key] || a[field] || "";
 }
 
+function youtubeId(url){
+  const m = (url||"").match(/(?:v=|youtu\.be\/|embed\/)([\w-]{6,})/);
+  return m ? m[1] : "";
+}
+function youtubeThumb(url){
+  const id = youtubeId(url);
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : "";
+}
+
 async function fetchAlbums(){
   if (!SUPABASE_READY) return [];
   const { data, error } = await supabase.from("gallery_albums").select("*").order("event_date", { ascending:false });
@@ -1738,7 +1839,9 @@ function albumCardHTML(a){
   const coverHtml = cover
     ? (cover.type === "video"
         ? `<video src="${cover.url}" muted></video>`
-        : `<img src="${cover.url}" alt="${escapeHtml(title)}">`)
+        : cover.type === "youtube"
+          ? `<img src="${youtubeThumb(cover.url)}" alt="${escapeHtml(title)}"><span class="play-badge">▶</span>`
+          : `<img src="${cover.url}" alt="${escapeHtml(title)}">`)
     : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.85rem;">${pickLang({hy:"Առանց պատկերի", nl:"Geen afbeelding", en:"No image"})}</div>`;
 
   return `<article class="album-card" data-album-id="${a.id}" tabindex="0" role="button" aria-label="${escapeHtml(title)}">
@@ -1789,13 +1892,17 @@ function renderLightboxMedia(){
 
   stage.innerHTML = item.type === "video"
     ? `<video src="${item.url}" controls autoplay></video>`
-    : `<img src="${item.url}" alt="">`;
+    : item.type === "youtube"
+      ? `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId(item.url)}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+      : `<img src="${item.url}" alt="">`;
   counter.textContent = `${lightboxIndex + 1} / ${media.length}`;
 
   thumbs.innerHTML = media.map((m, i)=>
     m.type === "video"
       ? `<div class="vid-thumb${i===lightboxIndex ? ' active' : ''}" data-idx="${i}">▶</div>`
-      : `<img src="${m.url}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
+      : m.type === "youtube"
+        ? `<img src="${youtubeThumb(m.url)}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
+        : `<img src="${m.url}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
   ).join("");
   thumbs.querySelectorAll("[data-idx]").forEach(t=>{
     t.addEventListener("click", ()=>{ lightboxIndex = parseInt(t.dataset.idx, 10); renderLightboxMedia(); });
@@ -2521,6 +2628,44 @@ const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg")?.getAttribute
 // ---------------------------------------------------------
 // 13. School logo — editable from the admin area (admin.html).
 // ---------------------------------------------------------
+// ---------------------------------------------------------
+// Custom sections — whole new content blocks admin can add,
+// shown between Activities and Registration.
+// ---------------------------------------------------------
+async function fetchCustomSections(){
+  if (!SUPABASE_READY) return [];
+  const { data, error } = await supabase.from("custom_sections").select("*").eq("is_visible", true).order("sort_order");
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+function customSectionText(s, field, lang){
+  const key = field + (lang === "nl" ? "_nl" : lang === "en" ? "_en" : "_hy");
+  return s[key] || s[field + "_hy"] || "";
+}
+
+async function loadCustomSections(){
+  const wrap = document.getElementById("customSections");
+  if (!wrap) return;
+  try{
+    const sections = await fetchCustomSections();
+    wrap.innerHTML = sections.map((s, i)=>{
+      const title = customSectionText(s, "title", currentLang);
+      const body = customSectionText(s, "body", currentLang);
+      const imgHtml = s.image_url ? `<img src="${s.image_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:16px; box-shadow:var(--shadow); margin-bottom:24px;">` : "";
+      return `<section class="${i % 2 === 0 ? '' : 'alt ruled'}">
+        <div class="container" style="max-width:760px;">
+          ${imgHtml}
+          <h2>${escapeHtml(title)}</h2>
+          ${body ? `<p style="white-space:pre-line; color:var(--ink-soft); line-height:1.7;">${escapeHtml(body)}</p>` : ""}
+        </div>
+      </section>`;
+    }).join("");
+  }catch(err){
+    console.warn("Could not load custom sections:", err.message);
+  }
+}
+
 function applyLogo(url){
   const box = document.getElementById("crestBox");
   if (!box) return;
@@ -2538,6 +2683,7 @@ updateHistoryToggleLabel();
 loadFeed();
 loadGallery();
 loadAlbums();
+loadCustomSections();
 loadSiteContent();
 loadSchedule();
 loadStaff();

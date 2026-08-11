@@ -498,6 +498,7 @@ function applyLang(lang){
   loadFeed();
   loadGallery();
   loadAlbums();
+  loadCustomSections();
   updateHistoryToggleLabel();
 }
 document.querySelectorAll("[data-i18n]").forEach(el=> el.dataset.orig = el.textContent);
@@ -701,6 +702,15 @@ function albumText(a, field, lang){
   return a[key] || a[field] || "";
 }
 
+function youtubeId(url){
+  const m = (url||"").match(/(?:v=|youtu\.be\/|embed\/)([\w-]{6,})/);
+  return m ? m[1] : "";
+}
+function youtubeThumb(url){
+  const id = youtubeId(url);
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : "";
+}
+
 async function fetchAlbums(){
   if (!SUPABASE_READY) return [];
   const { data, error } = await supabase.from("gallery_albums").select("*").order("event_date", { ascending:false });
@@ -716,7 +726,9 @@ function albumCardHTML(a){
   const coverHtml = cover
     ? (cover.type === "video"
         ? `<video src="${cover.url}" muted></video>`
-        : `<img src="${cover.url}" alt="${escapeHtml(title)}">`)
+        : cover.type === "youtube"
+          ? `<img src="${youtubeThumb(cover.url)}" alt="${escapeHtml(title)}"><span class="play-badge">▶</span>`
+          : `<img src="${cover.url}" alt="${escapeHtml(title)}">`)
     : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.85rem;">${pickLang({hy:"Առանց պատկերի", nl:"Geen afbeelding", en:"No image"})}</div>`;
 
   return `<article class="album-card" data-album-id="${a.id}" tabindex="0" role="button" aria-label="${escapeHtml(title)}">
@@ -767,13 +779,17 @@ function renderLightboxMedia(){
 
   stage.innerHTML = item.type === "video"
     ? `<video src="${item.url}" controls autoplay></video>`
-    : `<img src="${item.url}" alt="">`;
+    : item.type === "youtube"
+      ? `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId(item.url)}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+      : `<img src="${item.url}" alt="">`;
   counter.textContent = `${lightboxIndex + 1} / ${media.length}`;
 
   thumbs.innerHTML = media.map((m, i)=>
     m.type === "video"
       ? `<div class="vid-thumb${i===lightboxIndex ? ' active' : ''}" data-idx="${i}">▶</div>`
-      : `<img src="${m.url}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
+      : m.type === "youtube"
+        ? `<img src="${youtubeThumb(m.url)}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
+        : `<img src="${m.url}" class="${i===lightboxIndex ? 'active' : ''}" data-idx="${i}">`
   ).join("");
   thumbs.querySelectorAll("[data-idx]").forEach(t=>{
     t.addEventListener("click", ()=>{ lightboxIndex = parseInt(t.dataset.idx, 10); renderLightboxMedia(); });
@@ -1499,6 +1515,44 @@ const DEFAULT_YEAR_CAL_URL = document.getElementById("yearCalImg")?.getAttribute
 // ---------------------------------------------------------
 // 13. School logo — editable from the admin area (admin.html).
 // ---------------------------------------------------------
+// ---------------------------------------------------------
+// Custom sections — whole new content blocks admin can add,
+// shown between Activities and Registration.
+// ---------------------------------------------------------
+async function fetchCustomSections(){
+  if (!SUPABASE_READY) return [];
+  const { data, error } = await supabase.from("custom_sections").select("*").eq("is_visible", true).order("sort_order");
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+function customSectionText(s, field, lang){
+  const key = field + (lang === "nl" ? "_nl" : lang === "en" ? "_en" : "_hy");
+  return s[key] || s[field + "_hy"] || "";
+}
+
+async function loadCustomSections(){
+  const wrap = document.getElementById("customSections");
+  if (!wrap) return;
+  try{
+    const sections = await fetchCustomSections();
+    wrap.innerHTML = sections.map((s, i)=>{
+      const title = customSectionText(s, "title", currentLang);
+      const body = customSectionText(s, "body", currentLang);
+      const imgHtml = s.image_url ? `<img src="${s.image_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:16px; box-shadow:var(--shadow); margin-bottom:24px;">` : "";
+      return `<section class="${i % 2 === 0 ? '' : 'alt ruled'}">
+        <div class="container" style="max-width:760px;">
+          ${imgHtml}
+          <h2>${escapeHtml(title)}</h2>
+          ${body ? `<p style="white-space:pre-line; color:var(--ink-soft); line-height:1.7;">${escapeHtml(body)}</p>` : ""}
+        </div>
+      </section>`;
+    }).join("");
+  }catch(err){
+    console.warn("Could not load custom sections:", err.message);
+  }
+}
+
 function applyLogo(url){
   const box = document.getElementById("crestBox");
   if (!box) return;
@@ -1516,6 +1570,7 @@ updateHistoryToggleLabel();
 loadFeed();
 loadGallery();
 loadAlbums();
+loadCustomSections();
 loadSiteContent();
 loadSchedule();
 loadStaff();
