@@ -1586,23 +1586,40 @@ function customSectionText(s, field, lang){
   return s[key] || s[field + "_hy"] || "";
 }
 
+const VALID_ANCHORS = ["hero","about","hamazkayin","department","staff","classes","calendar","yearcalendar","activities","gallery","register","contact"];
+
 async function loadCustomSections(){
-  const wrap = document.getElementById("customSections");
-  if (!wrap) return;
+  // Remove any sections inserted by a previous run (language switch, etc.)
+  // before inserting fresh ones, so they don't pile up.
+  document.querySelectorAll(".js-custom-section").forEach(el=>el.remove());
   try{
     const sections = await fetchCustomSections();
-    wrap.innerHTML = sections.map((s, i)=>{
-      const title = customSectionText(s, "title", currentLang);
-      const body = customSectionText(s, "body", currentLang);
-      const imgHtml = s.image_url ? `<img src="${s.image_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:16px; box-shadow:var(--shadow); margin-bottom:24px;">` : "";
-      return `<section id="custom-section-${s.id}" class="${i % 2 === 0 ? '' : 'alt ruled'}">
-        <div class="container" style="max-width:760px;">
-          ${imgHtml}
-          <h2>${escapeHtml(title)}</h2>
-          ${body ? `<p style="white-space:pre-line; color:var(--ink-soft); line-height:1.7;">${escapeHtml(body)}</p>` : ""}
-        </div>
-      </section>`;
-    }).join("");
+
+    // Group by anchor, preserving each group's sort_order (then insertion order).
+    const byAnchor = {};
+    sections.forEach(s=>{
+      const anchor = VALID_ANCHORS.includes(s.position_after) ? s.position_after : "activities";
+      (byAnchor[anchor] ||= []).push(s);
+    });
+    Object.values(byAnchor).forEach(list => list.sort((a,b)=> (a.sort_order||0) - (b.sort_order||0)));
+
+    Object.entries(byAnchor).forEach(([anchor, list])=>{
+      const anchorEl = document.getElementById(anchor);
+      if (!anchorEl) return;
+      const html = list.map((s, i)=>{
+        const title = customSectionText(s, "title", currentLang);
+        const body = customSectionText(s, "body", currentLang);
+        const imgHtml = s.image_url ? `<img src="${s.image_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:16px; box-shadow:var(--shadow); margin-bottom:24px;">` : "";
+        return `<section id="custom-section-${s.id}" class="js-custom-section ${i % 2 === 0 ? '' : 'alt ruled'}">
+          <div class="container" style="max-width:760px;">
+            ${imgHtml}
+            <h2>${escapeHtml(title)}</h2>
+            ${body ? `<p style="white-space:pre-line; color:var(--ink-soft); line-height:1.7;">${escapeHtml(body)}</p>` : ""}
+          </div>
+        </section>`;
+      }).join("");
+      anchorEl.insertAdjacentHTML("afterend", html);
+    });
 
     const navWrap = document.getElementById("dynNavLinks");
     if (navWrap){

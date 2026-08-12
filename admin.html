@@ -341,7 +341,7 @@
 
       <!-- Custom sections: admin can add whole new content blocks to the public site -->
       <div class="dash-panel" id="panel-newsections">
-        <div class="banner warn">🧩 Ավելացրեք կայքում լրիվ նոր բաժին՝ վերնագրով, տեքստով և (ցանկության դեպքում) նկարով։ Նոր բաժինները ցուցադրվում են հանրային կայքում «Միջոցառումներ» և «Գրանցում» բաժինների միջև, «Հերթականություն» դաշտով սահմանված կարգով (փոքր թիվը՝ վերևում)։</div>
+        <div class="banner warn">🧩 Ավելացրեք կայքում լրիվ նոր բաժին՝ վերնագրով, տեքստով և (ցանկության դեպքում) նկարով։ «Որտե՞ղ պետք է հայտնվի այս բաժինը» դաշտով ընտրեք, թե կայքի որ մասից հետո պետք է ցուցադրվի բաժինը։</div>
         <form class="card-form" id="newSectionForm" style="max-width:760px; margin-bottom:24px;">
           <div class="field-row-3">
             <div class="field"><label for="ns_title_hy">Վերնագիր — ՀԱՅ</label><input id="ns_title_hy" required></div>
@@ -357,7 +357,24 @@
             <div class="field"><label for="ns_image_file">Նկար (ոչ պարտադիր)</label><input type="file" id="ns_image_file" accept="image/*"></div>
             <div class="field"><label for="ns_image_url">...կամ նկարի հղում</label><input id="ns_image_url" placeholder="https://..."></div>
           </div>
-          <div class="field"><label for="ns_order">Հերթականություն (0 = ամենավերևում)</label><input type="number" id="ns_order" value="0" style="max-width:140px;"></div>
+          <div class="field">
+            <label for="ns_position">Որտե՞ղ պետք է հայտնվի այս բաժինը կայքում</label>
+            <select id="ns_position">
+              <option value="hero">Անմիջապես գլխավոր պատկերից (Hero) հետո</option>
+              <option value="about">«Մեր դպրոցը» բաժնից հետո</option>
+              <option value="hamazkayin">«Համազգային ընկերակցություն» բաժնից հետո</option>
+              <option value="department">«Ուսումնական բաժին» բաժնից հետո</option>
+              <option value="staff">«Անձնակազմ» բաժնից հետո</option>
+              <option value="classes">«Դասարանների ցանկ» բաժնից հետո</option>
+              <option value="calendar">«Օրացույց» (դասացուցակ) բաժնից հետո</option>
+              <option value="yearcalendar">«Տարեկան օրացույց» բաժնից հետո</option>
+              <option value="activities" selected>«Միջոցառումներ» բաժնից հետո</option>
+              <option value="gallery">«Լուսանկարներ/տեսանյութեր» բաժնից հետո</option>
+              <option value="register">«Գրանցում» բաժնից հետո</option>
+              <option value="contact">«Կապ» բաժնից հետո (ամենավերջում)</option>
+            </select>
+          </div>
+          <div class="field"><label for="ns_order">Հերթականություն, եթե մի քանի բաժին կա նույն տեղում (0 = վերևում)</label><input type="number" id="ns_order" value="0" style="max-width:140px;"></div>
           <div class="field" style="flex-direction:row; align-items:center; gap:10px;">
             <input type="checkbox" id="ns_shownav" style="width:auto;">
             <label for="ns_shownav" style="margin:0;">Ցուցադրել այս բաժինը գլխավոր ցանկում (նավիգացիայում)</label>

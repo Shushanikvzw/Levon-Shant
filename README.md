@@ -51,6 +51,8 @@ supabase/migrations/0008_custom_sections.sql  adds admin-manageable custom secti
                                           new content blocks addable to the public site
 supabase/migrations/0009_custom_sections_nav.sql  adds the option to show a custom section's
                                           own link in the site's main navigation menu
+supabase/migrations/0010_custom_sections_position.sql  adds the option to choose exactly
+                                          where a custom section appears on the site
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -114,8 +116,10 @@ all succeeded).
    Adds the `custom_sections` table for admin-created content blocks.
 10. New query again → paste `supabase/migrations/0009_custom_sections_nav.sql`
     → **Run**. Adds the option to show a custom section in the main navigation menu.
+11. New query again → paste `supabase/migrations/0010_custom_sections_position.sql`
+    → **Run**. Adds the option to choose exactly where a custom section appears.
 
-All nine files are safe to re-run if needed.
+All ten files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -231,6 +235,15 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: choose exactly where a custom section appears.** Previously every custom
+  section landed in one fixed spot (between "Միջոցառումներ" and "Գրանցում"). Now, when
+  creating or editing one in "🧩 Նոր բաժիններ", a dropdown — "Որտե՞ղ պետք է հայտնվի այս
+  բաժինը" — lets you place it right after any existing part of the site: Hero, Մեր
+  դպրոցը, Համազգային, Ուսումնական բաժին, Անձնակազմ, Դասարանների ցանկ, Օրացույց,
+  Տարեկան օրացույց, Միջոցառումներ, Լուսանկարներ, Գրանցում, or Կապ (at the very end). If
+  two sections share the same spot, the "Հերթականություն" number (now just a
+  tie-breaker) decides which comes first between them.
 
 - **New: families now get a confirmation email too.** Previously only the school got
   notified when someone registered — the family just saw an on-page "submitted"

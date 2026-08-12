@@ -587,6 +587,13 @@ async function loadUsers(){
 // Custom sections — admin can add whole new content blocks
 // to the public site (title/body in 3 languages + image).
 // ---------------------------------------------------------
+const POSITION_LABELS = {
+  hero: "Hero-ից հետո", about: "«Մեր դպրոցը»-ից հետո", hamazkayin: "«Համազգային»-ից հետո",
+  department: "«Ուսումնական բաժին»-ից հետո", staff: "«Անձնակազմ»-ից հետո", classes: "«Դասարաններ»-ից հետո",
+  calendar: "«Օրացույց»-ից հետո", yearcalendar: "«Տարեկան օրացույց»-ից հետո", activities: "«Միջոցառումներ»-ից հետո",
+  gallery: "«Լուսանկարներ»-ից հետո", register: "«Գրանցում»-ից հետո", contact: "«Կապ»-ից հետո"
+};
+
 async function fetchCustomSections(){
   if (!SUPABASE_READY) return [];
   const { data, error } = await supabase.from("custom_sections").select("*").order("sort_order");
@@ -635,6 +642,7 @@ document.getElementById("newSectionForm")?.addEventListener("submit", async (e)=
       body_en: document.getElementById("ns_body_en").value.trim() || null,
       image_url: imageUrl || null,
       sort_order: parseInt(document.getElementById("ns_order").value, 10) || 0,
+      position_after: document.getElementById("ns_position").value,
       show_in_nav: showInNav,
       nav_label_hy: showInNav ? (document.getElementById("ns_navlabel_hy").value.trim() || document.getElementById("ns_title_hy").value.trim()) : null,
       nav_label_nl: showInNav ? (document.getElementById("ns_navlabel_nl").value.trim() || null) : null,
@@ -675,7 +683,7 @@ async function loadNewSectionsAdmin(){
     wrap.innerHTML = rows.length ? rows.map(s=>`
       <div class="album-admin-card">
         <div class="album-admin-head">
-          <h4>${escapeHtml(s.title_hy||"")} <span class="helper">— հերթ. ${s.sort_order}${s.is_visible === false ? " — թաքցված" : ""}${s.show_in_nav ? " — 📍 ցանկում" : ""}</span></h4>
+          <h4>${escapeHtml(s.title_hy||"")} <span class="helper">— ${POSITION_LABELS[s.position_after] || s.position_after}${s.sort_order ? ", հերթ. " + s.sort_order : ""}${s.is_visible === false ? " — թաքցված" : ""}${s.show_in_nav ? " — 📍 ցանկում" : ""}</span></h4>
           <div style="display:flex; gap:6px;">
             <button class="btn ghost small" data-togglevis="${s.id}">${s.is_visible === false ? "Ցուցադրել" : "Թաքցնել"}</button>
             <button class="btn ghost small" data-editsection="${s.id}">Խմբագրել</button>
@@ -714,6 +722,7 @@ async function loadNewSectionsAdmin(){
         document.getElementById("ns_body_en").value = row.body_en || "";
         document.getElementById("ns_image_url").value = row.image_url || "";
         document.getElementById("ns_order").value = row.sort_order || 0;
+        document.getElementById("ns_position").value = row.position_after || "activities";
         document.getElementById("ns_shownav").checked = !!row.show_in_nav;
         document.getElementById("ns_navlabel_hy").value = row.nav_label_hy || "";
         document.getElementById("ns_navlabel_nl").value = row.nav_label_nl || "";
