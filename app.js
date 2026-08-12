@@ -910,8 +910,12 @@ async function submitRegistration(payload, msgEl, formEl){
 // the source of truth either way, visible in the dashboard's "Գրանցումներ" tab.
 function buildRegistrationEmail(payload){
   const today = new Date().toLocaleDateString("hy-AM");
+  const greeting = [`Բարև Ձեզ,`, ``, `Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցի կայքի միջոցով նոր գրանցում է ստացվել։`, ``];
+  const closing = [``, `Գրանցումն արդեն հասանելի է նաև կայքի կառավարման վահանակում՝ «📋 Գրանցումներ» բաժնում։`, ``, `Հարգանքով,`, `Կայքի ավտոմատ ծանուցումների համակարգ`];
+
   if (payload.type === "child"){
     const lines = [
+      ...greeting,
       `Նոր գրանցում՝ ԵՐԵԽԱ  (ուղարկվել է ${today})`,
       "—".repeat(32),
       `Երեխայի անուն, ազգանուն, հայրանուն.  ${payload.childName || "—"}`,
@@ -928,11 +932,13 @@ function buildRegistrationEmail(payload){
       `Ընտրված դասընթացներ.`,
       ...(payload.courses && payload.courses.length ? payload.courses.map(c=>`  • ${c}`) : ["  —"]),
       "",
-      `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${payload.photoConsent || "—"}`
+      `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${payload.photoConsent || "—"}`,
+      ...closing
     ];
-    return { subject: `Նոր գրանցում (Երեխա) — ${payload.childName || "անանուն"}`, message: lines.join("\n"), replyTo: payload.email || "" };
+    return { subject: `Նոր գրանցում ստացվել է — ${payload.childName || "անանուն"}`, message: lines.join("\n"), replyTo: payload.email || "" };
   }
   const lines = [
+    ...greeting,
     `Նոր գրանցում՝ ՄԵԾԱՀԱՍԱԿ  (ուղարկվել է ${today})`,
     "—".repeat(32),
     `Անուն, ազգանուն, հայրանուն.  ${payload.name || "—"}`,
@@ -948,9 +954,10 @@ function buildRegistrationEmail(payload){
     ...(payload.courses && payload.courses.length ? payload.courses.map(c=>`  • ${c}`) : ["  —"]),
     "",
     `Հայերենի ներկայիս մակարդակ.  ${payload.level || "—"}`,
-    `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${payload.photoConsent || "—"}`
+    `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${payload.photoConsent || "—"}`,
+    ...closing
   ];
-  return { subject: `Նոր գրանցում (Մեծահասակ) — ${payload.name || "անանուն"}`, message: lines.join("\n"), replyTo: payload.email || "" };
+  return { subject: `Նոր գրանցում ստացվել է — ${payload.name || "անանուն"}`, message: lines.join("\n"), replyTo: payload.email || "" };
 }
 
 async function sendRegistrationEmail(payload){
@@ -967,36 +974,30 @@ async function sendRegistrationEmail(payload){
 
 // Confirmation sent back to the family that just registered, so they have
 // something in their inbox confirming it went through — separate from the
-// notification email sent to the school above. Written in Armenian, Dutch,
-// and English together, since we don't know which language the family reads.
+// notification email sent to the school above.
 function buildConfirmationEmail(payload){
   const isChild = payload.type === "child";
   const name = isChild ? payload.childName : payload.name;
   const coursesList = (payload.courses && payload.courses.length) ? payload.courses.join(", ") : "—";
 
-  const subject = isChild
-    ? `Գրանցումը ստացվեց ✔ / Inschrijving ontvangen ✔ / Registration received ✔ — ${name || ""}`
-    : `Գրանցումը ստացվեց ✔ / Inschrijving ontvangen ✔ / Registration received ✔ — ${name || ""}`;
+  const subject = `Ձեր գրանցումը ստացվել է ✔ — Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց`;
 
   const lines = [
-    "Հայերեն",
-    "—".repeat(20),
-    `Բարև ձեզ,`,
+    `Հարգելի՛ ${name || ""},`,
     ``,
-    `Շնորհակալություն։ Ձեր գրանցումը (${isChild ? "երեխայի համար՝ " + (name||"") : (name||"")}) հաջողությամբ ստացվեց Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցի կողմից։`,
-    `Ընտրված դասընթացներ. ${coursesList}`,
-    `Դպրոցի պատասխանատուն շուտով կապ կհաստատի ձեզ հետ՝ գրանցումը հաստատելու համար։`,
-    `Հարցերի դեպքում կարող եք պատասխանել այս նամակին կամ գրել՝ levon.shant.dproc@gmail.com։`,
+    `Շնորհակալություն, որ գրանցվեցիք Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում։ Ձեր ${isChild ? "երեխայի" : "Ձեր"} գրանցումը հաջողությամբ ստացվել է և արդեն գտնվում է մեր համակարգում։`,
     ``,
-    `Bedankt! Uw inschrijving${isChild ? " voor uw kind" : ""} (${name||""}) is succesvol ontvangen door de Hamazkayin Levon Shant Zaterdagschool.`,
-    `Gekozen lessen: ${coursesList}`,
-    `De schoolverantwoordelijke neemt binnenkort contact met u op om de inschrijving te bevestigen.`,
-    `Bij vragen kunt u dit e-mailbericht beantwoorden of schrijven naar levon.shant.dproc@gmail.com.`,
+    `Ընտրված դասընթաց(ներ)՝ ${coursesList}`,
     ``,
-    `Thank you! Your registration${isChild ? " for your child" : ""} (${name||""}) was successfully received by the Hamazkayin Levon Shant Saturday School.`,
-    `Selected classes: ${coursesList}`,
-    `The school coordinator will contact you soon to confirm the registration.`,
-    `If you have any questions, you can reply to this email or write to levon.shant.dproc@gmail.com.`
+    `Դպրոցի պատասխանատուն շուտով կկապվի Ձեզ հետ՝ գրանցումը հաստատելու և հետագա մանրամասները փոխանցելու համար։`,
+    ``,
+    `Հարցերի դեպքում կարող եք պատասխանել այս նամակին կամ գրել մեզ՝ levon.shant.dproc@gmail.com հասցեով, կամ զանգահարել +32 487 53 40 61 հեռախոսահամարով։`,
+    ``,
+    `Անհամբեր սպասում ենք Ձեզ դպրոցում տեսնելու։`,
+    ``,
+    `Ջերմությամբ,`,
+    `Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց`,
+    `Մեխելեն, Բելգիա`
   ];
   return { subject, message: lines.join("\n"), toEmail: payload.email || "" };
 }
