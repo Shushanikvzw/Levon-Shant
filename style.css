@@ -640,6 +640,11 @@ tbody tr:hover{background:var(--paper-dim);}
   html, body{overflow-x:hidden;}
   .nav-row{padding:12px 16px;}
   table{font-size:.8rem;}
-  th, td{padding:9px 10px; white-space:normal; word-break:break-word;}
-  .table-wrap{-webkit-overflow-scrolling:touch;}
+  th, td{padding:9px 10px; white-space:nowrap;}
+  .table-wrap{-webkit-overflow-scrolling:touch; position:relative;}
+  .table-wrap::after{
+    content:"⇠ սահեցրեք՝ ավելին տեսնելու համար ⇢";
+    display:block; text-align:center; font-size:.72rem; color:var(--ink-soft);
+    padding:8px; border-top:1px dashed var(--line); background:var(--paper-dim);
+  }
 }
