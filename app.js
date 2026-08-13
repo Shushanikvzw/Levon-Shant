@@ -1099,6 +1099,8 @@ function applyContactInfo(){
   if (addr){
     document.getElementById("contactAddressVal")?.replaceChildren(document.createTextNode(addr));
     document.getElementById("footerAddressVal")?.replaceChildren(document.createTextNode(addr));
+    const mapFrame = document.getElementById("contactMapFrame");
+    if (mapFrame) mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&z=15&output=embed`;
   }
   if (email){
     [document.getElementById("contactEmailLink"), document.getElementById("footerEmailLink")].forEach(el=>{
