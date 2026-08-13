@@ -640,5 +640,6 @@ tbody tr:hover{background:var(--paper-dim);}
   html, body{overflow-x:hidden;}
   .nav-row{padding:12px 16px;}
   table{font-size:.8rem;}
-  th, td{padding:10px 12px;}
+  th, td{padding:9px 10px; white-space:normal; word-break:break-word;}
+  .table-wrap{-webkit-overflow-scrolling:touch;}
 }
