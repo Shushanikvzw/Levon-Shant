@@ -161,6 +161,7 @@ function renderDashboard(){
   loadManagePosts();
   loadAlbumsAdmin();
   loadScheduleAdmin();
+  loadCancellationsAdmin();
   loadStaffAdmin();
   loadYearCalAdmin();
   if (currentRole === "admin"){ loadRegistrations(); loadUsers(); renderContentForm(); loadContactInfoForm(); loadNewSectionsAdmin(); }
@@ -1123,6 +1124,66 @@ async function loadScheduleAdmin(){
     });
   }catch(err){
     body.innerHTML = `<tr><td colspan="8">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------
+// Cancel classes on a specific Saturday (holiday/break, etc.)
+// ---------------------------------------------------------
+async function fetchCancellations(){
+  if (!SUPABASE_READY) return [];
+  const { data, error } = await supabase.from("schedule_cancellations").select("*").order("cancel_date");
+  if (error){ console.warn(error.message); return []; }
+  return data || [];
+}
+
+document.getElementById("cancelSaturdayForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("cancelSaturdayMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY || !currentUser){
+    msg.textContent = "Պետք է մուտք գործած լինեք և Supabase-ը կարգավորված լինի։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const { error } = await supabase.from("schedule_cancellations").insert({
+      cancel_date: document.getElementById("cs_date").value,
+      reason_hy: document.getElementById("cs_reason_hy").value.trim() || null,
+      reason_nl: document.getElementById("cs_reason_nl").value.trim() || null,
+      reason_en: document.getElementById("cs_reason_en").value.trim() || null,
+      created_by: currentUser.id
+    });
+    if (error) throw error;
+    msg.textContent = "Չեղարկվեց ✔ (տեսանելի է հանրային կայքի օրացույցում)";
+    msg.classList.add("show","ok");
+    e.target.reset();
+    loadCancellationsAdmin();
+  }catch(err){
+    msg.textContent = err.message.includes("duplicate") ? "Այս օրը արդեն նշված է որպես չեղարկված։" : "Սխալ՝ " + err.message;
+    msg.classList.add("show","err");
+  }
+});
+
+async function loadCancellationsAdmin(){
+  const body = document.getElementById("cancelSaturdayBody");
+  if (!body) return;
+  try{
+    const rows = await fetchCancellations();
+    body.innerHTML = rows.length ? rows.map(r=>`
+      <tr>
+        <td>${r.cancel_date}</td>
+        <td>${escapeHtml(r.reason_hy||"—")}</td>
+        <td><button class="btn ghost small" data-restoresat="${r.id}">Վերականգնել</button></td>
+      </tr>`).join("") : `<tr><td colspan="3">Չկան չեղարկված օրեր։</td></tr>`;
+    body.querySelectorAll("[data-restoresat]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Վերականգնե՞լ այս օրվա դասերը (հեռացնել չեղարկումը)։")) return;
+        await supabase.from("schedule_cancellations").delete().eq("id", b.dataset.restoresat);
+        loadCancellationsAdmin();
+      });
+    });
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="3">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
 

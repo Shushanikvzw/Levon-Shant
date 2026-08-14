@@ -53,6 +53,8 @@ supabase/migrations/0009_custom_sections_nav.sql  adds the option to show a cust
                                           own link in the site's main navigation menu
 supabase/migrations/0010_custom_sections_position.sql  adds the option to choose exactly
                                           where a custom section appears on the site
+supabase/migrations/0011_schedule_cancellations.sql  adds the ability to cancel classes
+                                          on a specific Saturday (holiday, break, etc.)
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -118,8 +120,10 @@ all succeeded).
     → **Run**. Adds the option to show a custom section in the main navigation menu.
 11. New query again → paste `supabase/migrations/0010_custom_sections_position.sql`
     → **Run**. Adds the option to choose exactly where a custom section appears.
+12. New query again → paste `supabase/migrations/0011_schedule_cancellations.sql`
+    → **Run**. Adds the ability to cancel classes on a specific Saturday.
 
-All ten files are safe to re-run if needed.
+All eleven files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -235,6 +239,15 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: admin can cancel classes on a specific Saturday.** Previously the calendar
+  assumed every Saturday has classes just because the weekly schedule exists — with no
+  way to mark, say, a holiday weekend as an exception. In the **"🗓️ Դասացուցակ"** tab,
+  a new **"🚫 Չեղարկել դասերը որոշակի շաբաթ օրով"** section lets admin pick a date and
+  (optionally) a reason. That Saturday then loses its gold "class day" dot on the
+  public calendar, and clicking it shows "Այս շաբաթ դասեր չեն անցկացվում" with the
+  reason, instead of the normal schedule. Cancelled dates are listed below the form
+  with a "Վերականգնել" button to undo one if needed.
 
 - **New: choose exactly where a custom section appears.** Previously every custom
   section landed in one fixed spot (between "Միջոցառումներ" and "Գրանցում"). Now, when

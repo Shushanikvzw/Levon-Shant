@@ -1169,6 +1169,18 @@ async function fetchSchedule(){
   return (data || []).map(r=>({ id:r.id, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
 }
 
+// Saturdays admin has marked as "no classes" (holiday, break, etc.)
+async function fetchCancellations(){
+  if (!SUPABASE_READY) return {};
+  const { data, error } = await supabase.from("schedule_cancellations").select("*");
+  if (error){ console.warn(error.message); return {}; }
+  const map = {};
+  (data || []).forEach(r=>{
+    map[r.cancel_date] = { hy:r.reason_hy, nl:r.reason_nl, en:r.reason_en };
+  });
+  return map;
+}
+
 async function loadSchedule(){
   // The standalone weekly-schedule list next to the calendar was removed as a
   // duplicate — the schedule now only appears when a Saturday is clicked in
@@ -1262,6 +1274,9 @@ async function renderCalendar(){
   let scheduleRows = [];
   try{ scheduleRows = activeOnly(await fetchSchedule()); }catch(err){ console.warn(err.message); }
 
+  let cancellations = {};
+  try{ cancellations = await fetchCancellations(); }catch(err){ console.warn(err.message); }
+
   const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Monday-first offset
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const todayIso = isoDate(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
@@ -1271,7 +1286,7 @@ async function renderCalendar(){
   for (let d=1; d<=daysInMonth; d++){
     const iso = isoDate(year, month, d);
     const dow = new Date(year, month, d).getDay();
-    const isClassSaturday = dow === 6 && scheduleRows.length > 0;
+    const isClassSaturday = dow === 6 && scheduleRows.length > 0 && !cancellations[iso];
     const hasEvents = !!eventsByDate[iso];
     const classes = ["cal-day"];
     if (iso === todayIso) classes.push("today");
@@ -1294,7 +1309,14 @@ async function renderCalendar(){
   if (calSelectedDate){
     const [sy,sm,sd] = calSelectedDate.split("-").map(Number);
     const dow = new Date(sy, sm-1, sd).getDay();
-    if (dow === 6 && scheduleRows.length){
+    const cancellation = cancellations[calSelectedDate];
+    if (dow === 6 && cancellation){
+      const reason = (currentLang === "nl" ? cancellation.nl : currentLang === "en" ? cancellation.en : cancellation.hy) || cancellation.hy;
+      html += `<div class="cal-event-item" style="border-color:var(--pomegranate);">
+        <span class="cal-event-date" style="color:var(--pomegranate);">${pickLang({hy:"Դասեր չկան", nl:"Geen les", en:"No class"})}</span>
+        <div><h4>${pickLang({hy:"Այս շաբաթ դասեր չեն անցկացվում", nl:"Deze zaterdag zijn er geen lessen", en:"No classes this Saturday"})}</h4>${reason ? `<p>${escapeHtml(reason)}</p>` : ""}</div>
+      </div>`;
+    } else if (dow === 6 && scheduleRows.length){
       html += scheduleRows.map(r=>`
         <div class="cal-event-item">
           <span class="cal-event-date schedule-time">${timeLabel(r.start)}${r.end ? "–"+timeLabel(r.end) : ""}</span>
