@@ -55,6 +55,8 @@ supabase/migrations/0010_custom_sections_position.sql  adds the option to choose
                                           where a custom section appears on the site
 supabase/migrations/0011_schedule_cancellations.sql  adds the ability to cancel classes
                                           on a specific Saturday (holiday, break, etc.)
+supabase/migrations/0012_event_registrations.sql  adds optional attendance registration
+                                          for events (name, phone, address, email)
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -122,8 +124,10 @@ all succeeded).
     → **Run**. Adds the option to choose exactly where a custom section appears.
 12. New query again → paste `supabase/migrations/0011_schedule_cancellations.sql`
     → **Run**. Adds the ability to cancel classes on a specific Saturday.
+13. New query again → paste `supabase/migrations/0012_event_registrations.sql`
+    → **Run**. Adds optional attendance registration for events.
 
-All eleven files are safe to re-run if needed.
+All twelve files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -239,6 +243,26 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: a separate parking address, clearly marked.** In the admin's Settings tab,
+  there's now a "🅿️ Կայանման հասցե" field, separate from the school's main address —
+  fill it in only if parking is somewhere different from the school itself. When set,
+  it shows as its own labeled line in the Contact section ("Կայանման հասցե"), plus its
+  own map right below the main one, with a "🅿️ Կայանման տեղամաս" badge overlaid on the
+  map so there's no chance of confusing it with the school's own location. (Google's
+  free map embed doesn't allow a custom parking-icon pin without a paid API key, so
+  the badge is what makes it unmistakable instead.) Leave the field empty and this
+  section stays hidden entirely, same as before.
+
+- **New: events can require attendance registration.** When publishing or editing a
+  post of type "Միջոցառում" (Event) in the "✍️ Հրապարակել" tab, a checkbox —
+  "Այս միջոցառումը պահանջում է գրանցում" — turns on a sign-up form (name, phone,
+  address, email) that appears right in that event's detail view on the public site.
+  The event card in the feed also shows a "📝 Պահանջվում է գրանցում" badge so visitors
+  know before clicking through. Admin sees who's registered per event from the
+  "🗂️ Իմ հրապարակումները" tab — a "👥 Գրանցվածներ" button appears next to any event
+  that requires registration, opening the attendee list with its own
+  "⬇️ Excel" export button, separate from the main school-registration export.
 
 - **Excel export now has one column per course, checked with ✔.** Previously all
   selected classes were bunched into one "Դասընթացներ" cell as comma-separated text.
