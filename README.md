@@ -244,15 +244,16 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
-- **New: a separate parking address, clearly marked.** In the admin's Settings tab,
-  there's now a "🅿️ Կայանման հասցե" field, separate from the school's main address —
-  fill it in only if parking is somewhere different from the school itself. When set,
-  it shows as its own labeled line in the Contact section ("Կայանման հասցե"), plus its
-  own map right below the main one, with a "🅿️ Կայանման տեղամաս" badge overlaid on the
-  map so there's no chance of confusing it with the school's own location. (Google's
-  free map embed doesn't allow a custom parking-icon pin without a paid API key, so
-  the badge is what makes it unmistakable instead.) Leave the field empty and this
-  section stays hidden entirely, same as before.
+- **New: a separate parking address, shown on the same map as the school.** In the
+  admin's Settings tab, there's a "🅿️ Կայանման հասցե" field, separate from the school's
+  main address — fill it in only if parking is somewhere different from the school
+  itself. Google's free map embed can't show two independent pins on one map (that
+  needs a paid API key), so instead, when a parking address is set, the map switches
+  to **directions mode** — it plots both the parking spot (marker A) and the school
+  (marker B) on the same map with a route line between them, and a small "A = Parking,
+  B = School" badge is overlaid so it's unambiguous which is which. It also shows the
+  Contact section's own labeled line for the parking address. Leave the field empty and
+  the map and that line both stay exactly as they were before — just the school's location.
 
 - **New: events can require attendance registration.** When publishing or editing a
   post of type "Միջոցառում" (Event) in the "✍️ Հրապարակել" tab, a checkbox —

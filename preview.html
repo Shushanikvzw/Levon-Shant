@@ -495,8 +495,6 @@ form.card-form{background:var(--card); border:1px solid var(--line); border-radi
 .contact-list .ic{font-size:1.2rem;}
 .map-embed{border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); min-height:280px;}
 .map-embed iframe{width:100%; height:100%; min-height:280px; border:0;}
-.map-embed.parking-map{min-height:220px;}
-.map-embed.parking-map iframe{min-height:220px;}
 .parking-badge{
   position:absolute; top:10px; left:10px; z-index:2;
   background:var(--blue); color:#fff; font-weight:700; font-size:.82rem;
@@ -1075,12 +1073,9 @@ tbody tr:hover{background:var(--paper-dim);}
           <li><span class="ic">📰</span><div><strong>Blog</strong><br><a id="contactBlogLink" href="https://armeniandiasporaschool.wordpress.com/" target="_blank" rel="noopener">armeniandiasporaschool.wordpress.com ↗</a></div></li>
         </ul>
         <div>
-          <div class="map-embed">
+          <div class="map-embed" style="position:relative;">
+            <span class="parking-badge" id="mapLegendBadge" style="display:none;">🅿️ <span data-i18n="contact.mapLegend">A = Կայանում, B = Դպրոց</span></span>
             <iframe id="contactMapFrame" title="map" loading="lazy" src="https://maps.google.com/maps?q=Nijverheidsstraat%2045%2C%202800%20Mechelen%2C%20Belgi%C3%AB&z=15&output=embed"></iframe>
-          </div>
-          <div class="map-embed parking-map" id="contactParkingMapWrap" style="display:none; margin-top:16px; position:relative;">
-            <span class="parking-badge">🅿️ <span data-i18n="contact.parkingBadge">Կայանման տեղամաս</span></span>
-            <iframe id="contactParkingMapFrame" title="parking map" loading="lazy" src=""></iframe>
           </div>
         </div>
       </div>
@@ -1328,7 +1323,7 @@ const i18n = {
     "contact.title2": "Contact",
     "contact.addr": "Adres", "contact.email": "E-mail", "contact.phone": "Telefoon",
     "contact.parkingAddr": "Parkeeradres",
-    "contact.parkingBadge": "Parkeerplaats",
+    "contact.mapLegend": "A = Parkeerplaats, B = School",
     "contact.fbGroup": "Facebook-groep van de school ↗",
     "foot.name": "Levon Shant Zaterdagschool",
     "foot.blurb": "Hamazkayin-afdeling Mechelen (België). Armeense taal, geschiedenis en cultuur.",
@@ -1480,7 +1475,7 @@ const i18n = {
     "contact.title2": "Contact",
     "contact.addr": "Address", "contact.email": "Email", "contact.phone": "Phone",
     "contact.parkingAddr": "Parking address",
-    "contact.parkingBadge": "Parking",
+    "contact.mapLegend": "A = Parking, B = School",
     "contact.fbGroup": "School's Facebook group ↗",
     "foot.name": "Levon Shant Saturday School",
     "foot.blurb": "Hamazkayin Mechelen branch (Belgium). Armenian language, history, and culture.",
@@ -2282,17 +2277,25 @@ function applyContactInfo(){
   if (addr){
     document.getElementById("contactAddressVal")?.replaceChildren(document.createTextNode(addr));
     document.getElementById("footerAddressVal")?.replaceChildren(document.createTextNode(addr));
-    const mapFrame = document.getElementById("contactMapFrame");
-    if (mapFrame) mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&z=15&output=embed`;
   }
   if (parkingAddr){
     document.getElementById("contactParkingVal")?.replaceChildren(document.createTextNode(parkingAddr));
     const item = document.getElementById("contactParkingItem");
     if (item) item.style.display = "";
-    const wrap = document.getElementById("contactParkingMapWrap");
-    const parkingFrame = document.getElementById("contactParkingMapFrame");
-    if (wrap) wrap.style.display = "";
-    if (parkingFrame) parkingFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(parkingAddr)}&z=16&output=embed`;
+  }
+  // One map showing both points: when a parking address is set, use Google's
+  // free directions embed (start=parking, end=school) — no API key needed,
+  // and it plots both locations with a route between them on a single map.
+  const mapFrame = document.getElementById("contactMapFrame");
+  const legendBadge = document.getElementById("mapLegendBadge");
+  if (mapFrame && addr){
+    if (parkingAddr){
+      mapFrame.src = `https://maps.google.com/maps?saddr=${encodeURIComponent(parkingAddr)}&daddr=${encodeURIComponent(addr)}&z=15&output=embed`;
+      if (legendBadge) legendBadge.style.display = "";
+    } else {
+      mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&z=15&output=embed`;
+      if (legendBadge) legendBadge.style.display = "none";
+    }
   }
   if (email){
     [document.getElementById("contactEmailLink"), document.getElementById("footerEmailLink")].forEach(el=>{

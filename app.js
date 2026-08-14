@@ -192,7 +192,7 @@ const i18n = {
     "contact.title2": "Contact",
     "contact.addr": "Adres", "contact.email": "E-mail", "contact.phone": "Telefoon",
     "contact.parkingAddr": "Parkeeradres",
-    "contact.parkingBadge": "Parkeerplaats",
+    "contact.mapLegend": "A = Parkeerplaats, B = School",
     "contact.fbGroup": "Facebook-groep van de school ↗",
     "foot.name": "Levon Shant Zaterdagschool",
     "foot.blurb": "Hamazkayin-afdeling Mechelen (België). Armeense taal, geschiedenis en cultuur.",
@@ -344,7 +344,7 @@ const i18n = {
     "contact.title2": "Contact",
     "contact.addr": "Address", "contact.email": "Email", "contact.phone": "Phone",
     "contact.parkingAddr": "Parking address",
-    "contact.parkingBadge": "Parking",
+    "contact.mapLegend": "A = Parking, B = School",
     "contact.fbGroup": "School's Facebook group ↗",
     "foot.name": "Levon Shant Saturday School",
     "foot.blurb": "Hamazkayin Mechelen branch (Belgium). Armenian language, history, and culture.",
@@ -1146,17 +1146,25 @@ function applyContactInfo(){
   if (addr){
     document.getElementById("contactAddressVal")?.replaceChildren(document.createTextNode(addr));
     document.getElementById("footerAddressVal")?.replaceChildren(document.createTextNode(addr));
-    const mapFrame = document.getElementById("contactMapFrame");
-    if (mapFrame) mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&z=15&output=embed`;
   }
   if (parkingAddr){
     document.getElementById("contactParkingVal")?.replaceChildren(document.createTextNode(parkingAddr));
     const item = document.getElementById("contactParkingItem");
     if (item) item.style.display = "";
-    const wrap = document.getElementById("contactParkingMapWrap");
-    const parkingFrame = document.getElementById("contactParkingMapFrame");
-    if (wrap) wrap.style.display = "";
-    if (parkingFrame) parkingFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(parkingAddr)}&z=16&output=embed`;
+  }
+  // One map showing both points: when a parking address is set, use Google's
+  // free directions embed (start=parking, end=school) — no API key needed,
+  // and it plots both locations with a route between them on a single map.
+  const mapFrame = document.getElementById("contactMapFrame");
+  const legendBadge = document.getElementById("mapLegendBadge");
+  if (mapFrame && addr){
+    if (parkingAddr){
+      mapFrame.src = `https://maps.google.com/maps?saddr=${encodeURIComponent(parkingAddr)}&daddr=${encodeURIComponent(addr)}&z=15&output=embed`;
+      if (legendBadge) legendBadge.style.display = "";
+    } else {
+      mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&z=15&output=embed`;
+      if (legendBadge) legendBadge.style.display = "none";
+    }
   }
   if (email){
     [document.getElementById("contactEmailLink"), document.getElementById("footerEmailLink")].forEach(el=>{
