@@ -509,9 +509,18 @@ document.getElementById("exportRegBtn")?.addEventListener("click", ()=>{
     msg.classList.add("show","err"); return;
   }
   try{
+    // Every course offered across both the child and adult registration forms —
+    // each becomes its own column, so it's easy to scan who's signed up for what.
+    const ALL_COURSES = [
+      "Նախադպրոցական", "Այբբենարան", "Մայրենի", "Գրականություն", "Ես և շրջակա միջավայրը",
+      "Հայրենագիտություն", "Պատմություն", "Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար",
+      "Ժողովրդական պար", "Ավանդական երգ ու պար", "Դաշնամուր", "Շախմատ",
+      "Տառաուսուցում", "Հայերենը որպես երկրորդ լեզու"
+    ];
     const rows = registrationsCache.map(r=>{
       const isChild = r.type === "child";
-      return {
+      const selected = new Set(r.courses || []);
+      const base = {
         "Տեսակ": isChild ? "Երեխա" : "Մեծահասակ",
         "Անուն, ազգանուն": isChild ? (r.child_name||"") : (r.name||""),
         "Ծննդյան տարեթիվ": isChild ? (r.child_dob||"") : (r.dob||""),
@@ -519,18 +528,19 @@ document.getElementById("exportRegBtn")?.addEventListener("click", ()=>{
         "Հասցե": r.address||"",
         "Ազգություն": r.nationality||"",
         "Մայրենի լեզու": r.native_lang||"",
-        "Էլ. հասցե": isChild ? (r.email||"") : (r.email||""),
+        "Էլ. հասցե": r.email||"",
         "Հեռախոս": r.phone||"",
         "Մայր (անուն/հեռախոս)": r.mother||"",
-        "Հայր (անուն/հեռախոս)": r.father||"",
-        "Դասընթացներ": (r.courses||[]).join(", "),
-        "Հայերենի մակարդակ": r.level||"",
-        "Համաձայնություն նկարներին": r.photo_consent||"",
-        "Ուղարկվել է": r.submitted_at ? new Date(r.submitted_at).toLocaleString() : ""
+        "Հայր (անուն/հեռախոս)": r.father||""
       };
+      ALL_COURSES.forEach(course=>{ base[course] = selected.has(course) ? "✔" : ""; });
+      base["Հայերենի մակարդակ"] = r.level||"";
+      base["Համաձայնություն նկարներին"] = r.photo_consent||"";
+      base["Ուղարկվել է"] = r.submitted_at ? new Date(r.submitted_at).toLocaleString() : "";
+      return base;
     });
     const ws = XLSX.utils.json_to_sheet(rows);
-    ws["!cols"] = Object.keys(rows[0]).map(k=>({ wch: Math.max(14, k.length + 2) }));
+    ws["!cols"] = Object.keys(rows[0]).map(k=>({ wch: ALL_COURSES.includes(k) ? 10 : Math.max(14, k.length + 2) }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Գրանցումներ");
     const today = new Date().toISOString().slice(0,10);

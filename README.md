@@ -240,6 +240,13 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Excel export now has one column per course, checked with ✔.** Previously all
+  selected classes were bunched into one "Դասընթացներ" cell as comma-separated text.
+  Now every course offered across both forms (14 total, e.g. Այբբենարան, Մայրենի,
+  Ժողովրդական պար, Դաշնամուր...) gets its own column, with a ✔ in the cell for
+  whichever ones each registrant picked — much easier to scan down a column and see
+  everyone signed up for a particular class, or filter/sort by it in Excel.
+
 - **New: admin can cancel classes on a specific Saturday.** Previously the calendar
   assumed every Saturday has classes just because the weekly schedule exists — with no
   way to mark, say, a holiday weekend as an exception. In the **"🗓️ Դասացուցակ"** tab,
