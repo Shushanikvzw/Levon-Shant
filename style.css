@@ -342,6 +342,9 @@ section.alt{background:var(--paper-dim);}
 .year-cal-month-empty{padding:14px 16px; color:var(--ink-soft); font-size:.85rem; font-style:italic;}
 
 .year-cal-entry{display:flex; gap:10px; align-items:flex-start;}
+.year-cal-entry.clickable{cursor:pointer; border-radius:9px; padding:4px 6px; margin:-4px -6px; transition:background .15s ease;}
+.year-cal-entry.clickable:hover{background:var(--paper-dim);}
+.year-cal-entry.clickable h4{color:var(--blue);}
 .year-cal-day{
   font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--ink); background:var(--paper-dim);
   border-radius:7px; min-width:28px; height:26px; display:flex; align-items:center; justify-content:center;

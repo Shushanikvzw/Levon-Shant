@@ -1688,7 +1688,7 @@ async function loadYearCalDisplay(){
         const bg = YEAR_CAL_MONTH_COLORS[m];
         const body = list.length
           ? list.map(e=>`
-              <div class="year-cal-entry">
+              <div class="year-cal-entry${e.source === 'post' ? ' clickable' : ''}" ${e.source === 'post' ? `data-post-id="${e.id}"` : ''}>
                 <span class="year-cal-day">${dayNum(e.start)}${e.end && e.end !== e.start ? "–"+dayNum(e.end) : ""}</span>
                 <div class="year-cal-entry-text">
                   <h4>${escapeHtml(yearCalLabel(e, currentLang))}</h4>
@@ -1701,6 +1701,14 @@ async function loadYearCalDisplay(){
           <div class="year-cal-month-body">${body}</div>
         </div>`;
       }).join("");
+
+      listEl.querySelectorAll(".year-cal-entry.clickable").forEach(item=>{
+        item.addEventListener("click", async ()=>{
+          if (!allKnownPosts.length) allKnownPosts = await fetchPosts();
+          const post = allKnownPosts.find(p=>String(p.id) === item.dataset.postId);
+          if (post) openPostDetail(post);
+        });
+      });
 
       listEl.style.display = "grid";
       imgWrap.style.display = "none";

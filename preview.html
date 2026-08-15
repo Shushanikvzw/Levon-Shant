@@ -350,6 +350,9 @@ section.alt{background:var(--paper-dim);}
 .year-cal-month-empty{padding:14px 16px; color:var(--ink-soft); font-size:.85rem; font-style:italic;}
 
 .year-cal-entry{display:flex; gap:10px; align-items:flex-start;}
+.year-cal-entry.clickable{cursor:pointer; border-radius:9px; padding:4px 6px; margin:-4px -6px; transition:background .15s ease;}
+.year-cal-entry.clickable:hover{background:var(--paper-dim);}
+.year-cal-entry.clickable h4{color:var(--blue);}
 .year-cal-day{
   font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--ink); background:var(--paper-dim);
   border-radius:7px; min-width:28px; height:26px; display:flex; align-items:center; justify-content:center;
@@ -2828,7 +2831,7 @@ async function loadYearCalDisplay(){
         const bg = YEAR_CAL_MONTH_COLORS[m];
         const body = list.length
           ? list.map(e=>`
-              <div class="year-cal-entry">
+              <div class="year-cal-entry${e.source === 'post' ? ' clickable' : ''}" ${e.source === 'post' ? `data-post-id="${e.id}"` : ''}>
                 <span class="year-cal-day">${dayNum(e.start)}${e.end && e.end !== e.start ? "–"+dayNum(e.end) : ""}</span>
                 <div class="year-cal-entry-text">
                   <h4>${escapeHtml(yearCalLabel(e, currentLang))}</h4>
@@ -2841,6 +2844,14 @@ async function loadYearCalDisplay(){
           <div class="year-cal-month-body">${body}</div>
         </div>`;
       }).join("");
+
+      listEl.querySelectorAll(".year-cal-entry.clickable").forEach(item=>{
+        item.addEventListener("click", async ()=>{
+          if (!allKnownPosts.length) allKnownPosts = await fetchPosts();
+          const post = allKnownPosts.find(p=>String(p.id) === item.dataset.postId);
+          if (post) openPostDetail(post);
+        });
+      });
 
       listEl.style.display = "grid";
       imgWrap.style.display = "none";
