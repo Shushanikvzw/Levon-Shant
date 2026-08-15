@@ -191,6 +191,10 @@ const i18n = {
     "contact.title": "Neem contact met ons op",
     "contact.title2": "Contact",
     "contact.addr": "Adres", "contact.email": "E-mail", "contact.phone": "Telefoon",
+    "contact.parkingAddr": "Parkeeradres",
+    "contact.mapLegend": "A = Parkeerplaats, B = School",
+    "contact.navSchool": "Route naar de school",
+    "contact.navParking": "Route naar de parkeerplaats",
     "contact.fbGroup": "Facebook-groep van de school ↗",
     "foot.name": "Levon Shant Zaterdagschool",
     "foot.blurb": "Hamazkayin-afdeling Mechelen (België). Armeense taal, geschiedenis en cultuur.",
@@ -341,6 +345,10 @@ const i18n = {
     "contact.title": "Get in touch",
     "contact.title2": "Contact",
     "contact.addr": "Address", "contact.email": "Email", "contact.phone": "Phone",
+    "contact.parkingAddr": "Parking address",
+    "contact.mapLegend": "A = Parking, B = School",
+    "contact.navSchool": "Directions to the school",
+    "contact.navParking": "Directions to parking",
     "contact.fbGroup": "School's Facebook group ↗",
     "foot.name": "Levon Shant Saturday School",
     "foot.blurb": "Hamazkayin Mechelen branch (Belgium). Armenian language, history, and culture.",
@@ -600,6 +608,7 @@ function postCardHTML(p){
       <span class="post-date">${p.date || ""}</span>
       <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(body)}</p>
+      ${p.requires_registration ? `<span class="status-pill" style="align-self:flex-start;">📝 ${pickLang({hy:"Պահանջվում է գրանցում", nl:"Inschrijving vereist", en:"Registration required"})}</span>` : ""}
       <div class="post-foot" style="justify-content:flex-end;"><span class="post-more">${pickLang({hy:"Ավելին ↗", nl:"Meer info ↗", en:"More info ↗"})}</span></div>
     </div>
   </article>`;
@@ -613,7 +622,19 @@ function pickLang(dict){ return dict[currentLang] || dict.hy; }
 // ---------------------------------------------------------
 let allKnownPosts = []; // combined feed + gallery cache, used to look up detail by id
 
-function openPostDetail(post){
+async function fetchEventRegistrationCount(postId){
+  if (!SUPABASE_READY) return 0;
+  try{
+    const { data, error } = await supabase.rpc("get_event_registration_count", { p_post_id: postId });
+    if (error) throw error;
+    return data || 0;
+  }catch(err){
+    console.warn("Could not check event registration count:", err.message);
+    return 0;
+  }
+}
+
+async function openPostDetail(post){
   const backdrop = document.getElementById("postDetailBackdrop");
   const body = document.getElementById("postDetailBody");
   if (!backdrop || !body || !post) return;
@@ -627,14 +648,87 @@ function openPostDetail(post){
     media = `<div style="aspect-ratio:16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen style="border-radius:12px;"></iframe></div>`;
   } else if (post.media_url) media = `<img src="${post.media_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:12px; display:block;">`;
 
+  let regBlock = "";
+  if (post.requires_registration){
+    const limit = post.registration_limit || null;
+    const count = limit ? await fetchEventRegistrationCount(post.id) : 0;
+    const isFull = limit && count >= limit;
+    const spotsLeft = limit ? Math.max(0, limit - count) : null;
+
+    if (isFull){
+      regBlock = `
+        <div class="event-reg-box" style="margin-top:22px; padding:18px; background:var(--paper-dim); border:1.5px solid var(--pomegranate); border-radius:14px;">
+          <h3 style="margin:0 0 6px; color:var(--pomegranate);">${pickLang({hy:"Տեղերը լրացել են", nl:"Volzet", en:"Registration full"})}</h3>
+          <p class="helper" style="margin:0;">${pickLang({hy:"Ցավոք, այս միջոցառման տեղերը սպառվել են։", nl:"Helaas, alle plaatsen voor dit evenement zijn volzet.", en:"Sorry, all spots for this event have been taken."})}</p>
+        </div>`;
+    } else {
+      regBlock = `
+        <div class="event-reg-box" style="margin-top:22px; padding:18px; background:var(--paper-dim); border:1.5px solid var(--line); border-radius:14px;">
+          <h3 style="margin:0 0 6px;">${pickLang({hy:"📝 Գրանցվել այս միջոցառման համար", nl:"📝 Inschrijven voor dit evenement", en:"📝 Register for this event"})}</h3>
+          <p class="helper" style="margin-bottom:14px;">${limit
+            ? pickLang({hy:`Մնացել է ${spotsLeft} տեղ ${limit}-ից։`, nl:`Nog ${spotsLeft} van ${limit} plaatsen beschikbaar.`, en:`${spotsLeft} of ${limit} spots left.`})
+            : pickLang({hy:"Օգնեք մեզ իմանալ, թե քանի հոգի է մասնակցելու։", nl:"Help ons weten hoeveel mensen deelnemen.", en:"Help us know how many people are attending."})}</p>
+          <form id="eventRegForm" data-post-id="${post.id}" data-limit="${limit||""}">
+            <div class="field" style="margin-bottom:10px;"><input id="er_name" placeholder="${pickLang({hy:"Անուն, ազգանուն", nl:"Volledige naam", en:"Full name"})}" required></div>
+            <div class="field" style="margin-bottom:10px;"><input id="er_phone" type="tel" placeholder="${pickLang({hy:"Հեռախոս", nl:"Telefoon", en:"Phone"})}"></div>
+            <div class="field" style="margin-bottom:10px;"><input id="er_address" placeholder="${pickLang({hy:"Հասցե", nl:"Adres", en:"Address"})}"></div>
+            <div class="field" style="margin-bottom:14px;"><input id="er_email" type="email" placeholder="${pickLang({hy:"Էլ. հասցե", nl:"E-mailadres", en:"Email address"})}"></div>
+            <button class="btn apricot" type="submit" style="width:100%; justify-content:center;">${pickLang({hy:"Գրանցվել", nl:"Inschrijven", en:"Register"})}</button>
+            <div class="form-msg" id="eventRegMsg"></div>
+          </form>
+        </div>`;
+    }
+  }
+
   body.innerHTML = `
     ${media}
     <div style="padding-top:18px;">
       <span class="post-date">${post.date || ""}</span>
       <h2 style="margin:6px 0 12px;">${escapeHtml(title)}</h2>
       <p style="color:var(--ink-soft); line-height:1.7; white-space:pre-line;">${escapeHtml(desc)}</p>
+      ${regBlock}
     </div>`;
   backdrop.classList.add("open");
+
+  document.getElementById("eventRegForm")?.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const msg = document.getElementById("eventRegMsg");
+    msg.className = "form-msg"; msg.textContent = "";
+    if (!SUPABASE_READY){
+      msg.textContent = pickLang({hy:"Կայքը դեռ միացված չէ տվյալների բազային։", nl:"De site is nog niet verbonden met de database.", en:"The site isn't connected to the database yet."});
+      msg.classList.add("show","err"); return;
+    }
+    const postId = e.target.dataset.postId;
+    const limit = e.target.dataset.limit ? parseInt(e.target.dataset.limit, 10) : null;
+    try{
+      // Last-moment capacity re-check to reduce (not fully eliminate) the chance
+      // of overbooking if the limit filled up while this form was open.
+      if (limit){
+        const currentCount = await fetchEventRegistrationCount(postId);
+        if (currentCount >= limit){
+          msg.textContent = pickLang({hy:"Ցավոք, տեղերը հենց նոր լրացան։", nl:"Helaas, de plaatsen zijn zojuist volzet geraakt.", en:"Sorry, the spots just filled up."});
+          msg.classList.add("show","err"); return;
+        }
+      }
+      const { error } = await supabase.from("event_registrations").insert({
+        post_id: postId,
+        full_name: document.getElementById("er_name").value.trim(),
+        phone: document.getElementById("er_phone").value.trim() || null,
+        address: document.getElementById("er_address").value.trim() || null,
+        email: document.getElementById("er_email").value.trim() || null
+      });
+      if (error) throw error;
+      msg.textContent = pickLang({hy:"Գրանցվեցիք ✔ Կտեսնվենք միջոցառմանը։", nl:"U bent ingeschreven ✔ Tot ziens op het evenement.", en:"You're registered ✔ See you at the event."});
+      msg.classList.add("show","ok");
+      e.target.reset();
+    }catch(err){
+      const full = /registration limit reached/i.test(err.message || "");
+      msg.textContent = full
+        ? pickLang({hy:"Ցավոք, տեղերը հենց նոր լրացան։", nl:"Helaas, de plaatsen zijn zojuist volzet geraakt.", en:"Sorry, the spots just filled up."})
+        : pickLang({hy:"Սխալ", nl:"Fout", en:"Error"}) + ": " + err.message;
+      msg.classList.add("show","err");
+    }
+  });
 }
 
 document.getElementById("closePostDetail")?.addEventListener("click", ()=>{
@@ -1090,6 +1184,7 @@ async function loadSiteContent(){
 // ---------------------------------------------------------
 function applyContactInfo(){
   const addr = contentOverrides.contactAddress?.hy;
+  const parkingAddr = contentOverrides.contactParkingAddress?.hy;
   const email = contentOverrides.contactEmail?.hy;
   const phone = contentOverrides.contactPhone?.hy;
   const fb = contentOverrides.contactFacebook?.hy;
@@ -1099,8 +1194,32 @@ function applyContactInfo(){
   if (addr){
     document.getElementById("contactAddressVal")?.replaceChildren(document.createTextNode(addr));
     document.getElementById("footerAddressVal")?.replaceChildren(document.createTextNode(addr));
-    const mapFrame = document.getElementById("contactMapFrame");
-    if (mapFrame) mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&z=15&output=embed`;
+    const schoolNavLink = document.getElementById("navToSchoolLink");
+    if (schoolNavLink) schoolNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`;
+  }
+  if (parkingAddr){
+    document.getElementById("contactParkingVal")?.replaceChildren(document.createTextNode(parkingAddr));
+    const item = document.getElementById("contactParkingItem");
+    if (item) item.style.display = "";
+    const parkingNavLink = document.getElementById("navToParkingLink");
+    if (parkingNavLink){
+      parkingNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(parkingAddr)}`;
+      parkingNavLink.style.display = "";
+    }
+  }
+  // One map showing both points: when a parking address is set, use Google's
+  // free directions embed (start=parking, end=school) — no API key needed,
+  // and it plots both locations with a route between them on a single map.
+  const mapFrame = document.getElementById("contactMapFrame");
+  const legendBadge = document.getElementById("mapLegendBadge");
+  if (mapFrame && addr){
+    if (parkingAddr){
+      mapFrame.src = `https://maps.google.com/maps?saddr=${encodeURIComponent(parkingAddr)}&daddr=${encodeURIComponent(addr)}&z=15&output=embed`;
+      if (legendBadge) legendBadge.style.display = "";
+    } else {
+      mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&z=15&output=embed`;
+      if (legendBadge) legendBadge.style.display = "none";
+    }
   }
   if (email){
     [document.getElementById("contactEmailLink"), document.getElementById("footerEmailLink")].forEach(el=>{

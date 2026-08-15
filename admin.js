@@ -191,6 +191,17 @@ async function fetchPosts(){
   return data || [];
 }
 
+function updatePostRegRowVisibility(){
+  const isEvent = document.getElementById("postType").value === "event";
+  const row = document.getElementById("postRegRow");
+  if (row) row.style.display = isEvent ? "" : "none";
+  const limitRow = document.getElementById("postRegLimitRow");
+  if (limitRow) limitRow.style.display = (isEvent && document.getElementById("postRequiresReg").checked) ? "" : "none";
+}
+document.getElementById("postType")?.addEventListener("change", updatePostRegRowVisibility);
+document.getElementById("postRequiresReg")?.addEventListener("change", updatePostRegRowVisibility);
+updatePostRegRowVisibility();
+
 document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const msg = document.getElementById("postMsg");
@@ -219,10 +230,14 @@ document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
       mediaUrl = pub.publicUrl;
       mediaType = file.type.startsWith("video") ? "video" : "image";
     }
+    const requiresReg = type === "event" && document.getElementById("postRequiresReg").checked;
+    const limitVal = document.getElementById("postRegLimit").value;
     const payload = {
       type, title, title_nl: titleNl || null, title_en: titleEn || null,
       body, body_nl: bodyNl || null, body_en: bodyEn || null,
-      date, media_url: mediaUrl || null, media_type: mediaType
+      date, media_url: mediaUrl || null, media_type: mediaType,
+      requires_registration: requiresReg,
+      registration_limit: (requiresReg && limitVal) ? parseInt(limitVal, 10) : null
     };
     if (editingPostId){
       const { error } = await supabase.from("posts").update(payload).eq("id", editingPostId);
@@ -239,6 +254,7 @@ document.getElementById("postForm")?.addEventListener("submit", async (e)=>{
     }
     msg.classList.add("show","ok");
     e.target.reset();
+    updatePostRegRowVisibility();
     loadManagePosts();
   }catch(err){
     msg.textContent = "Սխալ՝ " + err.message;
@@ -256,6 +272,7 @@ function setPostFormMode(editing){
 document.getElementById("postCancelEdit")?.addEventListener("click", ()=>{
   editingPostId = null;
   document.getElementById("postForm").reset();
+  updatePostRegRowVisibility();
   setPostFormMode(false);
 });
 
@@ -424,9 +441,10 @@ async function loadManagePosts(){
         <td>${p.type}</td>
         <td>${p.date||""}</td>
         <td>${escapeHtml(p.author_name||"")}</td>
-        <td style="display:flex; gap:6px;">
+        <td style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn ghost small" data-editpost="${p.id}">Խմբագրել</button>
           <button class="btn danger small" data-del="${p.id}">Ջնջել</button>
+          ${(currentRole === "admin" && p.requires_registration) ? `<button class="btn blue small" data-viewreg="${p.id}" data-regtitle="${escapeHtml(p.title||"")}" data-reglimit="${p.registration_limit||""}">👥 Գրանցվածներ</button>` : ""}
         </td>
       </tr>`).join("") : `<tr><td colspan="5">Հրապարակումներ չկան։</td></tr>`;
     body.querySelectorAll("[data-del]").forEach(b=>{
@@ -435,6 +453,9 @@ async function loadManagePosts(){
         await supabase.from("posts").delete().eq("id", b.dataset.del);
         loadManagePosts();
       });
+    });
+    body.querySelectorAll("[data-viewreg]").forEach(b=>{
+      b.addEventListener("click", ()=> viewEventRegistrants(b.dataset.viewreg, b.dataset.regtitle, b.dataset.reglimit));
     });
     body.querySelectorAll("[data-editpost]").forEach(b=>{
       b.addEventListener("click", async ()=>{
@@ -450,6 +471,9 @@ async function loadManagePosts(){
         document.getElementById("postBody_nl").value = p.body_nl || "";
         document.getElementById("postBody_en").value = p.body_en || "";
         document.getElementById("postMediaUrl").value = p.media_url || "";
+        document.getElementById("postRequiresReg").checked = !!p.requires_registration;
+        document.getElementById("postRegLimit").value = p.registration_limit || "";
+        updatePostRegRowVisibility();
         editingPostId = p.id;
         setPostFormMode(true);
         document.querySelector('[data-panel="panel-publish"]')?.click();
@@ -460,6 +484,64 @@ async function loadManagePosts(){
     body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
+
+// ---------------------------------------------------------
+// Event attendance registrations — view + export per event
+// ---------------------------------------------------------
+let currentEventRegCache = [];
+
+async function viewEventRegistrants(postId, postTitle, regLimit){
+  const panel = document.getElementById("eventRegistrantsPanel");
+  const titleEl = document.getElementById("eventRegistrantsTitle");
+  const body = document.getElementById("eventRegistrantsBody");
+  if (!panel) return;
+  panel.style.display = "";
+  titleEl.textContent = `👥 Գրանցվածներ՝ «${postTitle}»`;
+  body.innerHTML = `<tr><td colspan="5">Բեռնվում է…</td></tr>`;
+  panel.scrollIntoView({ behavior:"smooth", block:"start" });
+  try{
+    const { data, error } = await supabase.from("event_registrations").select("*").eq("post_id", postId).order("submitted_at", { ascending:false });
+    if (error) throw error;
+    currentEventRegCache = data || [];
+    const count = currentEventRegCache.length;
+    titleEl.textContent = regLimit
+      ? `👥 Գրանցվածներ՝ «${postTitle}» — ${count} / ${regLimit}${count >= regLimit ? " (լրացել է)" : ""}`
+      : `👥 Գրանցվածներ՝ «${postTitle}» — ${count}`;
+    body.innerHTML = currentEventRegCache.length ? currentEventRegCache.map(r=>`
+      <tr>
+        <td>${escapeHtml(r.full_name||"")}</td>
+        <td>${escapeHtml(r.phone||"")}</td>
+        <td>${escapeHtml(r.address||"")}</td>
+        <td>${escapeHtml(r.email||"")}</td>
+        <td>${r.submitted_at ? new Date(r.submitted_at).toLocaleString() : ""}</td>
+      </tr>`).join("") : `<tr><td colspan="5">Դեռ գրանցումներ չկան այս միջոցառման համար։</td></tr>`;
+    document.getElementById("exportEventRegBtn").dataset.title = postTitle;
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+document.getElementById("closeEventRegPanel")?.addEventListener("click", ()=>{
+  document.getElementById("eventRegistrantsPanel").style.display = "none";
+});
+
+document.getElementById("exportEventRegBtn")?.addEventListener("click", (e)=>{
+  if (typeof XLSX === "undefined" || !currentEventRegCache.length) return;
+  const rows = currentEventRegCache.map(r=>({
+    "Անուն, ազգանուն": r.full_name||"",
+    "Հեռախոս": r.phone||"",
+    "Հասցե": r.address||"",
+    "Էլ. փոստ": r.email||"",
+    "Գրանցվել է": r.submitted_at ? new Date(r.submitted_at).toLocaleString() : ""
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws["!cols"] = Object.keys(rows[0]).map(k=>({ wch: Math.max(16, k.length + 2) }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Գրանցվածներ");
+  const today = new Date().toISOString().slice(0,10);
+  const safeTitle = (e.target.dataset.title || "miochanacum").replace(/[^a-zA-Zա-ֆԱ-Ֆ0-9]+/g, "_").slice(0, 40);
+  XLSX.writeFile(wb, `granxvacner_${safeTitle}_${today}.xlsx`);
+});
 
 // ---------------------------------------------------------
 // Registrations (admin only, read + delete)
@@ -979,6 +1061,7 @@ async function loadContactInfoForm(){
     if (el) el.value = overrides[key]?.hy || "";
   };
   setVal("cf_address", "contactAddress");
+  setVal("cf_parking", "contactParkingAddress");
   setVal("cf_email", "contactEmail");
   setVal("cf_phone", "contactPhone");
   setVal("cf_facebook", "contactFacebook");
@@ -996,6 +1079,7 @@ document.getElementById("contactInfoForm")?.addEventListener("submit", async (e)
   }
   const fields = {
     contactAddress: document.getElementById("cf_address").value.trim(),
+    contactParkingAddress: document.getElementById("cf_parking").value.trim(),
     contactEmail: document.getElementById("cf_email").value.trim(),
     contactPhone: document.getElementById("cf_phone").value.trim(),
     contactFacebook: normalizeUrl(document.getElementById("cf_facebook").value),
