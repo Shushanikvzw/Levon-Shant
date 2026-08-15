@@ -1415,6 +1415,8 @@ document.getElementById("yearCalEntryForm")?.addEventListener("submit", async (e
     }
     msg.classList.add("show","ok");
     e.target.reset();
+    if (!openYearGroups) openYearGroups = new Set([currentAcademicStartYear()]);
+    openYearGroups.add(academicStartYearOf(startVal));
     loadYearCalAdmin();
   }catch(err){
     msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
@@ -1439,6 +1441,11 @@ function currentAcademicStartYear(){
   return now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
 }
 
+// Remembers which academic-year sections the admin has open, so re-rendering
+// the list (after adding/editing/deleting an entry) doesn't reset everything
+// back to only the current year — it keeps whatever was actually open.
+let openYearGroups = null;
+
 async function loadYearCalAdmin(){
   const wrap = document.getElementById("yearCalAdminGroups");
   if (!wrap) return;
@@ -1456,6 +1463,7 @@ async function loadYearCalAdmin(){
     });
     const years = Object.keys(byYear).map(Number).sort((a,b)=>a-b);
     const thisYear = currentAcademicStartYear();
+    if (!openYearGroups) openYearGroups = new Set([thisYear]);
 
     wrap.innerHTML = years.map(y=>{
       const list = byYear[y].sort((a,b)=> (a.start||"").localeCompare(b.start||""));
@@ -1471,7 +1479,7 @@ async function loadYearCalAdmin(){
           </td>
         </tr>`).join("");
       return `
-        <details class="year-group" ${y === thisYear ? "open" : ""} style="margin-bottom:16px; border:1px solid var(--line); border-radius:12px; overflow:hidden;">
+        <details class="year-group" data-year="${y}" ${openYearGroups.has(y) ? "open" : ""} style="margin-bottom:16px; border:1px solid var(--line); border-radius:12px; overflow:hidden;">
           <summary style="cursor:pointer; padding:14px 18px; font-weight:700; font-family:'Noto Serif Armenian',serif; background:var(--card); list-style:none; display:flex; align-items:center; gap:8px;">
             📅 Ուսումնական տարի ${academicYearLabel(y)} <span class="helper" style="font-weight:400;">(${list.length} գիծ)</span>${y === thisYear ? ' <span class="status-pill">ընթացիկ</span>' : ""}
           </summary>
@@ -1483,6 +1491,13 @@ async function loadYearCalAdmin(){
           </div>
         </details>`;
     }).join("");
+
+    wrap.querySelectorAll(".year-group").forEach(details=>{
+      details.addEventListener("toggle", ()=>{
+        const y = parseInt(details.dataset.year, 10);
+        if (details.open) openYearGroups.add(y); else openYearGroups.delete(y);
+      });
+    });
 
     wrap.querySelectorAll("[data-delyc]").forEach(b=>{
       b.addEventListener("click", async ()=>{
