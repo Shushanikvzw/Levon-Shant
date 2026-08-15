@@ -564,6 +564,11 @@ footer.site a:hover{color:var(--apricot);}
 .dash-tabs .chip.active{background:var(--ink); color:var(--paper); box-shadow:0 2px 8px rgba(18,28,20,0.18);}
 
 .dash-panel{display:none; animation:dashFadeIn .2s ease;}
+.year-group summary::-webkit-details-marker{display:none;}
+.year-group summary::before{content:"▸"; display:inline-block; transition:transform .15s ease; color:var(--ink-soft); margin-right:2px;}
+.year-group[open] summary::before{transform:rotate(90deg);}
+.year-group summary:hover{background:var(--paper-dim);}
+
 .content-section-head{
   font-family:'Noto Serif Armenian',serif; font-size:1.05rem; color:var(--blue);
   margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid var(--gold);

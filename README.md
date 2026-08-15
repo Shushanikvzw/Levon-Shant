@@ -248,6 +248,14 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **The admin's yearly calendar list is now grouped by academic year.** Previously
+  every entry across every year sat in one long flat table, making it hard to find
+  anything as it grows. Now it's organized into collapsible sections — "📅 Ուսումնական
+  տարի 2025–2026", "📅 Ուսումնական տարի 2026–2027", and so on — computed automatically
+  from each entry's date, same as the year-picker on the public site. The current
+  school year is expanded by default and marked "ընթացիկ"; other years start
+  collapsed, click the header to open one.
+
 - **New: "Get directions" buttons for the school and parking.** Below the Contact
   section's map, "🧭 Երթուղի դեպի դպրոց" always opens turn-by-turn directions to the
   school from wherever the visitor currently is (works the same on desktop and mobile,

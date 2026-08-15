@@ -1427,30 +1427,71 @@ document.getElementById("yearCalEntryCancelEdit")?.addEventListener("click", ()=
   setYearCalFormMode(false);
 });
 
+// Academic year runs September→August, computed purely from each entry's
+// start date — matches the same logic used on the public site's year picker.
+function academicStartYearOf(iso){
+  const [y, m] = iso.split("-").map(Number);
+  return m >= 9 ? y : y - 1;
+}
+function academicYearLabel(startYear){ return `${startYear}–${startYear + 1}`; }
+function currentAcademicStartYear(){
+  const now = new Date();
+  return now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+}
+
 async function loadYearCalAdmin(){
-  const body = document.getElementById("yearCalAdminBody");
-  if (!body) return;
+  const wrap = document.getElementById("yearCalAdminGroups");
+  if (!wrap) return;
   try{
     const rows = await fetchYearCalEntries();
-    body.innerHTML = rows.length ? rows.map(r=>`
-      <tr>
-        <td>${formatDateRange(r.start, r.end)}</td>
-        <td>${escapeHtml(r.labelHy||"")}</td>
-        <td>${escapeHtml(r.labelNl||"")}</td>
-        <td>${escapeHtml(r.labelEn||"")}</td>
-        <td style="display:flex; gap:6px;">
-          <button class="btn ghost small" data-edityc="${r.id||''}">Խմբագրել</button>
-          <button class="btn danger small" data-delyc="${r.id||''}">Ջնջել</button>
-        </td>
-      </tr>`).join("") : `<tr><td colspan="5">Դեռ գծեր չկան։</td></tr>`;
-    body.querySelectorAll("[data-delyc]").forEach(b=>{
+    if (!rows.length){
+      wrap.innerHTML = `<p class="helper">Դեռ գծեր չկան։</p>`;
+      return;
+    }
+    const byYear = {};
+    rows.forEach(r=>{
+      if (!r.start) return;
+      const y = academicStartYearOf(r.start);
+      (byYear[y] ||= []).push(r);
+    });
+    const years = Object.keys(byYear).map(Number).sort((a,b)=>a-b);
+    const thisYear = currentAcademicStartYear();
+
+    wrap.innerHTML = years.map(y=>{
+      const list = byYear[y].sort((a,b)=> (a.start||"").localeCompare(b.start||""));
+      const rowsHtml = list.map(r=>`
+        <tr>
+          <td>${formatDateRange(r.start, r.end)}</td>
+          <td>${escapeHtml(r.labelHy||"")}</td>
+          <td>${escapeHtml(r.labelNl||"")}</td>
+          <td>${escapeHtml(r.labelEn||"")}</td>
+          <td style="display:flex; gap:6px;">
+            <button class="btn ghost small" data-edityc="${r.id||''}">Խմբագրել</button>
+            <button class="btn danger small" data-delyc="${r.id||''}">Ջնջել</button>
+          </td>
+        </tr>`).join("");
+      return `
+        <details class="year-group" ${y === thisYear ? "open" : ""} style="margin-bottom:16px; border:1px solid var(--line); border-radius:12px; overflow:hidden;">
+          <summary style="cursor:pointer; padding:14px 18px; font-weight:700; font-family:'Noto Serif Armenian',serif; background:var(--card); list-style:none; display:flex; align-items:center; gap:8px;">
+            📅 Ուսումնական տարի ${academicYearLabel(y)} <span class="helper" style="font-weight:400;">(${list.length} գիծ)</span>${y === thisYear ? ' <span class="status-pill">ընթացիկ</span>' : ""}
+          </summary>
+          <div class="table-wrap" style="border:none; border-radius:0; border-top:1px solid var(--line);">
+            <table>
+              <thead><tr><th>Ամսաթիվ</th><th>Անվանում (ՀԱՅ)</th><th>Titel (NL)</th><th>Title (EN)</th><th></th></tr></thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        </details>`;
+    }).join("");
+
+    wrap.querySelectorAll("[data-delyc]").forEach(b=>{
       b.addEventListener("click", async ()=>{
         if (!confirm("Ջնջե՞լ այս գիծը տարեկան օրացույցից։")) return;
         await supabase.from("yearly_events").delete().eq("id", b.dataset.delyc);
         loadYearCalAdmin();
       });
     });
-    body.querySelectorAll("[data-edityc]").forEach(b=>{
+    wrap.querySelectorAll("[data-edityc]").forEach(b=>{
       b.addEventListener("click", async ()=>{
         const rows2 = await fetchYearCalEntries();
         const row = rows2.find(r=>r.id === b.dataset.edityc);
@@ -1469,7 +1510,7 @@ async function loadYearCalAdmin(){
       });
     });
   }catch(err){
-    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
+    wrap.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
   }
 }
 
