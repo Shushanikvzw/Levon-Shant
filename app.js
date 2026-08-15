@@ -1191,29 +1191,39 @@ function applyContactInfo(){
   const ig = contentOverrides.contactInstagram?.hy;
   const blog = contentOverrides.contactBlog?.hy;
 
+  const addressesAreDistinct = addr && parkingAddr && addr.trim().toLowerCase() !== parkingAddr.trim().toLowerCase();
+
   if (addr){
     document.getElementById("contactAddressVal")?.replaceChildren(document.createTextNode(addr));
     document.getElementById("footerAddressVal")?.replaceChildren(document.createTextNode(addr));
     const schoolNavLink = document.getElementById("navToSchoolLink");
     if (schoolNavLink) schoolNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`;
   }
-  if (parkingAddr){
+  const parkingItem = document.getElementById("contactParkingItem");
+  const parkingNavLink = document.getElementById("navToParkingLink");
+  if (addressesAreDistinct){
     document.getElementById("contactParkingVal")?.replaceChildren(document.createTextNode(parkingAddr));
-    const item = document.getElementById("contactParkingItem");
-    if (item) item.style.display = "";
-    const parkingNavLink = document.getElementById("navToParkingLink");
+    if (parkingItem) parkingItem.style.display = "";
     if (parkingNavLink){
       parkingNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(parkingAddr)}`;
       parkingNavLink.style.display = "";
     }
+  } else {
+    // No parking address set, or it's the same as the school's own address —
+    // either way there's nothing distinct to show, so hide the parking line
+    // and button rather than display a redundant duplicate of the school address.
+    if (parkingItem) parkingItem.style.display = "none";
+    if (parkingNavLink) parkingNavLink.style.display = "none";
   }
-  // One map showing both points: when a parking address is set, use Google's
-  // free directions embed (start=parking, end=school) — no API key needed,
-  // and it plots both locations with a route between them on a single map.
+  // One map showing both points: when a *distinct* parking address is set, use
+  // Google's free directions embed (start=parking, end=school) — no API key
+  // needed, and it plots both locations with a route between them on a single
+  // map. Two identical addresses would make Google fail to compute a route and
+  // fall back to a broken, zoomed-out world view, so that case is excluded.
   const mapFrame = document.getElementById("contactMapFrame");
   const legendBadge = document.getElementById("mapLegendBadge");
   if (mapFrame && addr){
-    if (parkingAddr){
+    if (addressesAreDistinct){
       mapFrame.src = `https://maps.google.com/maps?saddr=${encodeURIComponent(parkingAddr)}&daddr=${encodeURIComponent(addr)}&z=15&output=embed`;
       if (legendBadge) legendBadge.style.display = "";
     } else {
