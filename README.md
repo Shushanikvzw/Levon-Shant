@@ -59,6 +59,8 @@ supabase/migrations/0012_event_registrations.sql  adds optional attendance regis
                                           for events (name, phone, address, email)
 supabase/migrations/0013_event_registration_limit.sql  adds an optional capacity limit
                                           for event registration, enforced server-side
+supabase/migrations/0014_class_assignments.sql  adds the ability to assign registered
+                                          students to specific schedule slots
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -130,8 +132,10 @@ all succeeded).
     → **Run**. Adds optional attendance registration for events.
 14. New query again → paste `supabase/migrations/0013_event_registration_limit.sql`
     → **Run**. Adds an optional capacity limit for event registration.
+15. New query again → paste `supabase/migrations/0014_class_assignments.sql` → **Run**.
+    Adds the ability to assign registered students to specific schedule slots.
 
-All thirteen files are safe to re-run if needed.
+All fourteen files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -247,6 +251,30 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: registration summary, and building the schedule directly from
+  registrations.** Two things landed together for this:
+  - **"📊 Ամփոփում"** (a new tab next to Registrations) shows total registered, split
+    into children/adults, plus every course with a live count — click any course to
+    expand the full list of who's registered for it, with contact info.
+  - **"👥 Ուսանողներ"** — a new button on every row in the "🗓️ Դասացուցակ" tab — opens
+    that class's roster: everyone currently assigned, and a dropdown to add any
+    registrant who hasn't been assigned to that slot yet. Registrants whose chosen
+    course roughly matches this schedule entry's name are starred (⭐) and sorted to
+    the top, but the full list is always there too, since the registration form's
+    course names don't always match the schedule's more specific ones one-to-one
+    (e.g. a "Մայրենի" registration could go into "Մայրենի 1", "2", "3", or "4" — admin
+    decides). This turns building the class list from new registrations into a
+    click-through instead of manually cross-referencing spreadsheets.
+
+- **Basic SEO groundwork is now in place**: Open Graph/Twitter tags (so shared links
+  show a proper title/description on Facebook, WhatsApp, etc.), a canonical URL,
+  `robots.txt`, `sitemap.xml`, and structured data (`School` schema with the real
+  address) so Google understands what the site is and can show it correctly in local
+  search. If the live domain ends up being something other than
+  `levonshantschool.be`, update that URL in `index.html`'s `<head>`, `robots.txt`, and
+  `sitemap.xml` to match. Code alone doesn't make Google find the site, though — see
+  the setup walkthrough for the remaining steps (Search Console, etc.).
 
 - **The admin's yearly calendar list is now grouped by academic year.** Previously
   every entry across every year sat in one long flat table, making it hard to find

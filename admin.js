@@ -546,6 +546,14 @@ document.getElementById("exportEventRegBtn")?.addEventListener("click", (e)=>{
 // ---------------------------------------------------------
 // Registrations (admin only, read + delete)
 // ---------------------------------------------------------
+// Every course offered across both the child and adult registration forms.
+const ALL_COURSES = [
+  "Նախադպրոցական", "Այբբենարան", "Մայրենի", "Գրականություն", "Ես և շրջակա միջավայրը",
+  "Հայրենագիտություն", "Պատմություն", "Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար",
+  "Ժողովրդական պար", "Ավանդական երգ ու պար", "Դաշնամուր", "Շախմատ",
+  "Տառաուսուցում", "Հայերենը որպես երկրորդ լեզու"
+];
+
 let registrationsCache = [];
 
 async function loadRegistrations(){
@@ -574,9 +582,58 @@ async function loadRegistrations(){
         <td>${submitted}</td>
       </tr>`;
     }).join("") : `<tr><td colspan="6">Դեռ գրանցումներ չկան։</td></tr>`;
+    renderRegistrationSummary();
   }catch(err){
     body.innerHTML = `<tr><td colspan="6">Սխալ՝ ${err.message}</td></tr>`;
   }
+}
+
+function registrantDisplayName(r){
+  return r.type === "child" ? (r.child_name || "") : (r.name || "");
+}
+function registrantContact(r){
+  return r.type === "child"
+    ? [r.mother, r.father].filter(Boolean).join(" / ")
+    : [r.phone, r.email].filter(Boolean).join(" / ");
+}
+
+function renderRegistrationSummary(){
+  const totalsWrap = document.getElementById("regSummaryTotals");
+  const coursesWrap = document.getElementById("regSummaryCourses");
+  if (!totalsWrap || !coursesWrap) return;
+
+  const children = registrationsCache.filter(r=>r.type === "child");
+  const adults = registrationsCache.filter(r=>r.type === "adult");
+
+  totalsWrap.innerHTML = `
+    <div class="reg-summary-card"><div class="num">${registrationsCache.length}</div><div class="label">Ընդհանուր գրանցում</div></div>
+    <div class="reg-summary-card"><div class="num">${children.length}</div><div class="label">Երեխա</div></div>
+    <div class="reg-summary-card"><div class="num">${adults.length}</div><div class="label">Մեծահասակ</div></div>
+  `;
+
+  coursesWrap.innerHTML = ALL_COURSES.map((course, i)=>{
+    const registrants = registrationsCache.filter(r => (r.courses||[]).includes(course));
+    const listHtml = registrants.length ? registrants.map(r=>`
+      <div style="display:flex; justify-content:space-between; gap:14px; padding:6px 0; border-bottom:1px dashed var(--line);">
+        <span><strong>${escapeHtml(registrantDisplayName(r))}</strong> <span class="helper">(${r.type === "child" ? "երեխա" : "մեծահասակ"})</span></span>
+        <span class="helper">${escapeHtml(registrantContact(r))}</span>
+      </div>`).join("") : `<p class="helper">Դեռ ոչ ոք չի գրանցվել այս դասընթացի համար։</p>`;
+    return `
+      <div class="course-summary-group">
+        <div class="course-summary-row" data-coursetoggle="${i}">
+          <span>${escapeHtml(course)}</span>
+          <span class="count-badge">${registrants.length}</span>
+        </div>
+        <div class="course-summary-list" id="courseList${i}">${listHtml}</div>
+      </div>`;
+  }).join("");
+
+  coursesWrap.querySelectorAll("[data-coursetoggle]").forEach(row=>{
+    row.addEventListener("click", ()=>{
+      row.classList.toggle("open");
+      document.getElementById(`courseList${row.dataset.coursetoggle}`)?.classList.toggle("open");
+    });
+  });
 }
 
 document.getElementById("exportRegBtn")?.addEventListener("click", ()=>{
@@ -591,14 +648,6 @@ document.getElementById("exportRegBtn")?.addEventListener("click", ()=>{
     msg.classList.add("show","err"); return;
   }
   try{
-    // Every course offered across both the child and adult registration forms —
-    // each becomes its own column, so it's easy to scan who's signed up for what.
-    const ALL_COURSES = [
-      "Նախադպրոցական", "Այբբենարան", "Մայրենի", "Գրականություն", "Ես և շրջակա միջավայրը",
-      "Հայրենագիտություն", "Պատմություն", "Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար",
-      "Ժողովրդական պար", "Ավանդական երգ ու պար", "Դաշնամուր", "Շախմատ",
-      "Տառաուսուցում", "Հայերենը որպես երկրորդ լեզու"
-    ];
     const rows = registrationsCache.map(r=>{
       const isChild = r.type === "child";
       const selected = new Set(r.courses || []);
@@ -1181,9 +1230,10 @@ async function loadScheduleAdmin(){
         <td>${escapeHtml(r.courseEn||"")}</td>
         <td>${escapeHtml(r.teacher||"")}</td>
         <td>${escapeHtml(r.teacherLatin||"")}</td>
-        <td style="display:flex; gap:6px;">
+        <td style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn ghost small" data-editsched="${r.id}">Խմբագրել</button>
           <button class="btn danger small" data-delsched="${r.id}">Ջնջել</button>
+          <button class="btn blue small" data-roster="${r.id}" data-rostercourse="${escapeHtml(r.course||"")}" data-rostertime="${timeLabel(r.start)}–${timeLabel(r.end)}">👥 Ուսանողներ</button>
         </td>
       </tr>`).join("") : `<tr><td colspan="8">Դասացուցակը դատարկ է։</td></tr>`;
     body.querySelectorAll("[data-toggleactive]").forEach(cb=>{
@@ -1191,6 +1241,9 @@ async function loadScheduleAdmin(){
         await supabase.from("schedule").update({ active: cb.checked }).eq("id", cb.dataset.toggleactive);
         loadScheduleAdmin();
       });
+    });
+    body.querySelectorAll("[data-roster]").forEach(b=>{
+      b.addEventListener("click", ()=> viewClassRoster(b.dataset.roster, b.dataset.rostercourse, b.dataset.rostertime));
     });
     body.querySelectorAll("[data-delsched]").forEach(b=>{
       b.addEventListener("click", async ()=>{
@@ -1220,6 +1273,115 @@ async function loadScheduleAdmin(){
     body.innerHTML = `<tr><td colspan="8">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
+
+// ---------------------------------------------------------
+// Class roster — assign registered students to a schedule slot,
+// so the class list can be built directly from registrations.
+// ---------------------------------------------------------
+// Simple bidirectional substring match: lets "Մայրենի 1" (a schedule
+// entry) suggest registrants who picked "Մայրենի" (the registration
+// form's broader course name), without needing an exact match.
+function courseNamesLikelyMatch(scheduleCourse, regCourse){
+  if (!scheduleCourse || !regCourse) return false;
+  const a = scheduleCourse.trim().toLowerCase();
+  const b = regCourse.trim().toLowerCase();
+  return a.includes(b) || b.includes(a);
+}
+
+let currentRosterScheduleId = null;
+
+async function viewClassRoster(scheduleId, courseName, timeLabelStr){
+  const panel = document.getElementById("classRosterPanel");
+  const titleEl = document.getElementById("classRosterTitle");
+  if (!panel) return;
+  currentRosterScheduleId = scheduleId;
+  panel.style.display = "";
+  titleEl.textContent = `👥 ${courseName} (${timeLabelStr})`;
+  panel.scrollIntoView({ behavior:"smooth", block:"start" });
+  await refreshClassRoster(courseName);
+}
+
+async function refreshClassRoster(courseName){
+  const body = document.getElementById("classRosterBody");
+  const select = document.getElementById("classRosterAddSelect");
+  if (!body || !currentRosterScheduleId) return;
+  body.innerHTML = `<tr><td colspan="4">Բեռնվում է…</td></tr>`;
+  try{
+    const { data: assignments, error } = await supabase
+      .from("class_assignments")
+      .select("*, registrations(*)")
+      .eq("schedule_id", currentRosterScheduleId);
+    if (error) throw error;
+
+    const assigned = assignments || [];
+    body.innerHTML = assigned.length ? assigned.map(a=>{
+      const r = a.registrations;
+      if (!r) return "";
+      return `<tr>
+        <td>${escapeHtml(registrantDisplayName(r))}</td>
+        <td>${r.type === "child" ? "Երեխա" : "Մեծահասակ"}</td>
+        <td>${escapeHtml(registrantContact(r))}</td>
+        <td><button class="btn danger small" data-removeassign="${a.id}">Հեռացնել</button></td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="4">Դեռ ոչ ոք նշանակված չէ այս դասին։</td></tr>`;
+
+    body.querySelectorAll("[data-removeassign]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        await supabase.from("class_assignments").delete().eq("id", b.dataset.removeassign);
+        refreshClassRoster(courseName);
+      });
+    });
+
+    // Build the "add student" dropdown: every registrant not already
+    // assigned to this exact schedule slot, with course-matching ones
+    // starred and sorted first for convenience.
+    const assignedRegIds = new Set(assigned.map(a=>a.registration_id));
+    const allRegs = registrationsCache.length ? registrationsCache : await (async ()=>{
+      const { data } = await supabase.from("registrations").select("*").order("submitted_at", { ascending:false });
+      return data || [];
+    })();
+    const candidates = allRegs.filter(r=>!assignedRegIds.has(r.id));
+    candidates.sort((a,b)=>{
+      const aMatch = (a.courses||[]).some(c=>courseNamesLikelyMatch(courseName, c));
+      const bMatch = (b.courses||[]).some(c=>courseNamesLikelyMatch(courseName, c));
+      return (bMatch - aMatch);
+    });
+    select.innerHTML = candidates.length
+      ? candidates.map(r=>{
+          const isMatch = (r.courses||[]).some(c=>courseNamesLikelyMatch(courseName, c));
+          const label = `${isMatch ? "⭐ " : ""}${registrantDisplayName(r)} (${r.type === "child" ? "երեխա" : "մեծահասակ"})`;
+          return `<option value="${r.id}">${escapeHtml(label)}</option>`;
+        }).join("")
+      : `<option value="">Բոլորն արդեն նշանակված են</option>`;
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="4">Սխալ՝ ${err.message}</td></tr>`;
+  }
+}
+
+document.getElementById("closeClassRosterPanel")?.addEventListener("click", ()=>{
+  document.getElementById("classRosterPanel").style.display = "none";
+  currentRosterScheduleId = null;
+});
+
+document.getElementById("classRosterAddBtn")?.addEventListener("click", async ()=>{
+  const msg = document.getElementById("classRosterMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  const select = document.getElementById("classRosterAddSelect");
+  const registrationId = select.value;
+  if (!registrationId || !currentRosterScheduleId) return;
+  try{
+    const { error } = await supabase.from("class_assignments").insert({
+      registration_id: registrationId,
+      schedule_id: currentRosterScheduleId
+    });
+    if (error) throw error;
+    msg.textContent = "Ավելացվեց ✔"; msg.classList.add("show","ok");
+    const courseName = document.getElementById("classRosterTitle").textContent.replace(/^👥\s*/, "").split(" (")[0];
+    refreshClassRoster(courseName);
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
 
 // ---------------------------------------------------------
 // Cancel classes on a specific Saturday (holiday/break, etc.)

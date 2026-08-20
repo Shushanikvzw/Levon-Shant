@@ -561,6 +561,25 @@ footer.site a:hover{color:var(--apricot);}
 .year-group[open] summary::before{transform:rotate(90deg);}
 .year-group summary:hover{background:var(--paper-dim);}
 
+.reg-summary-totals{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:10px;}
+.reg-summary-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 24px; min-width:160px; box-shadow:var(--shadow);}
+.reg-summary-card .num{font-family:'Noto Serif Armenian',serif; font-size:2rem; font-weight:700; color:var(--blue); line-height:1;}
+.reg-summary-card .label{font-size:.85rem; color:var(--ink-soft); margin-top:6px;}
+
+.course-summary-row{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:14px 18px; margin-bottom:0; cursor:pointer; transition:background .15s ease;
+}
+.course-summary-row:hover{background:var(--paper-dim);}
+.course-summary-row .count-badge{background:var(--apricot); color:#2A1706; font-weight:700; padding:5px 14px; border-radius:999px; font-size:.85rem; flex:none;}
+.course-summary-row::after{content:"▾"; color:var(--ink-soft); margin-left:6px;}
+.course-summary-row.open::after{content:"▴";}
+.course-summary-list{display:none; margin:0 0 8px; padding:12px 18px; background:var(--paper-dim); border-radius:0 0 12px 12px; border:1px solid var(--line); border-top:none;}
+.course-summary-list.open{display:block;}
+.course-summary-list .helper{margin:0;}
+.course-summary-group{margin-bottom:16px;}
+
 .content-section-head{
   font-family:'Noto Serif Armenian',serif; font-size:1.05rem; color:var(--blue);
   margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid var(--gold);

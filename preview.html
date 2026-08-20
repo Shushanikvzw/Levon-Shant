@@ -5,6 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Լևոն Շանթի անվան շաբաթօրյա դպրոց — Մեխելեն, Բելգիա</title>
 <meta name="description" content="Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց, Մեխելեն, Բելգիա. Nijverheidsstraat 45, 2800 Mechelen.">
+<link rel="canonical" href="https://levonshantschool.be/">
+
+<!-- Open Graph / social sharing preview (Facebook, WhatsApp, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Լևոն Շանթի անվան շաբաթօրյա դպրոց">
+<meta property="og:title" content="Լևոն Շանթի անվան շաբաթօրյա դպրոց — Մեխելեն, Բելգիա">
+<meta property="og:description" content="Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց, Մեխելեն, Բելգիա. Nijverheidsstraat 45, 2800 Mechelen.">
+<meta property="og:url" content="https://levonshantschool.be/">
+<meta property="og:locale" content="hy_AM">
+<meta property="og:locale:alternate" content="nl_BE">
+<meta property="og:locale:alternate" content="en_US">
+
+<!-- Twitter/X card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Լևոն Շանթի անվան շաբաթօրյա դպրոց — Մեխելեն, Բելգիա">
+<meta name="twitter:description" content="Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց, Մեխելեն, Բելգիա. Nijverheidsstraat 45, 2800 Mechelen.">
+
+<!-- Structured data: tells Google this is a school, with its real address,
+     which helps it show up correctly in local search and Google Maps. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "School",
+  "name": "Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց",
+  "alternateName": "Hamazkayin Levon Shant Saturday School",
+  "url": "https://levonshantschool.be/",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Nijverheidsstraat 45",
+    "postalCode": "2800",
+    "addressLocality": "Mechelen",
+    "addressCountry": "BE"
+  },
+  "email": "levon.shant.dproc@gmail.com",
+  "telephone": "+32 487 53 40 61",
+  "sameAs": [
+    "https://www.facebook.com/groups/1419295908284023",
+    "https://armeniandiasporaschool.wordpress.com/"
+  ]
+}
+</script>
+
 <style>
 /* =========================================================
    Լևոն Շանթ շաբաթօրյա դպրոց — visual identity (v2, "educative")
@@ -568,6 +610,25 @@ footer.site a:hover{color:var(--apricot);}
 .year-group summary::before{content:"▸"; display:inline-block; transition:transform .15s ease; color:var(--ink-soft); margin-right:2px;}
 .year-group[open] summary::before{transform:rotate(90deg);}
 .year-group summary:hover{background:var(--paper-dim);}
+
+.reg-summary-totals{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:10px;}
+.reg-summary-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 24px; min-width:160px; box-shadow:var(--shadow);}
+.reg-summary-card .num{font-family:'Noto Serif Armenian',serif; font-size:2rem; font-weight:700; color:var(--blue); line-height:1;}
+.reg-summary-card .label{font-size:.85rem; color:var(--ink-soft); margin-top:6px;}
+
+.course-summary-row{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:14px 18px; margin-bottom:0; cursor:pointer; transition:background .15s ease;
+}
+.course-summary-row:hover{background:var(--paper-dim);}
+.course-summary-row .count-badge{background:var(--apricot); color:#2A1706; font-weight:700; padding:5px 14px; border-radius:999px; font-size:.85rem; flex:none;}
+.course-summary-row::after{content:"▾"; color:var(--ink-soft); margin-left:6px;}
+.course-summary-row.open::after{content:"▴";}
+.course-summary-list{display:none; margin:0 0 8px; padding:12px 18px; background:var(--paper-dim); border-radius:0 0 12px 12px; border:1px solid var(--line); border-top:none;}
+.course-summary-list.open{display:block;}
+.course-summary-list .helper{margin:0;}
+.course-summary-group{margin-bottom:16px;}
 
 .content-section-head{
   font-family:'Noto Serif Armenian',serif; font-size:1.05rem; color:var(--blue);

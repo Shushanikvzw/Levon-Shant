@@ -127,6 +127,7 @@
     <div data-admin-only="1">
       <div class="sidebar-group-label">Կառավարում</div>
       <div class="sidebar-group">
+        <button class="sidebar-link" data-panel="panel-regsummary" data-title="📊 Գրանցումների ամփոփում" data-admin-only="1">📊 Ամփոփում</button>
         <button class="sidebar-link" data-panel="panel-reg" data-title="📋 Գրանցումներ" data-admin-only="1">📋 Գրանցումներ</button>
         <button class="sidebar-link" data-panel="panel-users" data-title="👤 Հաշիվներ" data-admin-only="1">👤 Հաշիվներ</button>
         <button class="sidebar-link" data-panel="panel-content" data-title="📝 Կայքի բովանդակություն" data-admin-only="1">📝 Կայքի բովանդակություն</button>
@@ -214,6 +215,28 @@
             <thead><tr><th>Ցուցադրել</th><th>Ժամ</th><th>Դասընթաց (ՀԱՅ)</th><th>Vak (NL)</th><th>Class (EN)</th><th>Ուսուցիչ (ՀԱՅ)</th><th>Teacher (Latin)</th><th></th></tr></thead>
             <tbody id="scheduleAdminBody"><tr><td colspan="8">Բեռնվում է…</td></tr></tbody>
           </table>
+        </div>
+
+        <div id="classRosterPanel" style="display:none; margin-top:24px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+            <h3 id="classRosterTitle" style="margin:0;"></h3>
+            <button class="btn ghost small" id="closeClassRosterPanel">✕ Փակել</button>
+          </div>
+          <div class="table-wrap" style="margin-bottom:16px;">
+            <table>
+              <thead><tr><th>Անուն</th><th>Տեսակ</th><th>Կապ</th><th></th></tr></thead>
+              <tbody id="classRosterBody"></tbody>
+            </table>
+          </div>
+          <div class="field-row" style="align-items:flex-end;">
+            <div class="field">
+              <label for="classRosterAddSelect">➕ Ավելացնել գրանցված ուսանող այս դասին</label>
+              <select id="classRosterAddSelect"></select>
+            </div>
+            <button class="btn blue" type="button" id="classRosterAddBtn" style="height:44px;">Ավելացնել</button>
+          </div>
+          <p class="helper" style="margin-top:8px;">⭐ նշված ուսանողները գրանցվել են այս դասընթացին մոտ անվանմամբ մի դասընթացի համար։ Ցանկը ներառում է բոլոր դեռ չնշանակված գրանցվածներին։</p>
+          <div class="form-msg" id="classRosterMsg"></div>
         </div>
 
         <h3 style="margin-top:32px;">🚫 Չեղարկել դասերը որոշակի շաբաթ օրով</h3>
@@ -338,6 +361,14 @@
             </table>
           </div>
         </div>
+      </div>
+
+      <!-- Registration summary (admin only) -->
+      <div class="dash-panel" id="panel-regsummary">
+        <div class="banner warn">📊 Ընդհանուր վիճակագրություն և ըստ դասընթացի բաժանում՝ գրանցումների հիման վրա։ Սեղմեք ցանկացած դասընթացի վրա՝ ցուցակը տեսնելու համար։</div>
+        <div id="regSummaryTotals" class="reg-summary-totals"></div>
+        <h3 style="margin-top:28px;">Ըստ դասընթացի</h3>
+        <div id="regSummaryCourses"></div>
       </div>
 
       <!-- Registrations (admin only) -->
