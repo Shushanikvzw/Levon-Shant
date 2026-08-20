@@ -257,15 +257,17 @@ auto-deploys on every push, if you'd prefer either of those instead.
   - **"📊 Ամփոփում"** (a new tab next to Registrations) shows total registered, split
     into children/adults, plus every course with a live count — click any course to
     expand the full list of who's registered for it, with contact info.
-  - **"👥 Ուսանողներ"** — a new button on every row in the "🗓️ Դասացուցակ" tab — opens
-    that class's roster: everyone currently assigned, and a dropdown to add any
-    registrant who hasn't been assigned to that slot yet. Registrants whose chosen
-    course roughly matches this schedule entry's name are starred (⭐) and sorted to
-    the top, but the full list is always there too, since the registration form's
-    course names don't always match the schedule's more specific ones one-to-one
-    (e.g. a "Մայրենի" registration could go into "Մայրենի 1", "2", "3", or "4" — admin
-    decides). This turns building the class list from new registrations into a
-    click-through instead of manually cross-referencing spreadsheets.
+  - **"👥 Դասարանների ուսանողներ"** — its own dedicated tab (moved here after it was
+    initially a button buried in the far-right column of a wide table, which was hard
+    to find and reach) — pick a class time from the dropdown to see everyone currently
+    assigned to it, and a second dropdown to add any registrant who isn't assigned to
+    that slot yet. Registrants whose chosen course roughly matches this schedule
+    entry's name are starred (⭐) and sorted to the top, but the full list is always
+    there too, since the registration form's course names don't always match the
+    schedule's more specific ones one-to-one (e.g. a "Մայրենի" registration could go
+    into "Մայրենի 1", "2", "3", or "4" — admin decides). This turns building the class
+    list from new registrations into a click-through instead of manually
+    cross-referencing spreadsheets.
 
 - **Basic SEO groundwork is now in place**: Open Graph/Twitter tags (so shared links
   show a proper title/description on Facebook, WhatsApp, etc.), a canonical URL,

@@ -164,7 +164,7 @@ function renderDashboard(){
   loadCancellationsAdmin();
   loadStaffAdmin();
   loadYearCalAdmin();
-  if (currentRole === "admin"){ loadRegistrations(); loadUsers(); renderContentForm(); loadContactInfoForm(); loadNewSectionsAdmin(); }
+  if (currentRole === "admin"){ loadRegistrations(); loadUsers(); renderContentForm(); loadContactInfoForm(); loadNewSectionsAdmin(); loadClassRosterTab(); }
 }
 
 // ---------------------------------------------------------
@@ -1201,7 +1201,7 @@ document.getElementById("scheduleForm")?.addEventListener("submit", async (e)=>{
     }
     msg.classList.add("show","ok");
     e.target.reset();
-    loadScheduleAdmin();
+    loadScheduleAdmin(); loadClassRosterTab();
   }catch(err){
     msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
   }
@@ -1233,23 +1233,19 @@ async function loadScheduleAdmin(){
         <td style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn ghost small" data-editsched="${r.id}">Խմբագրել</button>
           <button class="btn danger small" data-delsched="${r.id}">Ջնջել</button>
-          <button class="btn blue small" data-roster="${r.id}" data-rostercourse="${escapeHtml(r.course||"")}" data-rostertime="${timeLabel(r.start)}–${timeLabel(r.end)}">👥 Ուսանողներ</button>
         </td>
       </tr>`).join("") : `<tr><td colspan="8">Դասացուցակը դատարկ է։</td></tr>`;
     body.querySelectorAll("[data-toggleactive]").forEach(cb=>{
       cb.addEventListener("change", async ()=>{
         await supabase.from("schedule").update({ active: cb.checked }).eq("id", cb.dataset.toggleactive);
-        loadScheduleAdmin();
+        loadScheduleAdmin(); loadClassRosterTab();
       });
-    });
-    body.querySelectorAll("[data-roster]").forEach(b=>{
-      b.addEventListener("click", ()=> viewClassRoster(b.dataset.roster, b.dataset.rostercourse, b.dataset.rostertime));
     });
     body.querySelectorAll("[data-delsched]").forEach(b=>{
       b.addEventListener("click", async ()=>{
         if (!confirm("Ջնջե՞լ այս գիծը դասացուցակից։")) return;
         await supabase.from("schedule").delete().eq("id", b.dataset.delsched);
-        loadScheduleAdmin();
+        loadScheduleAdmin(); loadClassRosterTab();
       });
     });
     body.querySelectorAll("[data-editsched]").forEach(b=>{
@@ -1289,15 +1285,52 @@ function courseNamesLikelyMatch(scheduleCourse, regCourse){
 }
 
 let currentRosterScheduleId = null;
+let currentRosterCourseName = null;
+
+async function loadClassRosterTab(){
+  const select = document.getElementById("classRosterScheduleSelect");
+  const emptyHint = document.getElementById("classRosterEmptyHint");
+  const content = document.getElementById("classRosterContent");
+  if (!select) return;
+  try{
+    const rows = await fetchSchedule();
+    if (!rows.length){
+      select.innerHTML = "";
+      if (emptyHint) emptyHint.style.display = "";
+      if (content) content.style.display = "none";
+      return;
+    }
+    select.innerHTML = `<option value="">— ընտրեք ժամը —</option>` + rows.map(r=>
+      `<option value="${r.id}" data-course="${escapeHtml(r.course||"")}" data-time="${timeLabel(r.start)}–${timeLabel(r.end)}">${timeLabel(r.start)}–${timeLabel(r.end)} — ${escapeHtml(r.course||"")}${r.teacher ? " ("+escapeHtml(r.teacher)+")" : ""}</option>`
+    ).join("");
+  }catch(err){
+    console.warn("Could not load schedule for class roster tab:", err.message);
+  }
+}
+
+document.getElementById("classRosterScheduleSelect")?.addEventListener("change", (e)=>{
+  const opt = e.target.selectedOptions[0];
+  const content = document.getElementById("classRosterContent");
+  const emptyHint = document.getElementById("classRosterEmptyHint");
+  if (!opt || !opt.value){
+    currentRosterScheduleId = null;
+    if (content) content.style.display = "none";
+    if (emptyHint) emptyHint.style.display = "";
+    return;
+  }
+  viewClassRoster(opt.value, opt.dataset.course, opt.dataset.time);
+});
 
 async function viewClassRoster(scheduleId, courseName, timeLabelStr){
-  const panel = document.getElementById("classRosterPanel");
+  const content = document.getElementById("classRosterContent");
+  const emptyHint = document.getElementById("classRosterEmptyHint");
   const titleEl = document.getElementById("classRosterTitle");
-  if (!panel) return;
+  if (!content) return;
   currentRosterScheduleId = scheduleId;
-  panel.style.display = "";
+  currentRosterCourseName = courseName;
+  content.style.display = "";
+  if (emptyHint) emptyHint.style.display = "none";
   titleEl.textContent = `👥 ${courseName} (${timeLabelStr})`;
-  panel.scrollIntoView({ behavior:"smooth", block:"start" });
   await refreshClassRoster(courseName);
 }
 
@@ -1358,11 +1391,6 @@ async function refreshClassRoster(courseName){
   }
 }
 
-document.getElementById("closeClassRosterPanel")?.addEventListener("click", ()=>{
-  document.getElementById("classRosterPanel").style.display = "none";
-  currentRosterScheduleId = null;
-});
-
 document.getElementById("classRosterAddBtn")?.addEventListener("click", async ()=>{
   const msg = document.getElementById("classRosterMsg");
   msg.className = "form-msg"; msg.textContent = "";
@@ -1376,8 +1404,7 @@ document.getElementById("classRosterAddBtn")?.addEventListener("click", async ()
     });
     if (error) throw error;
     msg.textContent = "Ավելացվեց ✔"; msg.classList.add("show","ok");
-    const courseName = document.getElementById("classRosterTitle").textContent.replace(/^👥\s*/, "").split(" (")[0];
-    refreshClassRoster(courseName);
+    refreshClassRoster(currentRosterCourseName);
   }catch(err){
     msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
   }
