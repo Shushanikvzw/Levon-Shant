@@ -252,6 +252,18 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Admin tables no longer need much horizontal scrolling.** The Schedule, Staff, and
+  Yearly Calendar tables used to show Armenian/Dutch/English as three separate
+  columns each, which pushed the tables far wider than most screens — you'd have to
+  scroll right just to reach the Edit/Delete buttons. Those tables now show only the
+  Armenian text directly, with a small 🌐 (or 🔤 for Latin names) icon next to it —
+  hover over it to see the other language(s) without needing separate columns. Nothing
+  was removed: for Schedule and Yearly Calendar, the full trilingual detail is still
+  there and editable via the "Խմբագրել" (Edit) button, exactly as before; for Staff
+  specifically (which has no edit form, only add/delete), the hover tooltip is the only
+  way to see the Latin name and other-language roles, so that data stays visible even
+  without a dedicated column.
+
 - **New: registration summary, and building the schedule directly from
   registrations.** Two things landed together for this:
   - **"📊 Ամփոփում"** (a new tab next to Registrations) shows total registered, split

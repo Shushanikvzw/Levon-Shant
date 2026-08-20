@@ -1225,16 +1225,13 @@ async function loadScheduleAdmin(){
           <span class="helper">${r.active !== false ? "Ցուցադրվում է" : "Թաքցված է"}</span>
         </label></td>
         <td>${timeLabel(r.start)}–${timeLabel(r.end)}</td>
-        <td>${escapeHtml(r.course||"")}</td>
-        <td>${escapeHtml(r.courseNl||"")}</td>
-        <td>${escapeHtml(r.courseEn||"")}</td>
-        <td>${escapeHtml(r.teacher||"")}</td>
-        <td>${escapeHtml(r.teacherLatin||"")}</td>
+        <td>${escapeHtml(r.course||"")}${(r.courseNl || r.courseEn) ? ` <span class="helper" title="NL: ${escapeHtml(r.courseNl||"—")} · EN: ${escapeHtml(r.courseEn||"—")}">🌐</span>` : ""}</td>
+        <td>${escapeHtml(r.teacher||"")}${r.teacherLatin ? ` <span class="helper" title="${escapeHtml(r.teacherLatin)}">🔤</span>` : ""}</td>
         <td style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn ghost small" data-editsched="${r.id}">Խմբագրել</button>
           <button class="btn danger small" data-delsched="${r.id}">Ջնջել</button>
         </td>
-      </tr>`).join("") : `<tr><td colspan="8">Դասացուցակը դատարկ է։</td></tr>`;
+      </tr>`).join("") : `<tr><td colspan="5">Դասացուցակը դատարկ է։</td></tr>`;
     body.querySelectorAll("[data-toggleactive]").forEach(cb=>{
       cb.addEventListener("change", async ()=>{
         await supabase.from("schedule").update({ active: cb.checked }).eq("id", cb.dataset.toggleactive);
@@ -1266,7 +1263,7 @@ async function loadScheduleAdmin(){
       });
     });
   }catch(err){
-    body.innerHTML = `<tr><td colspan="8">Սխալ՝ ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
 
@@ -1523,13 +1520,10 @@ async function loadStaffAdmin(){
     const rows = await fetchStaff();
     body.innerHTML = rows.length ? rows.map(t=>`
       <tr>
-        <td>${escapeHtml(t.name||"")}</td>
-        <td>${escapeHtml(t.nameLatin||"")}</td>
-        <td>${escapeHtml(t.role||"")}</td>
-        <td>${escapeHtml(t.roleNl||"")}</td>
-        <td>${escapeHtml(t.roleEn||"")}</td>
+        <td>${escapeHtml(t.name||"")}${t.nameLatin ? ` <span class="helper" title="${escapeHtml(t.nameLatin)}">🔤</span>` : ""}</td>
+        <td>${escapeHtml(t.role||"")}${(t.roleNl || t.roleEn) ? ` <span class="helper" title="NL: ${escapeHtml(t.roleNl||"—")} · EN: ${escapeHtml(t.roleEn||"—")}">🌐</span>` : ""}</td>
         <td><button class="btn danger small" data-delstaff="${t.id}">Ջնջել</button></td>
-      </tr>`).join("") : `<tr><td colspan="6">Անձնակազմի ցանկը դատարկ է։</td></tr>`;
+      </tr>`).join("") : `<tr><td colspan="3">Անձնակազմի ցանկը դատարկ է։</td></tr>`;
     body.querySelectorAll("[data-delstaff]").forEach(b=>{
       b.addEventListener("click", async ()=>{
         if (!confirm("Ջնջե՞լ այս անձնակազմի անդամին։")) return;
@@ -1538,7 +1532,7 @@ async function loadStaffAdmin(){
       });
     });
   }catch(err){
-    body.innerHTML = `<tr><td colspan="6">Սխալ՝ ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="3">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
 
@@ -1659,9 +1653,7 @@ async function loadYearCalAdmin(){
       const rowsHtml = list.map(r=>`
         <tr>
           <td>${formatDateRange(r.start, r.end)}</td>
-          <td>${escapeHtml(r.labelHy||"")}</td>
-          <td>${escapeHtml(r.labelNl||"")}</td>
-          <td>${escapeHtml(r.labelEn||"")}</td>
+          <td>${escapeHtml(r.labelHy||"")}${(r.labelNl || r.labelEn) ? ` <span class="helper" title="NL: ${escapeHtml(r.labelNl||"—")} · EN: ${escapeHtml(r.labelEn||"—")}">🌐</span>` : ""}</td>
           <td style="display:flex; gap:6px;">
             <button class="btn ghost small" data-edityc="${r.id||''}">Խմբագրել</button>
             <button class="btn danger small" data-delyc="${r.id||''}">Ջնջել</button>
@@ -1674,7 +1666,7 @@ async function loadYearCalAdmin(){
           </summary>
           <div class="table-wrap" style="border:none; border-radius:0; border-top:1px solid var(--line);">
             <table>
-              <thead><tr><th>Ամսաթիվ</th><th>Անվանում (ՀԱՅ)</th><th>Titel (NL)</th><th>Title (EN)</th><th></th></tr></thead>
+              <thead><tr><th>Ամսաթիվ</th><th>Անվանում</th><th></th></tr></thead>
               <tbody>${rowsHtml}</tbody>
             </table>
           </div>
