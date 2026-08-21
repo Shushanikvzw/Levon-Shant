@@ -61,6 +61,8 @@ supabase/migrations/0013_event_registration_limit.sql  adds an optional capacity
                                           for event registration, enforced server-side
 supabase/migrations/0014_class_assignments.sql  adds the ability to assign registered
                                           students to specific schedule slots
+supabase/migrations/0015_cancel_specific_course.sql  adds the ability to cancel a single
+                                          specific course on a Saturday, not just the whole day
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -134,8 +136,10 @@ all succeeded).
     → **Run**. Adds an optional capacity limit for event registration.
 15. New query again → paste `supabase/migrations/0014_class_assignments.sql` → **Run**.
     Adds the ability to assign registered students to specific schedule slots.
+16. New query again → paste `supabase/migrations/0015_cancel_specific_course.sql`
+    → **Run**. Adds the ability to cancel one specific course on a Saturday.
 
-All fourteen files are safe to re-run if needed.
+All fifteen files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -252,6 +256,23 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: cancel just one course on a Saturday, not the whole day.** The "🚫 Չեղարկել
+  դասերը որոշակի շաբաթ օրով" form now has a dropdown — "Ողջ oրվա բոլոր դասերը" (default,
+  same as before) or any specific class time/course. Pick a specific one, and only that
+  class shows as cancelled (struck through, with your reason) on the public calendar
+  for that Saturday — every other class that day stays normal. The gold "class day" dot
+  on the calendar only disappears when the *entire* day is cancelled; cancelling one
+  course out of several still shows the dot, since there are still classes happening.
+
+- **New: Excel export from the Summary tab, organized for building class lists.** The
+  "⬇️ Excel (ըստ դասընթացի)" button on "📊 Ամփոփում" downloads a workbook with a
+  separate sheet for every course — each listing everyone registered for it (name,
+  child/adult, birth date, contact info) — plus an overview sheet showing every
+  course's registered count at a glance. This is meant specifically for working
+  offline while deciding who goes into which actual class, separate from the full
+  "one row per registrant, checkbox per course" export on the Registrations tab, which
+  is better for a single master list of everyone.
+
 - **Admin tables no longer need much horizontal scrolling.** The Schedule, Staff, and
   Yearly Calendar tables used to show Armenian/Dutch/English as three separate
   columns each, which pushed the tables far wider than most screens — you'd have to
@@ -269,17 +290,19 @@ auto-deploys on every push, if you'd prefer either of those instead.
   - **"📊 Ամփոփում"** (a new tab next to Registrations) shows total registered, split
     into children/adults, plus every course with a live count — click any course to
     expand the full list of who's registered for it, with contact info.
-  - **"👥 Դասարանների ուսանողներ"** — its own dedicated tab (moved here after it was
-    initially a button buried in the far-right column of a wide table, which was hard
-    to find and reach) — pick a class time from the dropdown to see everyone currently
-    assigned to it, and a second dropdown to add any registrant who isn't assigned to
-    that slot yet. Registrants whose chosen course roughly matches this schedule
-    entry's name are starred (⭐) and sorted to the top, but the full list is always
-    there too, since the registration form's course names don't always match the
-    schedule's more specific ones one-to-one (e.g. a "Մայրենի" registration could go
-    into "Մայրենի 1", "2", "3", or "4" — admin decides). This turns building the class
-    list from new registrations into a click-through instead of manually
-    cross-referencing spreadsheets.
+  - **"👥 Դասարանների ուսանողներ"** is now a visual board instead of dropdowns: the
+    left column lists every class as a card (time, course, teacher, currently
+    assigned students as removable chips); click one to select it. The right column
+    then fills with every registrant not yet assigned to that class — registrants
+    whose chosen course roughly matches are starred (⭐) and sorted to the top, since
+    the registration form's course names don't always match the schedule's more
+    specific ones one-to-one (e.g. a "Մայրենի" registration could go into "Մայրենի 1",
+    "2", "3", or "4" — admin decides which). **Just click a student to add them** —
+    no dropdowns, no separate "add" button — and click the ✕ on their chip in the
+    class card to remove them. A search box filters the right column by name for
+    schools with a lot of registrants. This turns building the class list from new
+    registrations into pure clicking instead of manually cross-referencing
+    spreadsheets.
 
 - **Basic SEO groundwork is now in place**: Open Graph/Twitter tags (so shared links
   show a proper title/description on Facebook, WhatsApp, etc.), a canonical URL,

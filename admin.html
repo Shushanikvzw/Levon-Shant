@@ -219,21 +219,29 @@
         </div>
 
         <h3 style="margin-top:32px;">🚫 Չեղարկել դասերը որոշակի շաբաթ օրով</h3>
-        <p class="helper" style="margin-bottom:14px;">Օգտագործեք սա արձակուրդի, տոնի կամ այլ պատճառով դասերի բացակայության դեպքում։ Ընտրված օրը հանրային կայքի օրացույցում այլևս չի ցուցադրվի որպես դասերի օր, և կայցելուներին կցուցադրվի Ձեր նշած պատճառը (եթե նշված է)։</p>
+        <p class="helper" style="margin-bottom:14px;">Օգտագործեք սա արձակուրդի, տոնի կամ այլ պատճառով դասերի բացակայության դեպքում։ Կարող եք չեղարկել կամ ողջ օրը, կամ միայն մեկ որոշակի դասընթաց՝ մյուսները նույն օրով բնականոն կերպով կշարունակվեն։</p>
         <form class="card-form" id="cancelSaturdayForm" style="max-width:760px; margin-bottom:24px;">
-          <div class="field"><label for="cs_date">Ամսաթիվ</label><input type="date" id="cs_date" required style="max-width:220px;"></div>
+          <div class="field-row">
+            <div class="field"><label for="cs_date">Ամսաթիվ</label><input type="date" id="cs_date" required></div>
+            <div class="field">
+              <label for="cs_schedule">Ո՞ր դասը չեղարկել</label>
+              <select id="cs_schedule">
+                <option value="">Ողջ oրվա բոլոր դասերը</option>
+              </select>
+            </div>
+          </div>
           <div class="field-row-3">
             <div class="field"><label for="cs_reason_hy">Պատճառ — ՀԱՅ (ոչ պարտադիր)</label><input id="cs_reason_hy" placeholder="օր.՝ Ամանորյա արձակուրդ"></div>
             <div class="field"><label for="cs_reason_nl">Reden — NL</label><input id="cs_reason_nl"></div>
             <div class="field"><label for="cs_reason_en">Reason — EN</label><input id="cs_reason_en"></div>
           </div>
-          <button class="btn danger" type="submit">Չեղարկել այս օրվա դասերը</button>
+          <button class="btn danger" type="submit">Չեղարկել</button>
           <div class="form-msg" id="cancelSaturdayMsg"></div>
         </form>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Ամսաթիվ</th><th>Պատճառ (ՀԱՅ)</th><th></th></tr></thead>
-            <tbody id="cancelSaturdayBody"><tr><td colspan="3">Բեռնվում է…</td></tr></tbody>
+            <thead><tr><th>Ամսաթիվ</th><th>Ինչ է չեղարկված</th><th>Պատճառ (ՀԱՅ)</th><th></th></tr></thead>
+            <tbody id="cancelSaturdayBody"><tr><td colspan="4">Բեռնվում է…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -345,39 +353,30 @@
       <!-- Registration summary (admin only) -->
       <div class="dash-panel" id="panel-regsummary">
         <div class="banner warn">📊 Ընդհանուր վիճակագրություն և ըստ դասընթացի բաժանում՝ գրանցումների հիման վրա։ Սեղմեք ցանկացած դասընթացի վրա՝ ցուցակը տեսնելու համար։</div>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+          <button class="btn apricot small" id="exportRegSummaryBtn">⬇️ Excel (ըստ դասընթացի)</button>
+        </div>
         <div id="regSummaryTotals" class="reg-summary-totals"></div>
         <h3 style="margin-top:28px;">Ըստ դասընթացի</h3>
         <div id="regSummaryCourses"></div>
+        <div class="form-msg" id="exportRegSummaryMsg" style="margin-top:12px;"></div>
       </div>
 
       <!-- Class roster: assign registered students to a schedule slot (admin only) -->
       <div class="dash-panel" id="panel-classroster">
-        <div class="banner warn">👥 Ընտրեք դասացուցակի որևէ ժամ ներքևից՝ տեսնելու համար, թե ովքեր են արդեն նշանակված այդ դասին, և ավելացնելու գրանցված ուսանողների այնտեղ։</div>
-        <form class="card-form" style="max-width:640px; margin-bottom:24px;">
-          <div class="field">
-            <label for="classRosterScheduleSelect">Ընտրեք դասացուցակի ժամը</label>
-            <select id="classRosterScheduleSelect"></select>
+        <div class="banner warn">👥 Ձախից ընտրեք դասը, հետո աջից սեղմեք ցանկացած ուսանողի վրա՝ նրան այդ դասին ավելացնելու համար։ Ամենահամապատասխան ուսանողներն ինքնաբերաբար դրվում են վերևում, ⭐ նշանով։</div>
+        <div class="roster-board">
+          <div class="roster-col roster-col-classes">
+            <h3 class="roster-col-title">🗓️ Դասեր</h3>
+            <div id="rosterClassList" class="roster-class-list"><p class="helper">Բեռնվում է…</p></div>
           </div>
-        </form>
-        <div id="classRosterContent" style="display:none;">
-          <h3 id="classRosterTitle" style="margin-bottom:14px;"></h3>
-          <div class="table-wrap" style="margin-bottom:16px;">
-            <table>
-              <thead><tr><th>Անուն</th><th>Տեսակ</th><th>Կապ</th><th></th></tr></thead>
-              <tbody id="classRosterBody"></tbody>
-            </table>
+          <div class="roster-col roster-col-students">
+            <h3 class="roster-col-title" id="rosterStudentsHeading">👈 Նախ ընտրեք դասը ձախից</h3>
+            <input type="search" id="rosterStudentSearch" placeholder="🔍 Փնտրել անունով..." style="display:none;">
+            <div id="rosterStudentList" class="roster-student-list"></div>
           </div>
-          <div class="field-row" style="align-items:flex-end;">
-            <div class="field">
-              <label for="classRosterAddSelect">➕ Ավելացնել գրանցված ուսանող այս դասին</label>
-              <select id="classRosterAddSelect"></select>
-            </div>
-            <button class="btn blue" type="button" id="classRosterAddBtn" style="height:44px;">Ավելացնել</button>
-          </div>
-          <p class="helper" style="margin-top:8px;">⭐ նշված ուսանողները գրանցվել են այս դասընթացին մոտ անվանմամբ մի դասընթացի համար։ Ցանկը ներառում է բոլոր դեռ չնշանակված գրանցվածներին։</p>
-          <div class="form-msg" id="classRosterMsg"></div>
         </div>
-        <p class="helper" id="classRosterEmptyHint">Դեռ դասացուցակում ոչինչ չկա, կամ ընտրություն դեռ կատարված չէ։</p>
+        <div class="form-msg" id="classRosterMsg"></div>
       </div>
 
       <!-- Registrations (admin only) -->

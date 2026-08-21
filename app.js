@@ -1305,7 +1305,10 @@ async function fetchCancellations(){
   if (error){ console.warn(error.message); return {}; }
   const map = {};
   (data || []).forEach(r=>{
-    map[r.cancel_date] = { hy:r.reason_hy, nl:r.reason_nl, en:r.reason_en };
+    if (!map[r.cancel_date]) map[r.cancel_date] = { all: null, bySchedule: {} };
+    const reason = { hy:r.reason_hy, nl:r.reason_nl, en:r.reason_en };
+    if (r.schedule_id) map[r.cancel_date].bySchedule[r.schedule_id] = reason;
+    else map[r.cancel_date].all = reason;
   });
   return map;
 }
@@ -1415,7 +1418,7 @@ async function renderCalendar(){
   for (let d=1; d<=daysInMonth; d++){
     const iso = isoDate(year, month, d);
     const dow = new Date(year, month, d).getDay();
-    const isClassSaturday = dow === 6 && scheduleRows.length > 0 && !cancellations[iso];
+    const isClassSaturday = dow === 6 && scheduleRows.length > 0 && !cancellations[iso]?.all;
     const hasEvents = !!eventsByDate[iso];
     const classes = ["cal-day"];
     if (iso === todayIso) classes.push("today");
@@ -1438,19 +1441,32 @@ async function renderCalendar(){
   if (calSelectedDate){
     const [sy,sm,sd] = calSelectedDate.split("-").map(Number);
     const dow = new Date(sy, sm-1, sd).getDay();
-    const cancellation = cancellations[calSelectedDate];
-    if (dow === 6 && cancellation){
-      const reason = (currentLang === "nl" ? cancellation.nl : currentLang === "en" ? cancellation.en : cancellation.hy) || cancellation.hy;
+    const dayCancellation = cancellations[calSelectedDate];
+    if (dow === 6 && dayCancellation?.all){
+      const reason = (currentLang === "nl" ? dayCancellation.all.nl : currentLang === "en" ? dayCancellation.all.en : dayCancellation.all.hy) || dayCancellation.all.hy;
       html += `<div class="cal-event-item" style="border-color:var(--pomegranate);">
         <span class="cal-event-date" style="color:var(--pomegranate);">${pickLang({hy:"Դասեր չկան", nl:"Geen les", en:"No class"})}</span>
         <div><h4>${pickLang({hy:"Այս շաբաթ դասեր չեն անցկացվում", nl:"Deze zaterdag zijn er geen lessen", en:"No classes this Saturday"})}</h4>${reason ? `<p>${escapeHtml(reason)}</p>` : ""}</div>
       </div>`;
     } else if (dow === 6 && scheduleRows.length){
-      html += scheduleRows.map(r=>`
+      html += scheduleRows.map(r=>{
+        const cancelledCourse = dayCancellation?.bySchedule?.[r.id];
+        if (cancelledCourse){
+          const reason = (currentLang === "nl" ? cancelledCourse.nl : currentLang === "en" ? cancelledCourse.en : cancelledCourse.hy) || cancelledCourse.hy;
+          return `<div class="cal-event-item" style="border-color:var(--pomegranate); opacity:.75;">
+            <span class="cal-event-date schedule-time" style="text-decoration:line-through;">${timeLabel(r.start)}${r.end ? "–"+timeLabel(r.end) : ""}</span>
+            <div>
+              <h4 style="text-decoration:line-through;">${escapeHtml(scheduleCourse(r, currentLang))}</h4>
+              <p style="color:var(--pomegranate); font-weight:600;">❌ ${pickLang({hy:"Չեղարկված", nl:"Geannuleerd", en:"Cancelled"})}${reason ? " — " + escapeHtml(reason) : ""}</p>
+            </div>
+          </div>`;
+        }
+        return `
         <div class="cal-event-item">
           <span class="cal-event-date schedule-time">${timeLabel(r.start)}${r.end ? "–"+timeLabel(r.end) : ""}</span>
           <div><h4>${escapeHtml(scheduleCourse(r, currentLang))}</h4>${r.teacher ? `<p>${escapeHtml(scheduleTeacher(r, currentLang))}</p>` : ""}</div>
-        </div>`).join("");
+        </div>`;
+      }).join("");
     }
     const dayEvents = eventsByDate[calSelectedDate] || [];
     html += dayEvents.map(ev=>`

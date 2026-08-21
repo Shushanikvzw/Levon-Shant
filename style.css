@@ -580,6 +580,49 @@ footer.site a:hover{color:var(--apricot);}
 .course-summary-list .helper{margin:0;}
 .course-summary-group{margin-bottom:16px;}
 
+/* ---- Class roster assignment board ---- */
+.roster-board{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start;}
+@media (max-width:900px){ .roster-board{grid-template-columns:1fr;} }
+.roster-col-title{margin:0 0 12px; font-size:1.02rem;}
+.roster-class-list, .roster-student-list{
+  display:flex; flex-direction:column; gap:10px; max-height:640px; overflow-y:auto; padding-right:4px;
+}
+.roster-class-card{
+  background:var(--card); border:2px solid var(--line); border-radius:14px; padding:14px 16px;
+  cursor:pointer; transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.roster-class-card:hover{border-color:var(--blue); transform:translateY(-1px);}
+.roster-class-card.selected{border-color:var(--apricot); box-shadow:0 6px 18px rgba(200,120,40,.18); background:#FFF9F0;}
+.roster-class-card .rc-time{font-family:'Noto Serif Armenian',serif; font-weight:700; color:var(--blue); font-size:.85rem;}
+.roster-class-card .rc-course{font-weight:700; font-size:1rem; margin:2px 0 4px;}
+.roster-class-card .rc-teacher{font-size:.82rem; color:var(--ink-soft);}
+.roster-class-card .rc-count{
+  display:inline-block; margin-top:8px; background:var(--paper-dim); color:var(--ink);
+  font-size:.78rem; font-weight:700; padding:3px 10px; border-radius:999px;
+}
+.roster-chip-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+.roster-chip{
+  display:inline-flex; align-items:center; gap:6px; background:var(--paper-dim); border:1px solid var(--line);
+  border-radius:999px; padding:4px 6px 4px 10px; font-size:.78rem;
+}
+.roster-chip button{
+  background:var(--pomegranate); color:#fff; border:none; border-radius:50%; width:18px; height:18px;
+  font-size:.7rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.roster-student-card{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:12px 14px;
+  cursor:pointer; transition:border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.roster-student-card:hover{border-color:var(--apricot); background:var(--paper-dim); transform:translateX(3px);}
+.roster-student-card .rs-name{font-weight:700;}
+.roster-student-card .rs-meta{font-size:.78rem; color:var(--ink-soft); margin-top:2px;}
+.roster-student-card .rs-star{color:var(--apricot); font-size:1.1rem; flex:none;}
+.roster-student-card .rs-add-icon{
+  flex:none; width:30px; height:30px; border-radius:50%; background:var(--blue); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:1rem;
+}
+
 .content-section-head{
   font-family:'Noto Serif Armenian',serif; font-size:1.05rem; color:var(--blue);
   margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid var(--gold);
