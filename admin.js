@@ -148,7 +148,7 @@ async function handleAuthChange(session){
     // should never even see the page at all.
     currentUser = null;
     await supabase.auth.signOut();
-    showAuthScreen("Այս հաշիվը ուսուցչի կամ ծնողի հաշիվ է։ Խնդրում ենք օգտագործել portal.html էջը։");
+    showAuthScreen("Այս հաշիվը ուսուցչի կամ ծնողի հաշիվ է։ Խնդրում ենք մուտք գործել կայքի գլխավոր էջից՝ «👨‍👩‍👧 Ծնող/Ուսուցիչ» կոճակով։");
     return;
   }
   renderDashboard();

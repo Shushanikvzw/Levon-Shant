@@ -79,6 +79,7 @@
         <button type="button" data-lang="en">EN</button>
       </div>
       <a href="admin.html" target="_blank" rel="noopener" class="staff-login-btn"><span class="staff-login-icon">🔐</span> Անձնակազմի մուտք</a>
+      <button type="button" id="openPortalBtn" class="staff-login-btn portal-login-btn"><span class="staff-login-icon">👨‍👩‍👧</span> Ծնող/Ուսուցիչ</button>
       <button class="menu-toggle" id="menuToggle" aria-label="Ցանկ" data-i18n-aria="aria.menu" aria-expanded="false">☰</button>
     </div>
   </div>
@@ -493,7 +494,7 @@
         <a href="#calendar" data-i18n="nav.calendar">Օրացույց</a><br>
         <a href="#activities" data-i18n="nav.activities">Միջոցառումներ</a><br>
         <a href="#register" data-i18n="nav.register">Գրանցում</a><br>
-        <a href="portal.html" target="_blank" rel="noopener" data-i18n="foot.portal">👨‍👩‍👧 Ծնողների/ուսուցիչների մուտք</a>
+        <a href="#" id="openPortalLink" data-i18n="foot.portal">👨‍👩‍👧 Ծնողների/ուսուցիչների մուտք</a>
       </p>
     </div>
     <div>
@@ -513,6 +514,58 @@
   <div class="modal wide">
     <button class="modal-close" id="closePostDetail" aria-label="Փակել">✕</button>
     <div id="postDetailBody"></div>
+  </div>
+</div>
+
+<!-- ============ PARENT / TEACHER PORTAL MODAL ============ -->
+<div class="modal-backdrop" id="portalBackdrop">
+  <div class="modal wide">
+    <button class="modal-close" id="closePortal" aria-label="Փակել">✕</button>
+
+    <div id="portalAuthScreen">
+      <h2 style="margin-bottom:4px;">👨‍👩‍👧 Ծնողների / ուսուցիչների մուտք</h2>
+      <p class="helper" style="margin-bottom:18px;">Ուսուցիչները կարող են հրապարակել հայտարարություններ իրենց դասի համար, իսկ ծնողները՝ տեսնել իրենց երեխայի դասերի հայտարարությունները։</p>
+      <div class="tabs">
+        <button type="button" class="active" data-authtab="signin">Մուտք</button>
+        <button type="button" data-authtab="signup">Առաջին անգամ եմ՝ ստեղծել հաշիվ</button>
+      </div>
+
+      <form id="portalLoginForm">
+        <div class="field"><label for="portalLoginId">Էլ. փոստ կամ հեռախոսահամար</label><input id="portalLoginId" required placeholder="you@example.com կամ 04XX XX XX XX"></div>
+        <div class="field" style="margin-top:12px;"><label for="portalLoginPass">Գաղտնաբառ</label><input id="portalLoginPass" type="password" required></div>
+        <button class="btn apricot" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Մուտք</button>
+        <div class="form-msg" id="portalLoginMsg"></div>
+      </form>
+
+      <form id="portalSignupForm" style="display:none;">
+        <p class="helper" style="margin-bottom:14px;">Ձեր հաշիվը կակտիվանա միայն դպրոցի ադմինիստրատորի հաստատումից և կապակցումից հետո (Ձեր երեխայի գրանցման կամ դասավանդած դասի հետ)։</p>
+        <div class="role-pick">
+          <label><input type="radio" name="portalSignupRole" value="parent" checked> 👨‍👩‍👧 Ես ծնող եմ</label>
+          <label><input type="radio" name="portalSignupRole" value="teacher"> 🧑‍🏫 Ես ուսուցիչ եմ</label>
+        </div>
+        <div class="field"><label for="portalSignupName">Անուն, ազգանուն</label><input id="portalSignupName" required></div>
+        <div class="field" style="margin-top:12px;">
+          <label>Մուտքի եղանակ</label>
+          <div class="id-toggle">
+            <button type="button" class="active" data-idmode="email">📧 Էլ. փոստ</button>
+            <button type="button" data-idmode="phone">📱 Հեռախոսահամար</button>
+          </div>
+          <input id="portalSignupId" required placeholder="you@example.com">
+        </div>
+        <div class="field" style="margin-top:12px;"><label for="portalSignupPass">Գաղտնաբառ (առնվազն 6 նիշ)</label><input id="portalSignupPass" type="password" minlength="6" required></div>
+        <button class="btn blue" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Ուղարկել հայտը</button>
+        <div class="form-msg" id="portalSignupMsg"></div>
+      </form>
+      <div class="form-msg" id="portalAuthNotice" style="margin-top:14px;"></div>
+    </div>
+
+    <div id="portalMainScreen" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+        <h2 id="portalMainHeading" style="margin:0;">—</h2>
+        <button class="btn ghost small" id="portalSignOutBtn">Դուրս գալ</button>
+      </div>
+      <div id="portalMainContent"></div>
+    </div>
   </div>
 </div>
 

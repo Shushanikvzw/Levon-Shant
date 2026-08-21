@@ -115,7 +115,7 @@ nav.main a{
   padding:8px 12px; border-radius:999px; font-size:.88rem; color:var(--ink); font-weight:500; white-space:nowrap;
 }
 nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
-.nav-actions{display:flex; align-items:center; gap:8px; flex:none; order:2; margin-left:auto; align-self:flex-start; margin-top:8px;}
+.nav-actions{display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; flex:none; order:2; margin-left:auto; align-self:flex-start; margin-top:8px;}
 .lang-toggle{
   position:relative; display:flex; width:132px; height:34px;
   border-radius:999px; background:var(--paper-dim); border:1.5px solid var(--line); padding:3px; flex:none;
@@ -135,6 +135,35 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
   border-radius:999px; transition:color .22s ease;
 }
 .lang-toggle button.active{ color:#fff; }
+
+.id-toggle{ display:flex; gap:6px; margin-bottom:14px; }
+.id-toggle button{
+  flex:1; padding:8px; border-radius:10px; border:1.5px solid var(--line); background:var(--paper);
+  font-size:.82rem; font-weight:600; cursor:pointer; color:var(--ink-soft);
+}
+.id-toggle button.active{ background:var(--blue); color:#fff; border-color:var(--blue); }
+.role-pick{ display:flex; gap:8px; margin-bottom:14px; }
+.role-pick label{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px;
+  border:1.5px solid var(--line); cursor:pointer; font-size:.85rem; font-weight:600; color:var(--ink-soft);
+}
+.role-pick input{ width:auto; margin:0; }
+.role-pick label:has(input:checked){ border-color:var(--apricot); background:#FFF9F0; color:var(--ink); }
+
+.course-group{ margin-bottom:28px; }
+.course-group-head{
+  display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--ink); color:#fff;
+  border-radius:12px 12px 0 0; font-family:'Noto Serif Armenian',serif; font-weight:700;
+}
+.course-group-body{ border:1px solid var(--line); border-top:none; border-radius:0 0 12px 12px; background:var(--card); }
+.portal-announcement{ padding:16px 18px; border-bottom:1px dashed var(--line); }
+.portal-announcement:last-child{ border-bottom:none; }
+.portal-announcement .a-date{ font-size:.76rem; color:var(--ink-soft); font-weight:600; }
+.portal-announcement h3{ margin:4px 0 6px; font-size:1rem; }
+.portal-announcement p{ margin:0; color:var(--ink-soft); line-height:1.6; white-space:pre-line; }
+.portal-announcement .a-teacher{ font-size:.78rem; color:var(--ink-soft); margin-top:8px; }
+.portal-announcement .a-actions{ display:flex; gap:8px; margin-top:10px; }
+.portal-empty-note{ padding:30px; text-align:center; color:var(--ink-soft); background:var(--card); border:1.5px dashed var(--line); border-radius:12px; }
 .lang-toggle button:hover:not(.active){ color:var(--ink); }
 .menu-toggle{display:none; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--ink); order:2;}
 
@@ -146,7 +175,13 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
   box-shadow:0 4px 14px rgba(18,48,39,.22);
   transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
   flex:none; white-space:nowrap;
+  border:none; cursor:pointer; font-family:inherit;
 }
+.staff-login-btn.portal-login-btn{
+  background:linear-gradient(135deg, var(--apricot), var(--pomegranate));
+  box-shadow:0 4px 14px rgba(160,70,30,.22);
+}
+.staff-login-btn.portal-login-btn:hover{ box-shadow:0 8px 20px rgba(160,70,30,.32); }
 .staff-login-icon{
   display:flex; align-items:center; justify-content:center;
   width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.18); font-size:.9rem;

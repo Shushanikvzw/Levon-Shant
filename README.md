@@ -31,13 +31,13 @@ Two roles:
 ## Files
 
 ```
-index.html                     the public website (no editing tools)
+index.html                     the public website (no editing tools) — also where parents
+                                 and teachers sign in now, via an in-page modal
 admin.html                      the separate admin area: sign-in/sign-up + sidebar dashboard
-portal.html                     separate login page for parents and teachers (not admin/SMM)
-style.css                       shared design system for all three pages
-app.js                          public-site logic: i18n, calendar, registration forms, EmailJS
+style.css                       shared design system for both pages
+app.js                          public-site logic: i18n, calendar, registration forms, EmailJS,
+                                 and the parent/teacher portal modal (auth + announcements)
 admin.js                        admin-only logic: auth, all publishing/editing/CRUD actions
-portal.js                       parent/teacher auth and their announcement views
 supabase/migrations/0001_init.sql        database schema + Row Level Security + storage buckets
 supabase/migrations/0002_add_english.sql adds English columns for trilingual support
 supabase/migrations/0003_trilingual_staff_schedule_posts.sql adds Dutch/English columns for
@@ -267,16 +267,24 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Parent/teacher login moved into the main site — no separate page anymore.** What
+  was `portal.html` is now a "👨‍👩‍👧 Ծնող/Ուսուցիչ" button right in the header (next to
+  the staff login button) and a matching link in the footer, both on `index.html`
+  itself. Clicking either opens an in-page modal with sign-in/sign-up — after signing
+  in, the same modal shows the announcement view directly, with nothing to navigate to
+  and no separate URL to find or bookmark. `admin.html` stays a genuinely separate
+  page on purpose (it's a much higher-privilege area), but parents and teachers now
+  never leave the site they already know.
+
 - **Fixed: teacher/parent accounts could log into `admin.html`.** They couldn't
   actually change anything there — every write action (publishing, schedule, staff,
   yearly calendar, everything) has always required the `admin` or `smm` role at the
   database level, and teacher/parent accounts were never granted that — but they
   could still authenticate into the admin page and see some of its non-admin-only
   tabs, which was never supposed to happen. `admin.html` now checks specifically for
-  `admin`/`smm` and redirects anyone else straight to `portal.html`, matching the
-  check `portal.html` already had in the other direction. **To confirm the full
-  picture**: a teacher's *only* capability, anywhere, is posting/editing/deleting
-  announcements for their own assigned class on `portal.html` — no events, no
+  `admin`/`smm` and redirects anyone else back to the main site's own login instead.
+  **To confirm the full picture**: a teacher's *only* capability, anywhere, is
+  posting/editing/deleting announcements for their own assigned class — no events, no
   calendar, no schedule changes, nothing else, either in the interface or in what the
   database will actually allow them to do.
 
@@ -289,23 +297,22 @@ auto-deploys on every push, if you'd prefer either of those instead.
   all for these two roles — if you already ran `0016` before this fix, you still need
   to run `0017` on top of it.
 
-- **New: parent and teacher roles, with per-class announcements.** A separate page,
-  `portal.html`, is where parents and teachers sign in — completely separate from
-  `admin.html`, so they never see any admin controls.
+- **New: parent and teacher roles, with per-class announcements.**
 
   **Important — how account creation actually works.** Admin *cannot* directly type in
   a password for someone and hand it to them — doing that client-side would require
   embedding a privileged admin key in the browser, which anyone could extract from the
   page and use to gain full control of the database. Instead: the parent or teacher
-  creates their own login on `portal.html` (choosing "Ես ծնող եմ" or "Ես ուսուցիչ եմ",
-  their own email or phone number, and their own password) — the account sits pending
-  until admin approves it in "👤 Հաշիվներ" (assigning it the role "🧑‍🏫 Ուսուցիչ" or
-  "👨‍👩‍👧 Ծնող"). Admin still fully controls who gets in and what they can see —
-  the only difference from what was asked is that the *password itself* is never
-  admin's to set. If true admin-generated credentials (parent never creates their own
-  account at all) turn out to matter enough to be worth it, that's possible too, but
-  needs a small server-side function (a Supabase Edge Function) rather than something
-  that can run safely in the browser — let me know if you'd like that built.
+  creates their own login from the site's own "👨‍👩‍👧 Ծնող/Ուսուցիչ" button (choosing
+  "Ես ծնող եմ" or "Ես ուսուցիչ եմ", their own email or phone number, and their own
+  password) — the account sits pending until admin approves it in "👤 Հաշիվներ"
+  (assigning it the role "🧑‍🏫 Ուսուցիչ" or "👨‍👩‍👧 Ծնող"). Admin still fully controls
+  who gets in and what they can see — the only difference from what was asked is that
+  the *password itself* is never admin's to set. If true admin-generated credentials
+  (parent never creates their own account at all) turn out to matter enough to be
+  worth it, that's possible too, but needs a small server-side function (a Supabase
+  Edge Function) rather than something that can run safely in the browser — let me
+  know if you'd like that built.
 
   **Login by phone number**: since real SMS-based login needs a paid SMS provider
   (Twilio or similar) and a phone-verification setup that wasn't part of this project,

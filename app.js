@@ -1824,6 +1824,308 @@ function applyLogo(url){
   }
 }
 
+// ---------------------------------------------------------
+// Parent / teacher portal (modal, no separate page). Reuses the
+// same Supabase client as the rest of the public site. Currently
+// signed-in admin/SMM/pending accounts are never valid here —
+// only 'teacher' and 'parent' roles proceed past sign-in, exactly
+// mirroring how admin.html refuses teacher/parent accounts.
+// ---------------------------------------------------------
+let portalUser = null;
+let portalRole = null;
+let portalSignupIdMode = "email";
+
+function portalNormalizeIdentifier(value, forcedMode){
+  const trimmed = (value || "").trim();
+  const isPhoneMode = forcedMode === "phone" || (!forcedMode && !trimmed.includes("@"));
+  if (isPhoneMode){
+    const digits = trimmed.replace(/[^0-9]/g, "");
+    return digits ? `${digits}@parent.local` : trimmed.toLowerCase();
+  }
+  return trimmed.toLowerCase();
+}
+
+function openPortalModal(){
+  document.getElementById("portalBackdrop")?.classList.add("open");
+}
+function closePortalModal(){
+  document.getElementById("portalBackdrop")?.classList.remove("open");
+}
+document.getElementById("openPortalBtn")?.addEventListener("click", openPortalModal);
+document.getElementById("openPortalLink")?.addEventListener("click", (e)=>{ e.preventDefault(); openPortalModal(); });
+document.getElementById("closePortal")?.addEventListener("click", closePortalModal);
+document.getElementById("portalBackdrop")?.addEventListener("click", (e)=>{
+  if (e.target.id === "portalBackdrop") closePortalModal();
+});
+
+document.querySelectorAll('#portalAuthScreen .tabs button[data-authtab]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#portalAuthScreen .tabs button[data-authtab]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.authtab;
+    document.getElementById('portalLoginForm').style.display = tab === 'signin' ? '' : 'none';
+    document.getElementById('portalSignupForm').style.display = tab === 'signup' ? '' : 'none';
+  });
+});
+
+document.querySelectorAll('#portalSignupForm .id-toggle button[data-idmode]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#portalSignupForm .id-toggle button[data-idmode]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    portalSignupIdMode = btn.dataset.idmode;
+    const input = document.getElementById('portalSignupId');
+    input.placeholder = portalSignupIdMode === 'phone' ? '04XX XX XX XX' : 'you@example.com';
+    input.type = portalSignupIdMode === 'phone' ? 'tel' : 'email';
+  });
+});
+
+function showPortalAuthScreen(message){
+  const authEl = document.getElementById("portalAuthScreen");
+  const mainEl = document.getElementById("portalMainScreen");
+  if (authEl) authEl.style.display = "";
+  if (mainEl) mainEl.style.display = "none";
+  if (message){
+    const el = document.getElementById("portalAuthNotice");
+    if (el){ el.textContent = message; el.className = "form-msg"; el.classList.add("show","err"); }
+  }
+}
+function showPortalMainScreen(){
+  const authEl = document.getElementById("portalAuthScreen");
+  const mainEl = document.getElementById("portalMainScreen");
+  if (authEl) authEl.style.display = "none";
+  if (mainEl) mainEl.style.display = "";
+}
+
+document.getElementById("portalLoginForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("portalLoginMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին։";
+    msg.classList.add("show","err"); return;
+  }
+  const email = portalNormalizeIdentifier(document.getElementById("portalLoginId").value);
+  const pass = document.getElementById("portalLoginPass").value;
+  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  if (error){
+    msg.textContent = "Մուտքը ձախողվեց՝ " + error.message;
+    msg.classList.add("show","err"); return;
+  }
+  // onAuthStateChange (below) picks this up and renders the right screen
+});
+
+document.getElementById("portalSignupForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("portalSignupMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին։";
+    msg.classList.add("show","err"); return;
+  }
+  const roleHint = document.querySelector('input[name="portalSignupRole"]:checked').value;
+  const roleLabel = roleHint === "teacher" ? "Ուսուցիչ" : "Ծնող";
+  const name = document.getElementById("portalSignupName").value.trim();
+  const email = portalNormalizeIdentifier(document.getElementById("portalSignupId").value, portalSignupIdMode);
+  const pass = document.getElementById("portalSignupPass").value;
+  const { error } = await supabase.auth.signUp({
+    email, password: pass,
+    options: { data: { name: `[${roleLabel}] ${name}` } }
+  });
+  if (error){
+    msg.textContent = "Սխալ՝ " + error.message;
+    msg.classList.add("show","err"); return;
+  }
+  msg.textContent = "Հայտն ուղարկվեց ✔ Սպասեք ադմինիստրատորի հաստատմանը, ապա մուտք գործեք «Մուտք» ներդիրից։";
+  msg.classList.add("show","ok");
+  e.target.reset();
+});
+
+document.getElementById("portalSignOutBtn")?.addEventListener("click", ()=> supabase.auth.signOut());
+
+async function handlePortalAuthChange(session){
+  if (!session){
+    portalUser = null; portalRole = null;
+    showPortalAuthScreen();
+    return;
+  }
+  try{
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
+    const role = profile ? profile.role : null;
+    if (role !== "teacher" && role !== "parent"){
+      // Admin/SMM/pending accounts don't belong in this modal at all —
+      // silently ignore rather than forcing a sign-out, since the same
+      // session might simultaneously be an admin actively using admin.html
+      // in another tab.
+      return;
+    }
+    portalUser = session.user;
+    portalRole = role;
+  }catch(err){ return; }
+
+  showPortalMainScreen();
+  if (portalRole === "teacher") renderPortalTeacherView();
+  else renderPortalParentView();
+}
+
+if (SUPABASE_READY){
+  supabase.auth.onAuthStateChange((_event, session) => { handlePortalAuthChange(session); });
+}
+
+async function renderPortalParentView(){
+  document.getElementById("portalMainHeading").textContent = "👨‍👩‍👧 Հայտարարություններ";
+  const content = document.getElementById("portalMainContent");
+  content.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  try{
+    const { data: links, error: linksErr } = await supabase.from("parent_links").select("*").eq("parent_user_id", portalUser.id);
+    if (linksErr) throw linksErr;
+    if (!links || !links.length){
+      content.innerHTML = `<div class="portal-empty-note">Ձեր հաշիվը դեռ կապակցված չէ երեխայի գրանցման հետ։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      return;
+    }
+    const registrationIds = links.map(l=>l.registration_id);
+    const { data: assignments, error: caErr } = await supabase
+      .from("class_assignments")
+      .select("*, schedule(*)")
+      .in("registration_id", registrationIds);
+    if (caErr) throw caErr;
+    if (!assignments || !assignments.length){
+      content.innerHTML = `<div class="portal-empty-note">Ձեր երեխան դեռ նշանակված չէ որևէ դասի։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      return;
+    }
+
+    const scheduleIds = [...new Set(assignments.map(a=>a.schedule_id))];
+    const { data: announcements, error: annErr } = await supabase
+      .from("course_announcements")
+      .select("*")
+      .in("schedule_id", scheduleIds)
+      .order("created_at", { ascending:false });
+    if (annErr) throw annErr;
+
+    const scheduleById = {};
+    assignments.forEach(a=>{ if (a.schedule) scheduleById[a.schedule_id] = a.schedule; });
+
+    content.innerHTML = scheduleIds.map(sid=>{
+      const sched = scheduleById[sid];
+      if (!sched) return "";
+      const items = (announcements || []).filter(a=>a.schedule_id === sid);
+      const body = items.length
+        ? items.map(a=>`
+            <div class="portal-announcement">
+              <span class="a-date">${new Date(a.created_at).toLocaleDateString("hy-AM")}</span>
+              <h3>${escapeHtml(a.title)}</h3>
+              ${a.body ? `<p>${escapeHtml(a.body)}</p>` : ""}
+              ${a.teacher_name ? `<div class="a-teacher">— ${escapeHtml(a.teacher_name)}</div>` : ""}
+            </div>`).join("")
+        : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան այս դասի համար։</p></div>`;
+      return `
+        <div class="course-group">
+          <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
+          <div class="course-group-body">${body}</div>
+        </div>`;
+    }).join("") || `<div class="portal-empty-note">Դեռ ոչինչ չկա ցուցադրելու համար։</div>`;
+  }catch(err){
+    content.innerHTML = `<div class="portal-empty-note">Սխալ՝ ${err.message}</div>`;
+  }
+}
+
+async function renderPortalTeacherView(){
+  document.getElementById("portalMainHeading").textContent = "🧑‍🏫 Իմ դասերի հայտարարությունները";
+  const content = document.getElementById("portalMainContent");
+  content.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  try{
+    const { data: assigns, error: taErr } = await supabase
+      .from("teacher_assignments")
+      .select("*, schedule(*)")
+      .eq("teacher_user_id", portalUser.id);
+    if (taErr) throw taErr;
+    if (!assigns || !assigns.length){
+      content.innerHTML = `<div class="portal-empty-note">Ձեր հաշիվը դեռ կապակցված չէ որևէ դասի հետ։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      return;
+    }
+
+    const scheduleIds = assigns.map(a=>a.schedule_id);
+    const { data: announcements, error: annErr } = await supabase
+      .from("course_announcements")
+      .select("*")
+      .in("schedule_id", scheduleIds)
+      .order("created_at", { ascending:false });
+    if (annErr) throw annErr;
+
+    content.innerHTML = assigns.map(a=>{
+      const sched = a.schedule;
+      if (!sched) return "";
+      const items = (announcements || []).filter(x=>x.schedule_id === a.schedule_id);
+      const list = items.length ? items.map(x=>`
+        <div class="portal-announcement">
+          <span class="a-date">${new Date(x.created_at).toLocaleDateString("hy-AM")}</span>
+          <h3>${escapeHtml(x.title)}</h3>
+          ${x.body ? `<p>${escapeHtml(x.body)}</p>` : ""}
+          <div class="a-actions">
+            <button class="btn ghost small" data-editann="${x.id}">Խմբագրել</button>
+            <button class="btn danger small" data-delann="${x.id}">Ջնջել</button>
+          </div>
+        </div>`).join("") : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան։</p></div>`;
+      return `
+        <div class="course-group">
+          <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
+          <div class="course-group-body">
+            <div class="portal-announcement" style="background:var(--paper-dim);">
+              <form data-postform="${a.schedule_id}">
+                <div class="field"><label>Վերնագիր</label><input data-field="title" required></div>
+                <div class="field" style="margin-top:10px;"><label>Տեքստ</label><textarea data-field="body" rows="3"></textarea></div>
+                <button class="btn apricot small" type="submit" style="margin-top:10px;">Հրապարակել</button>
+                <div class="form-msg" data-postmsg></div>
+              </form>
+            </div>
+            ${list}
+          </div>
+        </div>`;
+    }).join("");
+
+    content.querySelectorAll("[data-postform]").forEach(form=>{
+      form.addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        const scheduleId = form.dataset.postform;
+        const msgEl = form.querySelector("[data-postmsg]");
+        msgEl.className = "form-msg"; msgEl.textContent = "";
+        const title = form.querySelector('[data-field="title"]').value.trim();
+        const body = form.querySelector('[data-field="body"]').value.trim();
+        try{
+          const { error } = await supabase.from("course_announcements").insert({
+            schedule_id: scheduleId, title, body: body || null,
+            teacher_user_id: portalUser.id, teacher_name: portalUser.email
+          });
+          if (error) throw error;
+          renderPortalTeacherView();
+        }catch(err){
+          msgEl.textContent = "Սխալ՝ " + err.message; msgEl.classList.add("show","err");
+        }
+      });
+    });
+    content.querySelectorAll("[data-delann]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս հայտարարությունը։")) return;
+        await supabase.from("course_announcements").delete().eq("id", b.dataset.delann);
+        renderPortalTeacherView();
+      });
+    });
+    content.querySelectorAll("[data-editann]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const newTitle = prompt("Նոր վերնագիր.");
+        if (newTitle === null) return;
+        const newBody = prompt("Նոր տեքստ.");
+        if (newBody === null) return;
+        await supabase.from("course_announcements").update({
+          title: newTitle.trim(), body: newBody.trim() || null, updated_at: new Date().toISOString()
+        }).eq("id", b.dataset.editann);
+        renderPortalTeacherView();
+      });
+    });
+  }catch(err){
+    content.innerHTML = `<div class="portal-empty-note">Սխալ՝ ${err.message}</div>`;
+  }
+}
+
 // initial load
 renderTimeline("hy");
 renderClassesList("hy");

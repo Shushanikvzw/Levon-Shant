@@ -165,7 +165,7 @@ nav.main a{
   padding:8px 12px; border-radius:999px; font-size:.88rem; color:var(--ink); font-weight:500; white-space:nowrap;
 }
 nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
-.nav-actions{display:flex; align-items:center; gap:8px; flex:none; order:2; margin-left:auto; align-self:flex-start; margin-top:8px;}
+.nav-actions{display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; flex:none; order:2; margin-left:auto; align-self:flex-start; margin-top:8px;}
 .lang-toggle{
   position:relative; display:flex; width:132px; height:34px;
   border-radius:999px; background:var(--paper-dim); border:1.5px solid var(--line); padding:3px; flex:none;
@@ -185,6 +185,35 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
   border-radius:999px; transition:color .22s ease;
 }
 .lang-toggle button.active{ color:#fff; }
+
+.id-toggle{ display:flex; gap:6px; margin-bottom:14px; }
+.id-toggle button{
+  flex:1; padding:8px; border-radius:10px; border:1.5px solid var(--line); background:var(--paper);
+  font-size:.82rem; font-weight:600; cursor:pointer; color:var(--ink-soft);
+}
+.id-toggle button.active{ background:var(--blue); color:#fff; border-color:var(--blue); }
+.role-pick{ display:flex; gap:8px; margin-bottom:14px; }
+.role-pick label{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px;
+  border:1.5px solid var(--line); cursor:pointer; font-size:.85rem; font-weight:600; color:var(--ink-soft);
+}
+.role-pick input{ width:auto; margin:0; }
+.role-pick label:has(input:checked){ border-color:var(--apricot); background:#FFF9F0; color:var(--ink); }
+
+.course-group{ margin-bottom:28px; }
+.course-group-head{
+  display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--ink); color:#fff;
+  border-radius:12px 12px 0 0; font-family:'Noto Serif Armenian',serif; font-weight:700;
+}
+.course-group-body{ border:1px solid var(--line); border-top:none; border-radius:0 0 12px 12px; background:var(--card); }
+.portal-announcement{ padding:16px 18px; border-bottom:1px dashed var(--line); }
+.portal-announcement:last-child{ border-bottom:none; }
+.portal-announcement .a-date{ font-size:.76rem; color:var(--ink-soft); font-weight:600; }
+.portal-announcement h3{ margin:4px 0 6px; font-size:1rem; }
+.portal-announcement p{ margin:0; color:var(--ink-soft); line-height:1.6; white-space:pre-line; }
+.portal-announcement .a-teacher{ font-size:.78rem; color:var(--ink-soft); margin-top:8px; }
+.portal-announcement .a-actions{ display:flex; gap:8px; margin-top:10px; }
+.portal-empty-note{ padding:30px; text-align:center; color:var(--ink-soft); background:var(--card); border:1.5px dashed var(--line); border-radius:12px; }
 .lang-toggle button:hover:not(.active){ color:var(--ink); }
 .menu-toggle{display:none; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--ink); order:2;}
 
@@ -196,7 +225,13 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
   box-shadow:0 4px 14px rgba(18,48,39,.22);
   transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
   flex:none; white-space:nowrap;
+  border:none; cursor:pointer; font-family:inherit;
 }
+.staff-login-btn.portal-login-btn{
+  background:linear-gradient(135deg, var(--apricot), var(--pomegranate));
+  box-shadow:0 4px 14px rgba(160,70,30,.22);
+}
+.staff-login-btn.portal-login-btn:hover{ box-shadow:0 8px 20px rgba(160,70,30,.32); }
 .staff-login-icon{
   display:flex; align-items:center; justify-content:center;
   width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.18); font-size:.9rem;
@@ -826,6 +861,7 @@ tbody tr:hover{background:var(--paper-dim);}
         <button type="button" data-lang="en">EN</button>
       </div>
       <a href="admin.html" target="_blank" rel="noopener" class="staff-login-btn"><span class="staff-login-icon">🔐</span> Անձնակազմի մուտք</a>
+      <button type="button" id="openPortalBtn" class="staff-login-btn portal-login-btn"><span class="staff-login-icon">👨‍👩‍👧</span> Ծնող/Ուսուցիչ</button>
       <button class="menu-toggle" id="menuToggle" aria-label="Ցանկ" data-i18n-aria="aria.menu" aria-expanded="false">☰</button>
     </div>
   </div>
@@ -1240,7 +1276,7 @@ tbody tr:hover{background:var(--paper-dim);}
         <a href="#calendar" data-i18n="nav.calendar">Օրացույց</a><br>
         <a href="#activities" data-i18n="nav.activities">Միջոցառումներ</a><br>
         <a href="#register" data-i18n="nav.register">Գրանցում</a><br>
-        <a href="portal.html" target="_blank" rel="noopener" data-i18n="foot.portal">👨‍👩‍👧 Ծնողների/ուսուցիչների մուտք</a>
+        <a href="#" id="openPortalLink" data-i18n="foot.portal">👨‍👩‍👧 Ծնողների/ուսուցիչների մուտք</a>
       </p>
     </div>
     <div>
@@ -1260,6 +1296,58 @@ tbody tr:hover{background:var(--paper-dim);}
   <div class="modal wide">
     <button class="modal-close" id="closePostDetail" aria-label="Փակել">✕</button>
     <div id="postDetailBody"></div>
+  </div>
+</div>
+
+<!-- ============ PARENT / TEACHER PORTAL MODAL ============ -->
+<div class="modal-backdrop" id="portalBackdrop">
+  <div class="modal wide">
+    <button class="modal-close" id="closePortal" aria-label="Փակել">✕</button>
+
+    <div id="portalAuthScreen">
+      <h2 style="margin-bottom:4px;">👨‍👩‍👧 Ծնողների / ուսուցիչների մուտք</h2>
+      <p class="helper" style="margin-bottom:18px;">Ուսուցիչները կարող են հրապարակել հայտարարություններ իրենց դասի համար, իսկ ծնողները՝ տեսնել իրենց երեխայի դասերի հայտարարությունները։</p>
+      <div class="tabs">
+        <button type="button" class="active" data-authtab="signin">Մուտք</button>
+        <button type="button" data-authtab="signup">Առաջին անգամ եմ՝ ստեղծել հաշիվ</button>
+      </div>
+
+      <form id="portalLoginForm">
+        <div class="field"><label for="portalLoginId">Էլ. փոստ կամ հեռախոսահամար</label><input id="portalLoginId" required placeholder="you@example.com կամ 04XX XX XX XX"></div>
+        <div class="field" style="margin-top:12px;"><label for="portalLoginPass">Գաղտնաբառ</label><input id="portalLoginPass" type="password" required></div>
+        <button class="btn apricot" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Մուտք</button>
+        <div class="form-msg" id="portalLoginMsg"></div>
+      </form>
+
+      <form id="portalSignupForm" style="display:none;">
+        <p class="helper" style="margin-bottom:14px;">Ձեր հաշիվը կակտիվանա միայն դպրոցի ադմինիստրատորի հաստատումից և կապակցումից հետո (Ձեր երեխայի գրանցման կամ դասավանդած դասի հետ)։</p>
+        <div class="role-pick">
+          <label><input type="radio" name="portalSignupRole" value="parent" checked> 👨‍👩‍👧 Ես ծնող եմ</label>
+          <label><input type="radio" name="portalSignupRole" value="teacher"> 🧑‍🏫 Ես ուսուցիչ եմ</label>
+        </div>
+        <div class="field"><label for="portalSignupName">Անուն, ազգանուն</label><input id="portalSignupName" required></div>
+        <div class="field" style="margin-top:12px;">
+          <label>Մուտքի եղանակ</label>
+          <div class="id-toggle">
+            <button type="button" class="active" data-idmode="email">📧 Էլ. փոստ</button>
+            <button type="button" data-idmode="phone">📱 Հեռախոսահամար</button>
+          </div>
+          <input id="portalSignupId" required placeholder="you@example.com">
+        </div>
+        <div class="field" style="margin-top:12px;"><label for="portalSignupPass">Գաղտնաբառ (առնվազն 6 նիշ)</label><input id="portalSignupPass" type="password" minlength="6" required></div>
+        <button class="btn blue" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Ուղարկել հայտը</button>
+        <div class="form-msg" id="portalSignupMsg"></div>
+      </form>
+      <div class="form-msg" id="portalAuthNotice" style="margin-top:14px;"></div>
+    </div>
+
+    <div id="portalMainScreen" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+        <h2 id="portalMainHeading" style="margin:0;">—</h2>
+        <button class="btn ghost small" id="portalSignOutBtn">Դուրս գալ</button>
+      </div>
+      <div id="portalMainContent"></div>
+    </div>
   </div>
 </div>
 
@@ -3088,6 +3176,308 @@ function applyLogo(url){
     box.innerHTML = `<img src="${url}" alt="Դպրոցի լոգո">`;
   } else {
     box.innerHTML = `<span id="crestInitials">ԼՇ</span>`;
+  }
+}
+
+// ---------------------------------------------------------
+// Parent / teacher portal (modal, no separate page). Reuses the
+// same Supabase client as the rest of the public site. Currently
+// signed-in admin/SMM/pending accounts are never valid here —
+// only 'teacher' and 'parent' roles proceed past sign-in, exactly
+// mirroring how admin.html refuses teacher/parent accounts.
+// ---------------------------------------------------------
+let portalUser = null;
+let portalRole = null;
+let portalSignupIdMode = "email";
+
+function portalNormalizeIdentifier(value, forcedMode){
+  const trimmed = (value || "").trim();
+  const isPhoneMode = forcedMode === "phone" || (!forcedMode && !trimmed.includes("@"));
+  if (isPhoneMode){
+    const digits = trimmed.replace(/[^0-9]/g, "");
+    return digits ? `${digits}@parent.local` : trimmed.toLowerCase();
+  }
+  return trimmed.toLowerCase();
+}
+
+function openPortalModal(){
+  document.getElementById("portalBackdrop")?.classList.add("open");
+}
+function closePortalModal(){
+  document.getElementById("portalBackdrop")?.classList.remove("open");
+}
+document.getElementById("openPortalBtn")?.addEventListener("click", openPortalModal);
+document.getElementById("openPortalLink")?.addEventListener("click", (e)=>{ e.preventDefault(); openPortalModal(); });
+document.getElementById("closePortal")?.addEventListener("click", closePortalModal);
+document.getElementById("portalBackdrop")?.addEventListener("click", (e)=>{
+  if (e.target.id === "portalBackdrop") closePortalModal();
+});
+
+document.querySelectorAll('#portalAuthScreen .tabs button[data-authtab]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#portalAuthScreen .tabs button[data-authtab]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.authtab;
+    document.getElementById('portalLoginForm').style.display = tab === 'signin' ? '' : 'none';
+    document.getElementById('portalSignupForm').style.display = tab === 'signup' ? '' : 'none';
+  });
+});
+
+document.querySelectorAll('#portalSignupForm .id-toggle button[data-idmode]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#portalSignupForm .id-toggle button[data-idmode]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    portalSignupIdMode = btn.dataset.idmode;
+    const input = document.getElementById('portalSignupId');
+    input.placeholder = portalSignupIdMode === 'phone' ? '04XX XX XX XX' : 'you@example.com';
+    input.type = portalSignupIdMode === 'phone' ? 'tel' : 'email';
+  });
+});
+
+function showPortalAuthScreen(message){
+  const authEl = document.getElementById("portalAuthScreen");
+  const mainEl = document.getElementById("portalMainScreen");
+  if (authEl) authEl.style.display = "";
+  if (mainEl) mainEl.style.display = "none";
+  if (message){
+    const el = document.getElementById("portalAuthNotice");
+    if (el){ el.textContent = message; el.className = "form-msg"; el.classList.add("show","err"); }
+  }
+}
+function showPortalMainScreen(){
+  const authEl = document.getElementById("portalAuthScreen");
+  const mainEl = document.getElementById("portalMainScreen");
+  if (authEl) authEl.style.display = "none";
+  if (mainEl) mainEl.style.display = "";
+}
+
+document.getElementById("portalLoginForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("portalLoginMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին։";
+    msg.classList.add("show","err"); return;
+  }
+  const email = portalNormalizeIdentifier(document.getElementById("portalLoginId").value);
+  const pass = document.getElementById("portalLoginPass").value;
+  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  if (error){
+    msg.textContent = "Մուտքը ձախողվեց՝ " + error.message;
+    msg.classList.add("show","err"); return;
+  }
+  // onAuthStateChange (below) picks this up and renders the right screen
+});
+
+document.getElementById("portalSignupForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("portalSignupMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!SUPABASE_READY){
+    msg.textContent = "Կայքը դեռ միացված չէ Supabase-ին։";
+    msg.classList.add("show","err"); return;
+  }
+  const roleHint = document.querySelector('input[name="portalSignupRole"]:checked').value;
+  const roleLabel = roleHint === "teacher" ? "Ուսուցիչ" : "Ծնող";
+  const name = document.getElementById("portalSignupName").value.trim();
+  const email = portalNormalizeIdentifier(document.getElementById("portalSignupId").value, portalSignupIdMode);
+  const pass = document.getElementById("portalSignupPass").value;
+  const { error } = await supabase.auth.signUp({
+    email, password: pass,
+    options: { data: { name: `[${roleLabel}] ${name}` } }
+  });
+  if (error){
+    msg.textContent = "Սխալ՝ " + error.message;
+    msg.classList.add("show","err"); return;
+  }
+  msg.textContent = "Հայտն ուղարկվեց ✔ Սպասեք ադմինիստրատորի հաստատմանը, ապա մուտք գործեք «Մուտք» ներդիրից։";
+  msg.classList.add("show","ok");
+  e.target.reset();
+});
+
+document.getElementById("portalSignOutBtn")?.addEventListener("click", ()=> supabase.auth.signOut());
+
+async function handlePortalAuthChange(session){
+  if (!session){
+    portalUser = null; portalRole = null;
+    showPortalAuthScreen();
+    return;
+  }
+  try{
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
+    const role = profile ? profile.role : null;
+    if (role !== "teacher" && role !== "parent"){
+      // Admin/SMM/pending accounts don't belong in this modal at all —
+      // silently ignore rather than forcing a sign-out, since the same
+      // session might simultaneously be an admin actively using admin.html
+      // in another tab.
+      return;
+    }
+    portalUser = session.user;
+    portalRole = role;
+  }catch(err){ return; }
+
+  showPortalMainScreen();
+  if (portalRole === "teacher") renderPortalTeacherView();
+  else renderPortalParentView();
+}
+
+if (SUPABASE_READY){
+  supabase.auth.onAuthStateChange((_event, session) => { handlePortalAuthChange(session); });
+}
+
+async function renderPortalParentView(){
+  document.getElementById("portalMainHeading").textContent = "👨‍👩‍👧 Հայտարարություններ";
+  const content = document.getElementById("portalMainContent");
+  content.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  try{
+    const { data: links, error: linksErr } = await supabase.from("parent_links").select("*").eq("parent_user_id", portalUser.id);
+    if (linksErr) throw linksErr;
+    if (!links || !links.length){
+      content.innerHTML = `<div class="portal-empty-note">Ձեր հաշիվը դեռ կապակցված չէ երեխայի գրանցման հետ։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      return;
+    }
+    const registrationIds = links.map(l=>l.registration_id);
+    const { data: assignments, error: caErr } = await supabase
+      .from("class_assignments")
+      .select("*, schedule(*)")
+      .in("registration_id", registrationIds);
+    if (caErr) throw caErr;
+    if (!assignments || !assignments.length){
+      content.innerHTML = `<div class="portal-empty-note">Ձեր երեխան դեռ նշանակված չէ որևէ դասի։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      return;
+    }
+
+    const scheduleIds = [...new Set(assignments.map(a=>a.schedule_id))];
+    const { data: announcements, error: annErr } = await supabase
+      .from("course_announcements")
+      .select("*")
+      .in("schedule_id", scheduleIds)
+      .order("created_at", { ascending:false });
+    if (annErr) throw annErr;
+
+    const scheduleById = {};
+    assignments.forEach(a=>{ if (a.schedule) scheduleById[a.schedule_id] = a.schedule; });
+
+    content.innerHTML = scheduleIds.map(sid=>{
+      const sched = scheduleById[sid];
+      if (!sched) return "";
+      const items = (announcements || []).filter(a=>a.schedule_id === sid);
+      const body = items.length
+        ? items.map(a=>`
+            <div class="portal-announcement">
+              <span class="a-date">${new Date(a.created_at).toLocaleDateString("hy-AM")}</span>
+              <h3>${escapeHtml(a.title)}</h3>
+              ${a.body ? `<p>${escapeHtml(a.body)}</p>` : ""}
+              ${a.teacher_name ? `<div class="a-teacher">— ${escapeHtml(a.teacher_name)}</div>` : ""}
+            </div>`).join("")
+        : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան այս դասի համար։</p></div>`;
+      return `
+        <div class="course-group">
+          <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
+          <div class="course-group-body">${body}</div>
+        </div>`;
+    }).join("") || `<div class="portal-empty-note">Դեռ ոչինչ չկա ցուցադրելու համար։</div>`;
+  }catch(err){
+    content.innerHTML = `<div class="portal-empty-note">Սխալ՝ ${err.message}</div>`;
+  }
+}
+
+async function renderPortalTeacherView(){
+  document.getElementById("portalMainHeading").textContent = "🧑‍🏫 Իմ դասերի հայտարարությունները";
+  const content = document.getElementById("portalMainContent");
+  content.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  try{
+    const { data: assigns, error: taErr } = await supabase
+      .from("teacher_assignments")
+      .select("*, schedule(*)")
+      .eq("teacher_user_id", portalUser.id);
+    if (taErr) throw taErr;
+    if (!assigns || !assigns.length){
+      content.innerHTML = `<div class="portal-empty-note">Ձեր հաշիվը դեռ կապակցված չէ որևէ դասի հետ։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      return;
+    }
+
+    const scheduleIds = assigns.map(a=>a.schedule_id);
+    const { data: announcements, error: annErr } = await supabase
+      .from("course_announcements")
+      .select("*")
+      .in("schedule_id", scheduleIds)
+      .order("created_at", { ascending:false });
+    if (annErr) throw annErr;
+
+    content.innerHTML = assigns.map(a=>{
+      const sched = a.schedule;
+      if (!sched) return "";
+      const items = (announcements || []).filter(x=>x.schedule_id === a.schedule_id);
+      const list = items.length ? items.map(x=>`
+        <div class="portal-announcement">
+          <span class="a-date">${new Date(x.created_at).toLocaleDateString("hy-AM")}</span>
+          <h3>${escapeHtml(x.title)}</h3>
+          ${x.body ? `<p>${escapeHtml(x.body)}</p>` : ""}
+          <div class="a-actions">
+            <button class="btn ghost small" data-editann="${x.id}">Խմբագրել</button>
+            <button class="btn danger small" data-delann="${x.id}">Ջնջել</button>
+          </div>
+        </div>`).join("") : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան։</p></div>`;
+      return `
+        <div class="course-group">
+          <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
+          <div class="course-group-body">
+            <div class="portal-announcement" style="background:var(--paper-dim);">
+              <form data-postform="${a.schedule_id}">
+                <div class="field"><label>Վերնագիր</label><input data-field="title" required></div>
+                <div class="field" style="margin-top:10px;"><label>Տեքստ</label><textarea data-field="body" rows="3"></textarea></div>
+                <button class="btn apricot small" type="submit" style="margin-top:10px;">Հրապարակել</button>
+                <div class="form-msg" data-postmsg></div>
+              </form>
+            </div>
+            ${list}
+          </div>
+        </div>`;
+    }).join("");
+
+    content.querySelectorAll("[data-postform]").forEach(form=>{
+      form.addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        const scheduleId = form.dataset.postform;
+        const msgEl = form.querySelector("[data-postmsg]");
+        msgEl.className = "form-msg"; msgEl.textContent = "";
+        const title = form.querySelector('[data-field="title"]').value.trim();
+        const body = form.querySelector('[data-field="body"]').value.trim();
+        try{
+          const { error } = await supabase.from("course_announcements").insert({
+            schedule_id: scheduleId, title, body: body || null,
+            teacher_user_id: portalUser.id, teacher_name: portalUser.email
+          });
+          if (error) throw error;
+          renderPortalTeacherView();
+        }catch(err){
+          msgEl.textContent = "Սխալ՝ " + err.message; msgEl.classList.add("show","err");
+        }
+      });
+    });
+    content.querySelectorAll("[data-delann]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս հայտարարությունը։")) return;
+        await supabase.from("course_announcements").delete().eq("id", b.dataset.delann);
+        renderPortalTeacherView();
+      });
+    });
+    content.querySelectorAll("[data-editann]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const newTitle = prompt("Նոր վերնագիր.");
+        if (newTitle === null) return;
+        const newBody = prompt("Նոր տեքստ.");
+        if (newBody === null) return;
+        await supabase.from("course_announcements").update({
+          title: newTitle.trim(), body: newBody.trim() || null, updated_at: new Date().toISOString()
+        }).eq("id", b.dataset.editann);
+        renderPortalTeacherView();
+      });
+    });
+  }catch(err){
+    content.innerHTML = `<div class="portal-empty-note">Սխալ՝ ${err.message}</div>`;
   }
 }
 
