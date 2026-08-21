@@ -3339,20 +3339,39 @@ async function handlePortalAuthChange(session){
     showPortalAuthScreen();
     return;
   }
-  try{
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
-    const role = profile ? profile.role : null;
-    if (role !== "teacher" && role !== "parent"){
-      // Admin/SMM/pending accounts don't belong in this modal at all —
-      // silently ignore rather than forcing a sign-out, since the same
-      // session might simultaneously be an admin actively using admin.html
-      // in another tab.
-      return;
-    }
-    portalUser = session.user;
-    portalRole = role;
-  }catch(err){ return; }
+  let role = null;
+  let queryError = null;
+  const { data: profile, error: profileErr } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
+  if (profileErr){
+    queryError = profileErr;
+  } else {
+    role = profile ? profile.role : null;
+  }
 
+  if (queryError){
+    // A real database/network error, not just "no role assigned yet" —
+    // show it plainly instead of masking it as a pending-approval message,
+    // which would send someone chasing the wrong problem.
+    portalUser = null; portalRole = null;
+    await supabase.auth.signOut();
+    showPortalAuthScreen("Սխալ՝ " + queryError.message);
+    return;
+  }
+  if (!role){
+    portalUser = null; portalRole = null;
+    await supabase.auth.signOut();
+    showPortalAuthScreen("Ձեր հաշիվը դեռ սպասում է ադմինիստրատորի հաստատմանը։");
+    return;
+  }
+  if (role !== "teacher" && role !== "parent"){
+    portalUser = null; portalRole = null;
+    await supabase.auth.signOut();
+    showPortalAuthScreen("Այս հաշիվն անձնակազմի հաշիվ է։ Խնդրում ենք օգտագործել «🔐 Անձնակազմի մուտք» կոճակը։");
+    return;
+  }
+
+  portalUser = session.user;
+  portalRole = role;
   showPortalMainScreen();
   if (portalRole === "teacher") renderPortalTeacherView();
   else renderPortalParentView();
