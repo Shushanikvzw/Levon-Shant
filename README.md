@@ -256,6 +256,15 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: the schedule PDF (with student names) showing blank on mobile.** The PDF
+  export builds the table as real HTML first, hidden off-screen, then photographs it
+  into the PDF — the previous "hide it 9999px off to the left" technique is unreliable
+  on mobile browsers, which often skip properly rendering content positioned that far
+  outside the viewport. It's now hidden with a negative stacking order at normal
+  on-screen coordinates instead (invisible to you, but laid out normally so mobile
+  browsers render it correctly), and the capture size is now specified explicitly so
+  the table's actual width isn't affected by how narrow the phone's own screen is.
+
 - **New: download a full schedule overview as Excel or PDF.** Two buttons at the top
   of the "🗓️ Դասացուցակ" tab — "⬇️ Excel դասացուցակ" and "⬇️ PDF դասացուցակ" — export
   every class time, course, and teacher, **plus the actual students assigned to each

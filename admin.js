@@ -1391,7 +1391,7 @@ document.getElementById("exportSchedulePdfBtn")?.addEventListener("click", async
     // jsPDF's built-in fonts only cover Latin script and would show Armenian
     // text as blank boxes if used directly.
     const wrap = document.createElement("div");
-    wrap.style.cssText = "position:fixed; left:-9999px; top:0; width:1000px; background:#fff; padding:28px; font-family:'Noto Serif Armenian', serif; color:#1a1a1a;";
+    wrap.style.cssText = "position:absolute; top:0; left:0; z-index:-9999; width:1000px; background:#fff; padding:28px; font-family:'Noto Serif Armenian', serif; color:#1a1a1a;";
     wrap.innerHTML = `
       <h1 style="font-size:22px; margin:0 0 4px;">Դասացուցակ</h1>
       <p style="font-size:12px; color:#666; margin:0 0 18px;">Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց · ${new Date().toLocaleDateString("hy-AM")}</p>
@@ -1418,7 +1418,14 @@ document.getElementById("exportSchedulePdfBtn")?.addEventListener("click", async
       </table>`;
     document.body.appendChild(wrap);
 
-    const canvas = await html2canvas(wrap, { scale: 2, backgroundColor: "#ffffff" });
+    const canvas = await html2canvas(wrap, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      width: wrap.scrollWidth,
+      height: wrap.scrollHeight,
+      windowWidth: wrap.scrollWidth,
+      windowHeight: wrap.scrollHeight
+    });
     document.body.removeChild(wrap);
 
     const { jsPDF } = window.jspdf;
