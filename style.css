@@ -152,7 +152,7 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
 
 .course-group{ margin-bottom:28px; }
 .course-group-head{
-  display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--ink); color:#fff;
+  display:flex; align-items:center; flex-wrap:wrap; gap:6px 10px; padding:12px 16px; background:var(--ink); color:#fff;
   border-radius:12px 12px 0 0; font-family:'Noto Serif Armenian',serif; font-weight:700;
 }
 .course-group-body{ border:1px solid var(--line); border-top:none; border-radius:0 0 12px 12px; background:var(--card); }
@@ -164,6 +164,34 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
 .portal-announcement .a-teacher{ font-size:.78rem; color:var(--ink-soft); margin-top:8px; }
 .portal-announcement .a-actions{ display:flex; gap:8px; margin-top:10px; }
 .portal-empty-note{ padding:30px; text-align:center; color:var(--ink-soft); background:var(--card); border:1.5px dashed var(--line); border-radius:12px; }
+
+@media (max-width:480px){
+  /* Sign-up role picker and email/phone toggle: stack vertically instead
+     of squeezing two labels with emoji + text side by side into ~140px */
+  .role-pick{ flex-direction:column; gap:8px; }
+  .role-pick label{ justify-content:flex-start; padding:12px 14px; font-size:.88rem; }
+  .id-toggle{ gap:8px; }
+  .id-toggle button{ padding:11px 8px; font-size:.85rem; }
+
+  /* Course group header: bigger tap-friendly spacing, course name and
+     time badge each get their own line if they don't fit together */
+  .course-group-head{ padding:14px 16px; font-size:.95rem; }
+
+  /* Teacher's post form and each announcement card: a bit less padding
+     so more content fits without feeling cramped, full-width controls */
+  .portal-announcement{ padding:14px; }
+  .portal-announcement .a-actions{ flex-wrap:wrap; }
+  .portal-announcement .a-actions .btn{ flex:1; justify-content:center; }
+
+  /* Header login buttons: stack everything in its own full-width column
+     on narrow screens — simpler and more predictable than trying to wrap
+     four differently-sized items (language switch, two login buttons,
+     menu icon) across a shrink-wrapped row */
+  .nav-actions{ flex-direction:column; align-items:stretch; width:100%; gap:10px; }
+  .nav-actions .lang-toggle{ align-self:center; }
+  .nav-actions .menu-toggle{ align-self:center; }
+  .staff-login-btn{ justify-content:center; width:100%; }
+}
 .lang-toggle button:hover:not(.active){ color:var(--ink); }
 .menu-toggle{display:none; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--ink); order:2;}
 

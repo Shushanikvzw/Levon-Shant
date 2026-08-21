@@ -267,6 +267,15 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Mobile pass on the parent/teacher portal.** The header's two login buttons
+  (admin and parent/teacher) now stack cleanly into their own full-width column on
+  phones instead of competing for space alongside the language switch and menu icon.
+  The sign-up form's "Ես ծնող եմ / Ես ուսուցիչ եմ" picker and the email/phone toggle
+  switch from side-by-side to stacked, since two labels with an emoji and text each
+  were too cramped at ~140px wide. The Edit/Delete buttons under each announcement
+  become full-width and stack if needed, and course headers wrap the course name and
+  time badge onto separate lines instead of forcing them to fit on one.
+
 - **Parent/teacher login moved into the main site — no separate page anymore.** What
   was `portal.html` is now a "👨‍👩‍👧 Ծնող/Ուսուցիչ" button right in the header (next to
   the staff login button) and a matching link in the footer, both on `index.html`
