@@ -281,6 +281,14 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: the homepage's "1999 / Mechelen / Hamazkayin" stats strip is now editable.**
+  These three items (and their small captions underneath — "հիմնադրման տարեթիվ",
+  "Nijverheidsstraat 45", "հայկական կրթական ցանց") were previously hardcoded directly
+  in the page and had no admin field at all — the small captions could already be
+  translated between languages, but nothing about them was editable. All six pieces
+  now appear in the "Hero" section of "📝 Բովանդակություն" (Site Content), pre-filled
+  with the current live text, in all three languages.
+
 - **Fixed: the address (and other Settings fields) reverting to the old value.** The
   save itself was actually working correctly — the bug was that the Settings form
   had a shortcut that reused an in-memory copy of the site's text instead of

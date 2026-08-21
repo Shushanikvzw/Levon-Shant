@@ -1192,6 +1192,12 @@ async function loadNewSectionsAdmin(){
 const DEFAULT_CONTENT = {
   "hero.title": { hy:"Բարի գալուստ Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց", nl:"Welkom bij de Hamazkayin Levon Shant Zaterdagschool", en:"Welcome to the Hamazkayin Levon Shant Saturday School" },
   "hero.lede": { hy:"Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում հայ երեխաներն ու ընտանիքները սովորում են հայոց լեզու, պատմություն և մշակույթ, և մասնակցում մշակութային ու երիտասարդական միջոցառումների՝ ամեն շաբաթ, Մեխելեն քաղաքում։", nl:"Op de Hamazkayin Levon Shant Zaterdagschool leren Armeense kinderen en gezinnen de Armeense taal, geschiedenis en cultuur, en nemen ze elke week deel aan culturele en jongerenevenementen in Mechelen.", en:"At the Hamazkayin Levon Shant Saturday School, Armenian children and families learn the Armenian language, history, and culture, and take part every week in cultural and youth activities in Mechelen." },
+  "hero.factNum1": { hy:"1999", nl:"1999", en:"1999" },
+  "hero.fact1": { hy:"հիմնադրման տարեթիվ", nl:"oprichtingsjaar", en:"founding year" },
+  "hero.factNum2": { hy:"Mechelen", nl:"Mechelen", en:"Mechelen" },
+  "hero.fact2": { hy:"Nijverheidsstraat 45", nl:"Nijverheidsstraat 45", en:"Nijverheidsstraat 45" },
+  "hero.factNum3": { hy:"Hamazkayin", nl:"Hamazkayin", en:"Hamazkayin" },
+  "hero.fact3": { hy:"հայկական կրթական ցանց", nl:"Armeens onderwijsnetwerk", en:"Armenian education network" },
   "about.eyebrow": { hy:"Մեր դպրոցը", nl:"Onze school", en:"Our school" },
   "about.title": { hy:"Պատմություն և հիմնադրում", nl:"Geschiedenis en oprichting", en:"History and founding" },
   "about.p1": { hy:"1999–2000 ուսումնական տարում, Բելգիայի ՀՅԴ կուսակցության նախաձեռնությամբ, Մեխելենում հիմնադրվեց Լևոն Շանթի անվան շաբաթօրյա դպրոցը։", nl:"In het schooljaar 1999–2000 werd, op initiatief van de Belgische ARF-partij, de Levon Shant Zaterdagschool opgericht in Mechelen.", en:"In the 1999–2000 school year, on the initiative of the Belgian ARF party, the Levon Shant Saturday School was founded in Mechelen." },
@@ -1260,6 +1266,12 @@ const DEFAULT_CLASSES = {
 const CONTENT_FIELDS = [
   { section:"Hero", key:"hero.title", label:"Վերնագիր" },
   { section:"Hero", key:"hero.lede",  label:"Նկարագրություն", area:true },
+  { section:"Hero", key:"hero.factNum1", label:"Փաստ 1 — մեծ թիվ/բառ (օր.՝ 1999)" },
+  { section:"Hero", key:"hero.fact1", label:"Փաստ 1 — փոքր տեքստ" },
+  { section:"Hero", key:"hero.factNum2", label:"Փաստ 2 — մեծ թիվ/բառ (օր.՝ Mechelen)" },
+  { section:"Hero", key:"hero.fact2", label:"Փաստ 2 — փոքր տեքստ" },
+  { section:"Hero", key:"hero.factNum3", label:"Փաստ 3 — մեծ թիվ/բառ (օր.՝ Hamazkayin)" },
+  { section:"Hero", key:"hero.fact3", label:"Փաստ 3 — փոքր տեքստ" },
 
   { section:"Մեր դպրոցը", key:"about.eyebrow", label:"Փոքր վերնագրիկ" },
   { section:"Մեր դպրոցը", key:"about.title", label:"Վերնագիր" },
