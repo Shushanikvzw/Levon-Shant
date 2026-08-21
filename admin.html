@@ -131,6 +131,7 @@
         <button class="sidebar-link" data-panel="panel-classroster" data-title="👥 Դասարանների ուսանողներ" data-admin-only="1">👥 Դասարանների ուսանողներ</button>
         <button class="sidebar-link" data-panel="panel-reg" data-title="📋 Գրանցումներ" data-admin-only="1">📋 Գրանցումներ</button>
         <button class="sidebar-link" data-panel="panel-users" data-title="👤 Հաշիվներ" data-admin-only="1">👤 Հաշիվներ</button>
+        <button class="sidebar-link" data-panel="panel-teacherparent" data-title="🔑 Ուսուցիչ/ծնող կապեր" data-admin-only="1">🔑 Ուսուցիչ/ծնող կապեր</button>
         <button class="sidebar-link" data-panel="panel-content" data-title="📝 Կայքի բովանդակություն" data-admin-only="1">📝 Կայքի բովանդակություն</button>
         <button class="sidebar-link" data-panel="panel-newsections" data-title="🧩 Նոր բաժիններ" data-admin-only="1">🧩 Նոր բաժիններ</button>
         <button class="sidebar-link" data-panel="panel-settings" data-title="⚙️ Կարգավորումներ" data-admin-only="1">⚙️ Կարգավորումներ</button>
@@ -405,7 +406,7 @@
 
       <!-- Users (admin only) -->
       <div class="dash-panel" id="panel-users">
-        <div class="banner warn">Նոր անձնակազմը գրանցվում է ինքնուրույն («Անձնակազմի մուտք» → «Գրանցվել որպես անձնակազմ»)՝ ընտրելով սեփական email և գաղտնաբառ։ Ստորև Դուք հաստատում եք հայտը՝ նշանակելով դեր (Admin կամ SMM)։ Առանց դերի հաշիվները մուտք գործել չեն կարող։</div>
+        <div class="banner warn">Նոր հաշիվները (անձնակազմ, ուսուցիչ, ծնող) գրանցվում են ինքնուրույն («Ծնողների/ուսուցիչների մուտք» կամ «Անձնակազմի մուտք» էջից)՝ ընտրելով սեփական մուտքագիր (email կամ հեռախոս) և գաղտնաբառ։ Ստորև Դուք հաստատում եք հայտը՝ նշանակելով դեր։ Ուսուցիչի/ծնողի դեպքում այնուհետև անհրաժեշտ է նաև կապակցել նրանց «🔑 Ուսուցիչ/ծնող կապեր» բաժնում, հակառակ դեպքում նրանք ոչինչ չեն տեսնի։</div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Անուն</th><th>Email</th><th>Ընթացիկ դեր</th><th>Նոր դեր</th><th></th></tr></thead>
@@ -414,6 +415,40 @@
         </div>
         <div class="form-msg" id="userMsg" style="margin-top:14px;"></div>
       </div>
+
+      <!-- Teacher/parent linking (admin only) -->
+      <div class="dash-panel" id="panel-teacherparent">
+        <div class="banner warn">🔑 Այստեղ կապակցեք ուսուցիչի հաշիվը իր դասավանդած դասին (դասերին), և ծնողի հաշիվը իր երեխայի գրանցմանը։ Առանց այս կապակցման, ուսուցիչը/ծնողը մուտք գործելուց հետո ոչինչ չեն տեսնի։</div>
+
+        <h3>🧑‍🏫 Ուսուցիչի դասեր</h3>
+        <div class="field" style="max-width:420px; margin-bottom:14px;">
+          <label for="teacherLinkSelect">Ընտրեք ուսուցչի հաշիվը</label>
+          <select id="teacherLinkSelect"><option value="">— ընտրեք —</option></select>
+        </div>
+        <div id="teacherLinkClasses" style="display:none;">
+          <p class="helper" style="margin-bottom:10px;">Նշեք, թե որ դասին(երին) է դասավանդում այս ուսուցիչը.</p>
+          <div id="teacherLinkChecklist" class="field-row" style="flex-wrap:wrap; gap:8px;"></div>
+          <button class="btn blue small" id="teacherLinkSaveBtn" style="margin-top:12px;">Պահպանել</button>
+          <div class="form-msg" id="teacherLinkMsg"></div>
+        </div>
+
+        <h3 style="margin-top:32px;">👨‍👩‍👧 Ծնողի երեխա(ներ)</h3>
+        <div class="field" style="max-width:420px; margin-bottom:14px;">
+          <label for="parentLinkSelect">Ընտրեք ծնողի հաշիվը</label>
+          <select id="parentLinkSelect"><option value="">— ընտրեք —</option></select>
+        </div>
+        <div id="parentLinkContent" style="display:none;">
+          <p class="helper" style="margin-bottom:8px;">Կապակցված երեխա(ներ).</p>
+          <div id="parentLinkedList" style="margin-bottom:16px;"></div>
+          <div class="field" style="max-width:420px;">
+            <label for="parentLinkAddSelect">➕ Կապակցել նոր գրանցում</label>
+            <select id="parentLinkAddSelect"></select>
+          </div>
+          <button class="btn blue small" id="parentLinkAddBtn" style="margin-top:10px;">Կապակցել</button>
+          <div class="form-msg" id="parentLinkMsg"></div>
+        </div>
+      </div>
+
       <!-- Site content (admin only) -->
       <div class="dash-panel" id="panel-content">
         <div class="banner warn">📌 Ամեն դաշտում արդեն ցուցադրված է կայքում <strong>հենց հիմա</strong> երևացող տեքստը՝ ինչպես հայերեն, այնպես էլ հոլանդերեն և անգլերեն։ Փոփոխեք միայն այն դաշտերը, որոնց տեքստը ուզում եք փոխել, և սեղմեք «Պահպանել» ներքևում։ Անփոփոխ թողած դաշտերը կմնան այնպես, ինչպես կան։</div>

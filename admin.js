@@ -165,7 +165,7 @@ function renderDashboard(){
   loadCancellationScheduleOptions();
   loadStaffAdmin();
   loadYearCalAdmin();
-  if (currentRole === "admin"){ loadRegistrations(); loadUsers(); renderContentForm(); loadContactInfoForm(); loadNewSectionsAdmin(); loadClassRosterTab(); }
+  if (currentRole === "admin"){ loadRegistrations(); loadUsers(); renderContentForm(); loadContactInfoForm(); loadNewSectionsAdmin(); loadClassRosterTab(); loadTeacherParentLinks(); }
 }
 
 // ---------------------------------------------------------
@@ -759,6 +759,8 @@ async function loadUsers(){
             <option value="" ${!u.role ? "selected" : ""}>— (առանց հասանելիության)</option>
             <option value="smm" ${u.role==='smm' ? "selected" : ""}>SMM</option>
             <option value="admin" ${u.role==='admin' ? "selected" : ""}>Admin</option>
+            <option value="teacher" ${u.role==='teacher' ? "selected" : ""}>🧑‍🏫 Ուսուցիչ</option>
+            <option value="parent" ${u.role==='parent' ? "selected" : ""}>👨‍👩‍👧 Ծնող</option>
           </select>
         </td>
         <td>${u.id !== currentUser.id ? `<button class="btn blue small" data-saverole="${u.id}">Պահպանել</button>` : `<span class="helper">Դուք</span>`}</td>
@@ -772,13 +774,146 @@ async function loadUsers(){
         msg.className = "form-msg";
         const { error } = await supabase.from("profiles").update({ role: newRole }).eq("id", id);
         if (error){ msg.textContent = "Սխալ՝ " + error.message; msg.classList.add("show","err"); }
-        else { msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok"); loadUsers(); }
+        else { msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok"); loadUsers(); loadTeacherParentLinks(); }
       });
     });
   }catch(err){
     body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
+
+// ---------------------------------------------------------
+// Teacher/parent linking — connects a teacher account to the
+// class(es) they teach, and a parent account to their child's
+// registration. Without this link, a teacher/parent account can
+// sign in but sees nothing (by design — RLS only grants access
+// once linked).
+// ---------------------------------------------------------
+async function loadTeacherParentLinks(){
+  const teacherSelect = document.getElementById("teacherLinkSelect");
+  const parentSelect = document.getElementById("parentLinkSelect");
+  if (!teacherSelect || !parentSelect) return;
+  try{
+    const { data: profiles, error } = await supabase.from("profiles").select("*").order("created_at", { ascending:false });
+    if (error) throw error;
+    const teachers = (profiles || []).filter(p=>p.role === "teacher");
+    const parents = (profiles || []).filter(p=>p.role === "parent");
+    teacherSelect.innerHTML = `<option value="">— ընտրեք —</option>` + teachers.map(t=>
+      `<option value="${t.id}">${escapeHtml(t.name||t.email||"")}</option>`
+    ).join("");
+    parentSelect.innerHTML = `<option value="">— ընտրեք —</option>` + parents.map(p=>
+      `<option value="${p.id}">${escapeHtml(p.name||p.email||"")}</option>`
+    ).join("");
+  }catch(err){
+    console.warn("Could not load teacher/parent accounts:", err.message);
+  }
+}
+
+document.getElementById("teacherLinkSelect")?.addEventListener("change", async (e)=>{
+  const teacherId = e.target.value;
+  const wrap = document.getElementById("teacherLinkClasses");
+  const checklist = document.getElementById("teacherLinkChecklist");
+  if (!teacherId){ wrap.style.display = "none"; return; }
+  wrap.style.display = "";
+  checklist.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  try{
+    const [scheduleRows, { data: existing, error }] = await Promise.all([
+      fetchSchedule(),
+      supabase.from("teacher_assignments").select("*").eq("teacher_user_id", teacherId)
+    ]);
+    if (error) throw error;
+    const assignedIds = new Set((existing || []).map(a=>a.schedule_id));
+    checklist.innerHTML = scheduleRows.length ? scheduleRows.map(r=>`
+      <label style="display:flex; align-items:center; gap:6px; background:var(--paper-dim); padding:8px 12px; border-radius:10px; cursor:pointer;">
+        <input type="checkbox" value="${r.id}" ${assignedIds.has(r.id) ? "checked" : ""} style="width:auto;">
+        <span style="font-size:.85rem;">${timeLabel(r.start)}–${timeLabel(r.end)} — ${escapeHtml(r.course||"")}</span>
+      </label>`).join("") : `<p class="helper">Դասացուցակը դատարկ է։</p>`;
+  }catch(err){
+    checklist.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
+  }
+});
+
+document.getElementById("teacherLinkSaveBtn")?.addEventListener("click", async ()=>{
+  const teacherId = document.getElementById("teacherLinkSelect").value;
+  const msg = document.getElementById("teacherLinkMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!teacherId) return;
+  try{
+    const checked = [...document.querySelectorAll("#teacherLinkChecklist input:checked")].map(cb=>cb.value);
+    const { data: existing } = await supabase.from("teacher_assignments").select("*").eq("teacher_user_id", teacherId);
+    const existingIds = new Set((existing || []).map(a=>a.schedule_id));
+    const toAdd = checked.filter(id=>!existingIds.has(id));
+    const toRemove = (existing || []).filter(a=>!checked.includes(a.schedule_id));
+    if (toAdd.length){
+      const { error } = await supabase.from("teacher_assignments").insert(toAdd.map(schedule_id=>({ teacher_user_id: teacherId, schedule_id })));
+      if (error) throw error;
+    }
+    for (const a of toRemove){
+      await supabase.from("teacher_assignments").delete().eq("id", a.id);
+    }
+    msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+document.getElementById("parentLinkSelect")?.addEventListener("change", ()=> refreshParentLinks());
+
+async function refreshParentLinks(){
+  const parentId = document.getElementById("parentLinkSelect").value;
+  const content = document.getElementById("parentLinkContent");
+  const listEl = document.getElementById("parentLinkedList");
+  const addSelect = document.getElementById("parentLinkAddSelect");
+  if (!parentId){ content.style.display = "none"; return; }
+  content.style.display = "";
+  listEl.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  try{
+    const { data: links, error } = await supabase.from("parent_links").select("*, registrations(*)").eq("parent_user_id", parentId);
+    if (error) throw error;
+    listEl.innerHTML = (links && links.length) ? links.map(l=>{
+      const r = l.registrations;
+      return `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--paper-dim); padding:8px 12px; border-radius:10px; margin-bottom:6px;">
+        <span>${r ? escapeHtml(registrantDisplayName(r)) : "(գրանցումը ջնջված է)"}</span>
+        <button class="btn danger small" data-removelink="${l.id}">Հեռացնել</button>
+      </div>`;
+    }).join("") : `<p class="helper">Դեռ կապակցված երեխա չկա։</p>`;
+
+    listEl.querySelectorAll("[data-removelink]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        await supabase.from("parent_links").delete().eq("id", b.dataset.removelink);
+        refreshParentLinks();
+      });
+    });
+
+    if (!registrationsCache.length){
+      const { data } = await supabase.from("registrations").select("*").order("submitted_at", { ascending:false });
+      registrationsCache = data || [];
+    }
+    const linkedRegIds = new Set((links || []).map(l=>l.registration_id));
+    const candidates = registrationsCache.filter(r=>!linkedRegIds.has(r.id));
+    addSelect.innerHTML = candidates.length
+      ? candidates.map(r=>`<option value="${r.id}">${escapeHtml(registrantDisplayName(r))} (${r.type === "child" ? "երեխա" : "մեծահասակ"})</option>`).join("")
+      : `<option value="">Բոլոր գրանցումներն արդեն կապակցված են</option>`;
+  }catch(err){
+    listEl.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
+  }
+}
+
+document.getElementById("parentLinkAddBtn")?.addEventListener("click", async ()=>{
+  const parentId = document.getElementById("parentLinkSelect").value;
+  const registrationId = document.getElementById("parentLinkAddSelect").value;
+  const msg = document.getElementById("parentLinkMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (!parentId || !registrationId) return;
+  try{
+    const { error } = await supabase.from("parent_links").insert({ parent_user_id: parentId, registration_id: registrationId });
+    if (error) throw error;
+    msg.textContent = "Կապակցվեց ✔"; msg.classList.add("show","ok");
+    refreshParentLinks();
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
 
 // ---------------------------------------------------------
 // Custom sections — admin can add whole new content blocks

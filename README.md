@@ -33,9 +33,11 @@ Two roles:
 ```
 index.html                     the public website (no editing tools)
 admin.html                      the separate admin area: sign-in/sign-up + sidebar dashboard
-style.css                       shared design system for both pages
+portal.html                     separate login page for parents and teachers (not admin/SMM)
+style.css                       shared design system for all three pages
 app.js                          public-site logic: i18n, calendar, registration forms, EmailJS
 admin.js                        admin-only logic: auth, all publishing/editing/CRUD actions
+portal.js                       parent/teacher auth and their announcement views
 supabase/migrations/0001_init.sql        database schema + Row Level Security + storage buckets
 supabase/migrations/0002_add_english.sql adds English columns for trilingual support
 supabase/migrations/0003_trilingual_staff_schedule_posts.sql adds Dutch/English columns for
@@ -63,6 +65,8 @@ supabase/migrations/0014_class_assignments.sql  adds the ability to assign regis
                                           students to specific schedule slots
 supabase/migrations/0015_cancel_specific_course.sql  adds the ability to cancel a single
                                           specific course on a Saturday, not just the whole day
+supabase/migrations/0016_parent_teacher_roles.sql  adds parent and teacher roles, with
+                                          per-class announcements and access control
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -138,8 +142,10 @@ all succeeded).
     Adds the ability to assign registered students to specific schedule slots.
 16. New query again → paste `supabase/migrations/0015_cancel_specific_course.sql`
     → **Run**. Adds the ability to cancel one specific course on a Saturday.
+17. New query again → paste `supabase/migrations/0016_parent_teacher_roles.sql`
+    → **Run**. Adds parent and teacher roles, per-class announcements, and access control.
 
-All fifteen files are safe to re-run if needed.
+All sixteen files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -255,6 +261,47 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: parent and teacher roles, with per-class announcements.** A separate page,
+  `portal.html`, is where parents and teachers sign in — completely separate from
+  `admin.html`, so they never see any admin controls.
+
+  **Important — how account creation actually works.** Admin *cannot* directly type in
+  a password for someone and hand it to them — doing that client-side would require
+  embedding a privileged admin key in the browser, which anyone could extract from the
+  page and use to gain full control of the database. Instead: the parent or teacher
+  creates their own login on `portal.html` (choosing "Ես ծնող եմ" or "Ես ուսուցիչ եմ",
+  their own email or phone number, and their own password) — the account sits pending
+  until admin approves it in "👤 Հաշիվներ" (assigning it the role "🧑‍🏫 Ուսուցիչ" or
+  "👨‍👩‍👧 Ծնող"). Admin still fully controls who gets in and what they can see —
+  the only difference from what was asked is that the *password itself* is never
+  admin's to set. If true admin-generated credentials (parent never creates their own
+  account at all) turn out to matter enough to be worth it, that's possible too, but
+  needs a small server-side function (a Supabase Edge Function) rather than something
+  that can run safely in the browser — let me know if you'd like that built.
+
+  **Login by phone number**: since real SMS-based login needs a paid SMS provider
+  (Twilio or similar) and a phone-verification setup that wasn't part of this project,
+  phone login instead works by quietly turning the phone number into a technical,
+  never-actually-emailed address behind the scenes (e.g. `32487534061@parent.local`)
+  — the parent only ever needs to remember and type their own phone number, they never
+  see or need to know this detail.
+
+  **Linking accounts (the crucial second step)**: approving the role alone isn't
+  enough — a new "🔑 Ուսուցիչ/ծնող կապեր" tab is where admin connects a teacher
+  account to the specific class(es) they teach, and a parent account to their child's
+  registration. Without this link, signing in shows nothing at all (by design — the
+  database itself won't hand over any announcement data until the link exists,
+  regardless of what the page's own code tries to show).
+
+  **What each role actually sees**: a **teacher** sees only their own assigned
+  class(es), can post/edit/delete announcements there, and never sees another
+  teacher's announcements for a different class. A **parent** sees every class their
+  linked child is actually placed in (via the same class roster/assignment system
+  admin already uses to build the schedule — there's no separate manual "assign a
+  course to this parent" step, since a child's real class placement is already the
+  single source of truth), grouped by course, newest announcement first within each
+  group.
 
 - **Fixed: the schedule PDF (with student names) showing blank on mobile.** The PDF
   export builds the table as real HTML first, hidden off-screen, then photographs it

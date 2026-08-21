@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ծնողների և ուսուցիչների մուտք — Լևոն Շանթի անվան շաբաթօրյա դպրոց</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="style.css">
+<style>
+  body{ background:var(--paper-dim); }
+  .portal-topbar{
+    display:flex; align-items:center; justify-content:space-between; padding:14px 24px;
+    background:var(--ink); color:var(--paper);
+  }
+  .portal-topbar a{ color:var(--paper-dim); font-size:.85rem; }
+  .portal-topbar a:hover{ color:#fff; }
+  .portal-brand{ display:flex; align-items:center; gap:10px; font-family:'Noto Serif Armenian',serif; font-weight:700; }
+  .portal-brand .crest-mini{
+    width:30px; height:30px; border-radius:8px; background:linear-gradient(155deg,var(--apricot),var(--pomegranate));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:.75rem; font-weight:700;
+  }
+  .portal-wrap{ min-height:calc(100vh - 60px); display:flex; align-items:flex-start; justify-content:center; padding:40px 20px; }
+  .portal-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); padding:36px; width:100%; max-width:460px; }
+  .portal-card h1{ font-size:1.35rem; margin-bottom:4px; }
+  .portal-card .sub{ color:var(--ink-soft); font-size:.86rem; margin-bottom:20px; }
+  .id-toggle{ display:flex; gap:6px; margin-bottom:14px; }
+  .id-toggle button{
+    flex:1; padding:8px; border-radius:10px; border:1.5px solid var(--line); background:var(--paper);
+    font-size:.82rem; font-weight:600; cursor:pointer; color:var(--ink-soft);
+  }
+  .id-toggle button.active{ background:var(--blue); color:#fff; border-color:var(--blue); }
+  .role-pick{ display:flex; gap:8px; margin-bottom:14px; }
+  .role-pick label{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px;
+    border:1.5px solid var(--line); cursor:pointer; font-size:.85rem; font-weight:600; color:var(--ink-soft);
+  }
+  .role-pick input{ width:auto; margin:0; }
+  .role-pick label:has(input:checked){ border-color:var(--apricot); background:#FFF9F0; color:var(--ink); }
+
+  .main-wrap{ max-width:840px; margin:0 auto; padding:36px 20px 60px; }
+  .main-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:24px; }
+  .main-head h1{ font-size:1.5rem; margin:0; }
+
+  .course-group{ margin-bottom:28px; }
+  .course-group-head{
+    display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--ink); color:#fff;
+    border-radius:12px 12px 0 0; font-family:'Noto Serif Armenian',serif; font-weight:700;
+  }
+  .course-group-body{ border:1px solid var(--line); border-top:none; border-radius:0 0 12px 12px; background:var(--card); }
+  .announcement{ padding:16px 18px; border-bottom:1px dashed var(--line); }
+  .announcement:last-child{ border-bottom:none; }
+  .announcement .a-date{ font-size:.76rem; color:var(--ink-soft); font-weight:600; }
+  .announcement h3{ margin:4px 0 6px; font-size:1rem; }
+  .announcement p{ margin:0; color:var(--ink-soft); line-height:1.6; white-space:pre-line; }
+  .announcement .a-teacher{ font-size:.78rem; color:var(--ink-soft); margin-top:8px; }
+  .announcement .a-actions{ display:flex; gap:8px; margin-top:10px; }
+  .empty-note{ padding:30px; text-align:center; color:var(--ink-soft); background:var(--card); border:1.5px dashed var(--line); border-radius:12px; }
+</style>
+</head>
+<body>
+
+<div class="portal-topbar">
+  <div class="portal-brand"><span class="crest-mini">ԼՇ</span> Ծնողների / ուսուցիչների էջ</div>
+  <a href="index.html">← Վերադառնալ կայք</a>
+</div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div class="portal-wrap" id="authScreen">
+  <div class="portal-card">
+    <h1>Մուտք</h1>
+    <p class="sub">Այս էջը միայն ուսուցիչների և ծնողների համար է։ Անձնակազմի (admin/SMM) մուտքի համար օգտագործեք <a href="admin.html">admin.html</a>։</p>
+    <div class="tabs">
+      <button type="button" class="active" data-authtab="signin">Մուտք</button>
+      <button type="button" data-authtab="signup">Առաջին անգամ եմ՝ ստեղծել հաշիվ</button>
+    </div>
+
+    <form id="loginForm">
+      <div class="field"><label for="loginId">Էլ. փոստ կամ հեռախոսահամար</label><input id="loginId" required placeholder="you@example.com կամ 04XX XX XX XX"></div>
+      <div class="field" style="margin-top:12px;"><label for="loginPass">Գաղտնաբառ</label><input id="loginPass" type="password" required></div>
+      <button class="btn apricot" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Մուտք</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </form>
+
+    <form id="signupForm" style="display:none;">
+      <p class="helper" style="margin-bottom:14px;">Ձեր հաշիվը կակտիվանա միայն դպրոցի ադմինիստրատորի հաստատումից և կապակցումից հետո (Ձեր երեխայի գրանցման կամ դասավանդած դասի հետ)։</p>
+      <div class="role-pick">
+        <label><input type="radio" name="signupRole" value="parent" checked> 👨‍👩‍👧 Ես ծնող եմ</label>
+        <label><input type="radio" name="signupRole" value="teacher"> 🧑‍🏫 Ես ուսուցիչ եմ</label>
+      </div>
+      <div class="field"><label for="signupName">Անուն, ազգանուն</label><input id="signupName" required></div>
+      <div class="field" style="margin-top:12px;">
+        <label>Մուտքի եղանակ</label>
+        <div class="id-toggle">
+          <button type="button" class="active" data-idmode="email">📧 Էլ. փոստ</button>
+          <button type="button" data-idmode="phone">📱 Հեռախոսահամար</button>
+        </div>
+        <input id="signupId" required placeholder="you@example.com">
+      </div>
+      <div class="field" style="margin-top:12px;"><label for="signupPass">Գաղտնաբառ (առնվազն 6 նիշ)</label><input id="signupPass" type="password" minlength="6" required></div>
+      <button class="btn blue" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Ուղարկել հայտը</button>
+      <div class="form-msg" id="signupMsg"></div>
+    </form>
+    <div class="form-msg" id="authNotice" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<!-- ============ MAIN SCREEN (after login) ============ -->
+<div class="main-wrap" id="mainScreen" style="display:none;">
+  <div class="main-head">
+    <h1 id="mainHeading">—</h1>
+    <button class="btn ghost small" id="signOutBtn">Դուրս գալ</button>
+  </div>
+  <div id="mainContent"></div>
+</div>
+
+<script type="module" src="portal.js"></script>
+</body>
+</html>
