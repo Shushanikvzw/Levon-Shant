@@ -1284,6 +1284,14 @@ const demoSchedule = [
 ];
 
 function timeLabel(t){ return t || ""; }
+function registrantDisplayName(r){
+  return r.type === "child" ? (r.child_name || "") : (r.name || "");
+}
+function registrantContact(r){
+  return r.type === "child"
+    ? [r.mother, r.father].filter(Boolean).join(" / ")
+    : [r.phone, r.email].filter(Boolean).join(" / ");
+}
 function activeOnly(rows){ return rows.filter(r => r.active !== false); }
 function scheduleCourse(r, lang){
   const key = lang === "nl" ? "courseNl" : lang === "en" ? "courseEn" : "course";
@@ -1972,11 +1980,11 @@ if (SUPABASE_READY){
 }
 
 async function renderPortalParentView(){
-  document.getElementById("portalMainHeading").textContent = "👨‍👩‍👧 Հայտարարություններ";
+  document.getElementById("portalMainHeading").textContent = "👨‍👩‍👧 Իմ երեխան և հայտարարությունները";
   const content = document.getElementById("portalMainContent");
   content.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
   try{
-    const { data: links, error: linksErr } = await supabase.from("parent_links").select("*").eq("parent_user_id", portalUser.id);
+    const { data: links, error: linksErr } = await supabase.from("parent_links").select("*, registrations(*)").eq("parent_user_id", portalUser.id);
     if (linksErr) throw linksErr;
     if (!links || !links.length){
       content.innerHTML = `<div class="portal-empty-note">Ձեր հաշիվը դեռ կապակցված չէ երեխայի գրանցման հետ։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
@@ -1988,12 +1996,36 @@ async function renderPortalParentView(){
       .select("*, schedule(*)")
       .in("registration_id", registrationIds);
     if (caErr) throw caErr;
-    if (!assignments || !assignments.length){
-      content.innerHTML = `<div class="portal-empty-note">Ձեր երեխան դեռ նշանակված չէ որևէ դասի։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+
+    const assignmentsByReg = {};
+    (assignments || []).forEach(a=>{ (assignmentsByReg[a.registration_id] ||= []).push(a); });
+
+    // A clear summary per child first: their name, and exactly which
+    // course(s) (with hours) they're actually placed in, or a plain
+    // notice if they aren't placed in anything yet.
+    const childSummaryHtml = links.map(l=>{
+      const child = l.registrations;
+      if (!child) return "";
+      const childAssignments = assignmentsByReg[l.registration_id] || [];
+      const coursesHtml = childAssignments.length
+        ? childAssignments.map(a=> a.schedule
+            ? `<span class="status-pill" style="margin:2px 6px 2px 0;">📚 ${escapeHtml(a.schedule.course||"")} · ${timeLabel(a.schedule.start_time)}–${timeLabel(a.schedule.end_time)}</span>`
+            : "").join("")
+        : `<span class="helper">Դեռ նշանակված չէ որևէ դասի</span>`;
+      return `
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin-bottom:12px;">
+          <strong>👶 ${escapeHtml(registrantDisplayName(child))}</strong>
+          <div style="margin-top:8px;">${coursesHtml}</div>
+        </div>`;
+    }).join("");
+
+    const allAssignments = Object.values(assignmentsByReg).flat();
+    if (!allAssignments.length){
+      content.innerHTML = childSummaryHtml + `<div class="portal-empty-note">Դեռ նշանակված չէ որևէ դասի։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
       return;
     }
 
-    const scheduleIds = [...new Set(assignments.map(a=>a.schedule_id))];
+    const scheduleIds = [...new Set(allAssignments.map(a=>a.schedule_id))];
     const { data: announcements, error: annErr } = await supabase
       .from("course_announcements")
       .select("*")
@@ -2002,9 +2034,9 @@ async function renderPortalParentView(){
     if (annErr) throw annErr;
 
     const scheduleById = {};
-    assignments.forEach(a=>{ if (a.schedule) scheduleById[a.schedule_id] = a.schedule; });
+    allAssignments.forEach(a=>{ if (a.schedule) scheduleById[a.schedule_id] = a.schedule; });
 
-    content.innerHTML = scheduleIds.map(sid=>{
+    const announcementGroupsHtml = scheduleIds.map(sid=>{
       const sched = scheduleById[sid];
       if (!sched) return "";
       const items = (announcements || []).filter(a=>a.schedule_id === sid);
@@ -2022,7 +2054,9 @@ async function renderPortalParentView(){
           <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
           <div class="course-group-body">${body}</div>
         </div>`;
-    }).join("") || `<div class="portal-empty-note">Դեռ ոչինչ չկա ցուցադրելու համար։</div>`;
+    }).join("");
+
+    content.innerHTML = childSummaryHtml + `<h3 style="margin:22px 0 14px;">📢 Հայտարարություններ</h3>` + announcementGroupsHtml;
   }catch(err){
     content.innerHTML = `<div class="portal-empty-note">Սխալ՝ ${err.message}</div>`;
   }
@@ -2051,6 +2085,27 @@ async function renderPortalTeacherView(){
       .order("created_at", { ascending:false });
     if (annErr) throw annErr;
 
+    // Roster: which students (with their registration info) are in each of
+    // this teacher's classes, and which parent is connected to each one.
+    const { data: rosters, error: rosterErr } = await supabase
+      .from("class_assignments")
+      .select("*, registrations(*)")
+      .in("schedule_id", scheduleIds);
+    if (rosterErr) throw rosterErr;
+
+    const registrationIds = [...new Set((rosters || []).map(r=>r.registration_id))];
+    let parentLinksData = [];
+    if (registrationIds.length){
+      const { data: pl, error: plErr } = await supabase
+        .from("parent_links")
+        .select("*, profiles(*)")
+        .in("registration_id", registrationIds);
+      if (plErr) throw plErr;
+      parentLinksData = pl || [];
+    }
+    const parentsByReg = {};
+    parentLinksData.forEach(l=>{ if (l.profiles) (parentsByReg[l.registration_id] ||= []).push(l.profiles); });
+
     content.innerHTML = assigns.map(a=>{
       const sched = a.schedule;
       if (!sched) return "";
@@ -2065,10 +2120,29 @@ async function renderPortalTeacherView(){
             <button class="btn danger small" data-delann="${x.id}">Ջնջել</button>
           </div>
         </div>`).join("") : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան։</p></div>`;
+
+      const classRoster = (rosters || []).filter(r=>r.schedule_id === a.schedule_id);
+      const rosterRows = classRoster.length ? classRoster.map(r=>{
+        const student = r.registrations;
+        if (!student) return "";
+        const parents = parentsByReg[r.registration_id] || [];
+        const parentText = parents.length
+          ? parents.map(p=>escapeHtml(p.name || p.email || "")).join(", ")
+          : `<span class="helper">Ծնողի հաշիվ դեռ կապակցված չէ</span>`;
+        return `<div style="display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line);">
+          <span><strong>${escapeHtml(registrantDisplayName(student))}</strong></span>
+          <span style="text-align:right;">${parentText}</span>
+        </div>`;
+      }).join("") : `<p class="helper">Դեռ ուսանողներ նշանակված չեն այս դասին։</p>`;
+
       return `
         <div class="course-group">
           <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
           <div class="course-group-body">
+            <div class="portal-announcement">
+              <h3 style="margin-top:0;">👨‍👩‍👧 Ուսանողներ և ծնողներ (${classRoster.length})</h3>
+              ${rosterRows}
+            </div>
             <div class="portal-announcement" style="background:var(--paper-dim);">
               <form data-postform="${a.schedule_id}">
                 <div class="field"><label>Վերնագիր</label><input data-field="title" required></div>

@@ -69,6 +69,9 @@ supabase/migrations/0016_parent_teacher_roles.sql  adds parent and teacher roles
                                           per-class announcements and access control
 supabase/migrations/0017_allow_teacher_parent_roles.sql  fixes a database constraint that
                                           was rejecting the teacher/parent roles outright
+supabase/migrations/0018_parent_teacher_read_access.sql  grants parents/teachers the read
+                                          access to their own child/class that was missing,
+                                          which is why a parent's own view showed nothing
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -149,8 +152,11 @@ all succeeded).
 18. New query again → paste `supabase/migrations/0017_allow_teacher_parent_roles.sql`
     → **Run**. Fixes a leftover database constraint that rejected the teacher/parent
     roles outright — **required** for approving any teacher/parent account to work.
+19. New query again → paste `supabase/migrations/0018_parent_teacher_read_access.sql`
+    → **Run**. **Required** for parents to actually see their child's class/announcements,
+    and for teachers to see their students and connected parents.
 
-All seventeen files are safe to re-run if needed.
+All eighteen files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -266,6 +272,28 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **Fixed the real reason a parent's view showed nothing.** The `class_assignments`
+  table (which records which child is in which class) could previously only be read
+  by admin — meaning even after linking a parent to a child *and* placing that child
+  in a class, the parent's own login still couldn't read that connection to display
+  it. **Migration `0018_parent_teacher_read_access.sql` must be run** — it grants
+  parents read access to their own linked child's class placement, and teachers read
+  access to their own class's roster and the connected parent contacts, without
+  opening anything wider than that.
+
+- **New: parents now see their child by name, which course, and the hours.** Instead
+  of jumping straight to announcement groups, the parent view now opens with a clear
+  card per linked child — "👶 [name]" followed by their actual assigned course(s) with
+  time (e.g. "📚 Մայրենի 2 · 09:00–10:00"), or a plain note if not yet assigned to
+  anything. Announcements, grouped by course and newest-first, follow below that.
+
+- **New: teachers see their students and connected parents per class.** Each of a
+  teacher's class sections now opens with a "👨‍👩‍👧 Ուսանողներ և ծնողներ" list —
+  every student placed in that class, and which parent account (if any) is linked to
+  them — before the announcement form and history. If a student doesn't have a linked
+  parent account yet, that's shown plainly too, so it's clear why that family isn't
+  seeing the announcements.
 
 - **Clarified: linking a parent to a child is not the same as placing that child in a
   class.** If a parent logs in and sees "your child isn't assigned to any class yet,"
