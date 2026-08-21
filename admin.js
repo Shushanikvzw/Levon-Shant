@@ -881,13 +881,36 @@ async function refreshParentLinks(){
   try{
     const { data: links, error } = await supabase.from("parent_links").select("*, registrations(*)").eq("parent_user_id", parentId);
     if (error) throw error;
+
+    // Linking a parent to a child (above) is only half the picture — the
+    // child also needs to actually be placed in a class via "👥 Դասարանների
+    // ուսանողներ" before the parent will see anything. Check that here so
+    // it's obvious immediately, instead of the parent discovering it's
+    // missing after logging in and seeing nothing.
+    const registrationIds = (links || []).map(l=>l.registration_id);
+    let assignedRegIds = new Set();
+    if (registrationIds.length){
+      const { data: assigns } = await supabase.from("class_assignments").select("registration_id").in("registration_id", registrationIds);
+      assignedRegIds = new Set((assigns || []).map(a=>a.registration_id));
+    }
+
     listEl.innerHTML = (links && links.length) ? links.map(l=>{
       const r = l.registrations;
-      return `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--paper-dim); padding:8px 12px; border-radius:10px; margin-bottom:6px;">
-        <span>${r ? escapeHtml(registrantDisplayName(r)) : "(գրանցումը ջնջված է)"}</span>
+      const isAssigned = r && assignedRegIds.has(l.registration_id);
+      const statusHtml = !r
+        ? ""
+        : isAssigned
+          ? `<span class="status-pill" style="margin-left:8px;">✅ Դասին նշանակված է</span>`
+          : `<span class="status-pill" style="margin-left:8px; background:var(--pomegranate); color:#fff;">⚠️ Դեռ դասի նշանակված չէ</span>`;
+      return `<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; background:var(--paper-dim); padding:8px 12px; border-radius:10px; margin-bottom:6px;">
+        <span>${r ? escapeHtml(registrantDisplayName(r)) : "(գրանցումը ջնջված է)"}${statusHtml}</span>
         <button class="btn danger small" data-removelink="${l.id}">Հեռացնել</button>
       </div>`;
     }).join("") : `<p class="helper">Դեռ կապակցված երեխա չկա։</p>`;
+
+    if (links && links.some(l=>l.registrations && !assignedRegIds.has(l.registration_id))){
+      listEl.insertAdjacentHTML("afterbegin", `<div class="banner warn" style="margin-bottom:10px;">⚠️ Ստորև նշված «Դեռ դասի նշանակված չէ» երեխա(ներ)ը դեռ տեղաբաշխված չեն որևէ դասի, ուստի ծնողը դեռ ոչինչ չի տեսնի։ Անցեք «👥 Դասարանների ուսանողներ» բաժին և նշանակեք այս երեխային իր դասին։</div>`);
+    }
 
     listEl.querySelectorAll("[data-removelink]").forEach(b=>{
       b.addEventListener("click", async ()=>{

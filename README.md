@@ -267,6 +267,16 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Clarified: linking a parent to a child is not the same as placing that child in a
+  class.** If a parent logs in and sees "your child isn't assigned to any class yet,"
+  it means exactly that — the "🔑 Ուսուցիչ/ծնող կապեր" tab only connects *which child*
+  belongs to a parent account; it's a separate step, in "👥 Դասարանների ուսանողներ,"
+  to actually place that child into a specific scheduled class (the same step used to
+  build the schedule from registrations in general). The parent-linking list now
+  shows "✅ Դասին նշանակված է" or "⚠️ Դեռ դասի նշանակված չէ" next to each linked child
+  so this is obvious immediately, instead of only being discovered after the parent
+  logs in and sees nothing.
+
 - **Mobile pass on the parent/teacher portal.** The header's two login buttons
   (admin and parent/teacher) now stack cleanly into their own full-width column on
   phones instead of competing for space alongside the language switch and menu icon.
