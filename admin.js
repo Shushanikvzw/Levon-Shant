@@ -140,6 +140,17 @@ async function handleAuthChange(session){
     showAuthScreen("Ձեր հաշիվը դեռ սպասում է ադմինիստրատորի հաստատմանը։");
     return;
   }
+  if (currentRole !== "admin" && currentRole !== "smm"){
+    // Teacher and parent accounts belong on the separate parent/teacher
+    // portal, never here — this page's tools (publishing, schedule,
+    // registrations, etc.) are not meant for them, and the database
+    // already refuses any write from these roles regardless, but they
+    // should never even see the page at all.
+    currentUser = null;
+    await supabase.auth.signOut();
+    showAuthScreen("Այս հաշիվը ուսուցչի կամ ծնողի հաշիվ է։ Խնդրում ենք օգտագործել portal.html էջը։");
+    return;
+  }
   renderDashboard();
 }
 

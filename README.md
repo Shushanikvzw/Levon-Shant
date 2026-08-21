@@ -267,6 +267,19 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: teacher/parent accounts could log into `admin.html`.** They couldn't
+  actually change anything there — every write action (publishing, schedule, staff,
+  yearly calendar, everything) has always required the `admin` or `smm` role at the
+  database level, and teacher/parent accounts were never granted that — but they
+  could still authenticate into the admin page and see some of its non-admin-only
+  tabs, which was never supposed to happen. `admin.html` now checks specifically for
+  `admin`/`smm` and redirects anyone else straight to `portal.html`, matching the
+  check `portal.html` already had in the other direction. **To confirm the full
+  picture**: a teacher's *only* capability, anywhere, is posting/editing/deleting
+  announcements for their own assigned class on `portal.html` — no events, no
+  calendar, no schedule changes, nothing else, either in the interface or in what the
+  database will actually allow them to do.
+
 - **Fixed: approving a teacher/parent account showed an error.** The database had a
   leftover rule (a `CHECK` constraint on `profiles.role`) from before teacher/parent
   roles existed, that only allowed `'admin'` or `'smm'` — so trying to assign
