@@ -1786,10 +1786,9 @@ async function loadClassRosterTab(){
     listEl.querySelectorAll("[data-removechip]").forEach(btn=>{
       btn.addEventListener("click", async (e)=>{
         e.stopPropagation();
-        await supabase.from("class_assignments").delete().eq("id", btn.dataset.removechip);
-        loadClassRosterTab().then(()=>{
-          if (selectedRosterScheduleId) renderRosterStudentList();
-        });
+        const classCard = btn.closest("[data-classcard]");
+        const scheduleId = classCard?.dataset.classcard;
+        if (scheduleId) await removeClassAssignment(btn.dataset.removechip, scheduleId);
       });
     });
 
@@ -1895,19 +1894,74 @@ async function renderRosterStudentList(){
     card.addEventListener("click", async ()=>{
       const msg = document.getElementById("classRosterMsg");
       msg.className = "form-msg"; msg.textContent = "";
+      const registrationId = card.dataset.addstudent;
       try{
-        const { error } = await supabase.from("class_assignments").insert({
-          registration_id: card.dataset.addstudent,
+        const { data: inserted, error } = await supabase.from("class_assignments").insert({
+          registration_id: registrationId,
           schedule_id: selectedRosterScheduleId
-        });
+        }).select().single();
         if (error) throw error;
-        await loadClassRosterTab();
-        selectRosterClass(selectedRosterScheduleId, selectedRosterCourseName);
+
+        // Update in place instead of reloading the whole board — reloading
+        // reset the scroll position of both columns and the "show all"
+        // toggle, making it painful to add several students to the same
+        // class in a row. This keeps everything exactly as it was, just
+        // with the one student moved from "unassigned" to the class card.
+        const student = registrationsCache.find(r=>r.id === registrationId);
+        (rosterAssignmentsBySchedule[selectedRosterScheduleId] ||= []).push({ ...inserted, registrations: student });
+        addChipToClassCard(selectedRosterScheduleId, inserted, student);
+        card.remove();
+
+        if (!listEl.querySelector("[data-addstudent]")){
+          const searchInput = document.getElementById("rosterStudentSearch");
+          const stillSearching = (searchInput?.value || "").trim();
+          listEl.innerHTML = `<p class="helper">${stillSearching ? "Ոչինչ չի գտնվել։" : "Բոլորը արդեն նշանակված են այս դասին։"}</p>`;
+        }
       }catch(err){
         msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
       }
     });
   });
+}
+
+// Updates one class card's count badge and chip row directly in the DOM,
+// and wires the new chip's remove button — used so adding a student never
+// needs to rebuild the whole board (see above).
+function addChipToClassCard(scheduleId, assignment, student){
+  const classCard = document.querySelector(`[data-classcard="${scheduleId}"]`);
+  if (!classCard || !student) return;
+  const countEl = classCard.querySelector(".rc-count");
+  const assignedNow = rosterAssignmentsBySchedule[scheduleId] || [];
+  if (countEl) countEl.textContent = `👥 ${assignedNow.length}`;
+  let chipRow = classCard.querySelector(".roster-chip-row");
+  if (!chipRow){
+    chipRow = document.createElement("div");
+    chipRow.className = "roster-chip-row";
+    classCard.appendChild(chipRow);
+  }
+  chipRow.insertAdjacentHTML("beforeend",
+    `<span class="roster-chip">${escapeHtml(registrantDisplayName(student))}<button data-removechip="${assignment.id}" title="Հեռացնել">✕</button></span>`
+  );
+  chipRow.querySelector(`[data-removechip="${assignment.id}"]`)?.addEventListener("click", async (e)=>{
+    e.stopPropagation();
+    await removeClassAssignment(assignment.id, scheduleId);
+  });
+}
+
+// Removes one assignment and updates the board in place (used by both the
+// chip's ✕ in the class-card list and the roster tab).
+async function removeClassAssignment(assignmentId, scheduleId){
+  await supabase.from("class_assignments").delete().eq("id", assignmentId);
+  rosterAssignmentsBySchedule[scheduleId] = (rosterAssignmentsBySchedule[scheduleId] || []).filter(a=>a.id !== assignmentId);
+  const classCard = document.querySelector(`[data-classcard="${scheduleId}"]`);
+  if (classCard){
+    const countEl = classCard.querySelector(".rc-count");
+    if (countEl) countEl.textContent = `👥 ${(rosterAssignmentsBySchedule[scheduleId] || []).length}`;
+    classCard.querySelector(`[data-removechip="${assignmentId}"]`)?.closest(".roster-chip")?.remove();
+  }
+  // If this is the class currently being viewed on the right, bring the
+  // removed student back into the addable list.
+  if (selectedRosterScheduleId === scheduleId) renderRosterStudentList();
 }
 
 document.getElementById("rosterStudentSearch")?.addEventListener("input", ()=> renderRosterStudentList());
