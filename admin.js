@@ -37,6 +37,13 @@ let currentRole = null;
 
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
+// Sign-up stores the name as "[Ուսուցիչ] Actual Name" / "[Ծնող] Actual Name" so
+// the raw name is easy to recognize in the Accounts list — strip that bracketed
+// prefix when showing the name elsewhere (e.g. this roster preview).
+function cleanAccountName(name){
+  return (name || "").replace(/^\[.*?\]\s*/, "").trim();
+}
+
 // A pasted link without "http(s)://" (e.g. "www.facebook.com/...") becomes a
 // broken *relative* link when used as an href/src. Always normalize before saving.
 function normalizeUrl(v){
@@ -843,10 +850,80 @@ document.getElementById("teacherLinkSelect")?.addEventListener("change", async (
         <input type="checkbox" value="${r.id}" ${assignedIds.has(r.id) ? "checked" : ""} style="width:auto;">
         <span style="font-size:.85rem;">${timeLabel(r.start)}–${timeLabel(r.end)} — ${escapeHtml(r.course||"")}</span>
       </label>`).join("") : `<p class="helper">Դասացուցակը դատարկ է։</p>`;
+    await refreshTeacherLinkRoster(teacherId, [...assignedIds]);
   }catch(err){
     checklist.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
   }
 });
+
+async function refreshTeacherLinkRoster(teacherId, scheduleIds){
+  const previewEl = document.getElementById("teacherLinkRosterPreview");
+  if (!previewEl) return;
+  if (!scheduleIds.length){
+    previewEl.innerHTML = `<p class="helper">Այս ուսուցիչը դեռ որևէ դասի կապակցված չէ։</p>`;
+    return;
+  }
+  previewEl.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  try{
+    const scheduleRows = await fetchSchedule();
+    const scheduleById = {};
+    scheduleRows.forEach(r=>{ scheduleById[r.id] = r; });
+
+    const { data: rosters, error: rosterErr } = await supabase
+      .from("class_assignments")
+      .select("*, registrations(*)")
+      .in("schedule_id", scheduleIds);
+    if (rosterErr) throw rosterErr;
+
+    // parent_links.parent_user_id references auth.users, not public.profiles
+    // directly, so PostgREST can't auto-embed profiles here — fetch the two
+    // separately and join them in the browser instead.
+    const childRegIds = [...new Set((rosters || []).filter(r=>r.registrations?.type === "child").map(r=>r.registration_id))];
+    let parentsByReg = {};
+    if (childRegIds.length){
+      const { data: links, error: linksErr } = await supabase.from("parent_links").select("*").in("registration_id", childRegIds);
+      if (linksErr) throw linksErr;
+      const parentUserIds = [...new Set((links || []).map(l=>l.parent_user_id))];
+      let profilesById = {};
+      if (parentUserIds.length){
+        const { data: profs } = await supabase.from("profiles").select("*").in("id", parentUserIds);
+        (profs || []).forEach(p=>{ profilesById[p.id] = p; });
+      }
+      (links || []).forEach(l=>{
+        const p = profilesById[l.parent_user_id];
+        if (p) (parentsByReg[l.registration_id] ||= []).push(p);
+      });
+    }
+
+    const bySchedule = {};
+    (rosters || []).forEach(r=>{ (bySchedule[r.schedule_id] ||= []).push(r); });
+
+    previewEl.innerHTML = scheduleIds.map(sid=>{
+      const sched = scheduleById[sid];
+      const rows = bySchedule[sid] || [];
+      const rowsHtml = rows.length ? rows.map(r=>{
+        const student = r.registrations;
+        if (!student) return "";
+        const isAdult = student.type === "adult";
+        const contactHtml = isAdult
+          ? `<span class="helper">${escapeHtml(registrantContact(student)) || "—"}</span>`
+          : ((parentsByReg[r.registration_id] || []).length
+              ? escapeHtml(parentsByReg[r.registration_id].map(p=>cleanAccountName(p.name) || p.email).join(", "))
+              : `<span class="helper" style="color:var(--pomegranate);">⚠️ Ծնող կապակցված չէ</span>`);
+        return `<div style="display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px dashed var(--line);">
+          <span>${escapeHtml(registrantDisplayName(student))}${isAdult ? ' <span class="status-pill">Մեծահասակ</span>' : ""}</span>
+          <span style="text-align:right;">${contactHtml}</span>
+        </div>`;
+      }).join("") : `<p class="helper">Դեռ ուսանողներ նշանակված չեն այս դասին։</p>`;
+      return `<div style="margin-bottom:18px;">
+        <strong>📚 ${escapeHtml(sched?.course||"")}</strong>
+        <div style="margin-top:6px;">${rowsHtml}</div>
+      </div>`;
+    }).join("");
+  }catch(err){
+    previewEl.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
+  }
+}
 
 document.getElementById("teacherLinkSaveBtn")?.addEventListener("click", async ()=>{
   const teacherId = document.getElementById("teacherLinkSelect").value;
@@ -867,6 +944,7 @@ document.getElementById("teacherLinkSaveBtn")?.addEventListener("click", async (
       await supabase.from("teacher_assignments").delete().eq("id", a.id);
     }
     msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
+    await refreshTeacherLinkRoster(teacherId, checked);
   }catch(err){
     msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
   }

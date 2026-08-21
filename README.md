@@ -281,6 +281,31 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: an announcement's "signed by" line showed the teacher's email instead of
+  their name.** When posting, the code was literally storing the teacher's login
+  email as their display name. It now uses their actual name from sign-up instead
+  (with the internal "[Ուսուցիչ]" role tag automatically stripped off, since that was
+  only ever meant to help admin recognize pending accounts, not to be shown to
+  parents). **Announcements already posted before this fix will still show the old
+  email** — a teacher can fix any of them immediately by clicking "Խմբագրել" and
+  saving again (even without changing the text), since editing now also refreshes the
+  name shown.
+
+- **New: selecting a teacher now shows their students and connected parents right
+  there.** Below the class checklist in "🔑 Ուսուցիչ/ծնող կապեր," a live preview lists
+  every student in each of that teacher's classes — for children, the linked parent's
+  name (or a clear "⚠️ Ծնող կապակցված չէ" if none yet); for adults, their own contact
+  info directly, since an adult student doesn't need a parent account at all.
+- **Clarified: adult students link directly, no parent step needed.** The
+  "👨‍👩‍👧 Ծնողի երեխա(ներ)" section is renamed "👨‍👩‍👧 Հաշվի կապակցում գրանցման հետ" to
+  make clear it's the same mechanism either way — for a child, link the *parent's*
+  account to the child's registration; for an adult student, link *their own* account
+  directly to their own registration. There was never a real requirement to "link to
+  a parent first" for adults — the confusion was purely the old labeling implying a
+  parent-child relationship that doesn't apply to adult students. The sign-up role
+  option is now "Ես ծնող եմ (կամ մեծահասակ ուսանող)" so an adult doesn't have to
+  awkwardly claim to be someone's parent to create an account for themselves.
+
 - **Fixed: teacher's "students and parents" list showed "Could not find a
   relationship between 'parent_links' and 'profiles'."** This is a different bug
   from the recursion issue above, in the same new feature. The code tried to fetch a

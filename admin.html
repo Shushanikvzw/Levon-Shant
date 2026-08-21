@@ -418,7 +418,7 @@
 
       <!-- Teacher/parent linking (admin only) -->
       <div class="dash-panel" id="panel-teacherparent">
-        <div class="banner warn">🔑 Այստեղ կապակցեք ուսուցիչի հաշիվը իր դասավանդած դասին (դասերին), և ծնողի հաշիվը իր երեխայի գրանցմանը։ Առանց այս կապակցման, ուսուցիչը/ծնողը մուտք գործելուց հետո ոչինչ չեն տեսնի։<br><br>⚠️ <strong>Ծնողի համար կարևոր՝</strong> միայն երեխայի կապակցումը բավարար չէ։ Երեխան նաև պետք է փաստացի նշանակված լինի կոնկրետ դասի՝ «👥 Դասարանների ուսանողներ» բաժնում, հակառակ դեպքում ծնողը ոչինչ չի տեսնի, նույնիսկ եթե կապակցումն արված է։</div>
+        <div class="banner warn">🔑 Այստեղ կապակցեք ուսուցիչի հաշիվը իր դասավանդած դասին (դասերին), և ծնողի/ուսանողի հաշիվը իր (կամ երեխայի) գրանցմանը։ Առանց այս կապակցման, ուսուցիչը/ծնողը/ուսանողը մուտք գործելուց հետո ոչինչ չեն տեսնի։<br><br>⚠️ <strong>Կարևոր՝</strong> միայն գրանցման կապակցումը բավարար չէ։ Գրանցումը նաև պետք է փաստացի նշանակված լինի կոնկրետ դասի՝ «👥 Դասարանների ուսանողներ» բաժնում, հակառակ դեպքում ոչինչ չի երևա, նույնիսկ եթե կապակցումն արված է։<br><br>👤 <strong>Մեծահասակ ուսանողների համար՝</strong> ծնողի կարիք չկա. մեծահասակն ինքն է ստեղծում իր հաշիվը («Ես ծնող եմ (կամ մեծահասակ ուսանող)» ընտրանքով) և ուղղակիորեն կապակցվում է իր իսկ գրանցմանը ստորև։</div>
 
         <h3>🧑‍🏫 Ուսուցիչի դասեր</h3>
         <div class="field" style="max-width:420px; margin-bottom:14px;">
@@ -430,15 +430,20 @@
           <div id="teacherLinkChecklist" class="field-row" style="flex-wrap:wrap; gap:8px;"></div>
           <button class="btn blue small" id="teacherLinkSaveBtn" style="margin-top:12px;">Պահպանել</button>
           <div class="form-msg" id="teacherLinkMsg"></div>
+
+          <h4 style="margin-top:26px; margin-bottom:6px;">👨‍👩‍👧 Ուսանողներ և ծնողներ այս ուսուցչի դասերում</h4>
+          <p class="helper" style="margin-bottom:12px;">Երեխաների համար ցուցադրվում է կապակցված ծնողի հաշիվը (եթե կա)։ Մեծահասակ ուսանողների համար ծնող պետք չէ. նրանք իրենք են իրենց կոնտակտը, ուստի ուղղակիորեն ցուցադրվում է իրենց տվյալները։</p>
+          <div id="teacherLinkRosterPreview"><p class="helper">—</p></div>
         </div>
 
-        <h3 style="margin-top:32px;">👨‍👩‍👧 Ծնողի երեխա(ներ)</h3>
+        <h3 style="margin-top:32px;">👨‍👩‍👧 Հաշվի կապակցում գրանցման հետ</h3>
+        <p class="helper" style="margin-bottom:10px;">Երեխայի համար՝ կապակցեք ծնողի հաշիվը երեխայի գրանցմանը։ Մեծահասակ ուսանողի համար՝ ուղղակիորեն կապակցեք իր հաշիվը իր իսկ գրանցմանը (ծնող պետք չէ, քանի որ մեծահասակն ինքն է իր կոնտակտը)։</p>
         <div class="field" style="max-width:420px; margin-bottom:14px;">
-          <label for="parentLinkSelect">Ընտրեք ծնողի հաշիվը</label>
+          <label for="parentLinkSelect">Ընտրեք հաշիվը</label>
           <select id="parentLinkSelect"><option value="">— ընտրեք —</option></select>
         </div>
         <div id="parentLinkContent" style="display:none;">
-          <p class="helper" style="margin-bottom:8px;">Կապակցված երեխա(ներ).</p>
+          <p class="helper" style="margin-bottom:8px;">Կապակցված գրանցում(ներ).</p>
           <div id="parentLinkedList" style="margin-bottom:16px;"></div>
           <div class="field" style="max-width:420px;">
             <label for="parentLinkAddSelect">➕ Կապակցել նոր գրանցում</label>

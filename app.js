@@ -1841,6 +1841,15 @@ function applyLogo(url){
 // ---------------------------------------------------------
 let portalUser = null;
 let portalRole = null;
+let portalUserName = null;
+
+// Sign-up stores the name as "[Ուսուցիչ] Actual Name" / "[Ծնող] Actual Name" so
+// admin can see the self-selected role hint in the Accounts list — strip that
+// bracketed prefix before showing the name to anyone else (e.g. on an
+// announcement), since parents shouldn't see internal signup metadata.
+function portalCleanName(name){
+  return (name || "").replace(/^\[.*?\]\s*/, "").trim();
+}
 let portalSignupIdMode = "email";
 
 function portalNormalizeIdentifier(value, forcedMode){
@@ -1952,36 +1961,37 @@ document.getElementById("portalSignOutBtn")?.addEventListener("click", ()=> supa
 
 async function handlePortalAuthChange(session){
   if (!session){
-    portalUser = null; portalRole = null;
+    portalUser = null; portalRole = null; portalUserName = null;
     showPortalAuthScreen();
     return;
   }
   let role = null;
   let queryError = null;
-  const { data: profile, error: profileErr } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
+  const { data: profile, error: profileErr } = await supabase.from("profiles").select("role, name").eq("id", session.user.id).single();
   if (profileErr){
     queryError = profileErr;
   } else {
     role = profile ? profile.role : null;
+    portalUserName = profile ? portalCleanName(profile.name) : null;
   }
 
   if (queryError){
     // A real database/network error, not just "no role assigned yet" —
     // show it plainly instead of masking it as a pending-approval message,
     // which would send someone chasing the wrong problem.
-    portalUser = null; portalRole = null;
+    portalUser = null; portalRole = null; portalUserName = null;
     await supabase.auth.signOut();
     showPortalAuthScreen("Սխալ՝ " + queryError.message);
     return;
   }
   if (!role){
-    portalUser = null; portalRole = null;
+    portalUser = null; portalRole = null; portalUserName = null;
     await supabase.auth.signOut();
     showPortalAuthScreen("Ձեր հաշիվը դեռ սպասում է ադմինիստրատորի հաստատմանը։");
     return;
   }
   if (role !== "teacher" && role !== "parent"){
-    portalUser = null; portalRole = null;
+    portalUser = null; portalRole = null; portalUserName = null;
     await supabase.auth.signOut();
     showPortalAuthScreen("Այս հաշիվն անձնակազմի հաշիվ է։ Խնդրում ենք օգտագործել «🔐 Անձնակազմի մուտք» կոճակը։");
     return;
@@ -2200,7 +2210,7 @@ async function renderPortalTeacherView(){
         try{
           const { error } = await supabase.from("course_announcements").insert({
             schedule_id: scheduleId, title, body: body || null,
-            teacher_user_id: portalUser.id, teacher_name: portalUser.email
+            teacher_user_id: portalUser.id, teacher_name: portalUserName || portalUser.email
           });
           if (error) throw error;
           renderPortalTeacherView();
@@ -2223,7 +2233,8 @@ async function renderPortalTeacherView(){
         const newBody = prompt("Նոր տեքստ.");
         if (newBody === null) return;
         await supabase.from("course_announcements").update({
-          title: newTitle.trim(), body: newBody.trim() || null, updated_at: new Date().toISOString()
+          title: newTitle.trim(), body: newBody.trim() || null, updated_at: new Date().toISOString(),
+          teacher_name: portalUserName || portalUser.email
         }).eq("id", b.dataset.editann);
         renderPortalTeacherView();
       });
