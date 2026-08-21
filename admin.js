@@ -1323,6 +1323,141 @@ async function loadScheduleAdmin(){
 }
 
 // ---------------------------------------------------------
+// Schedule overview export — Excel and PDF, including which
+// students are actually assigned to each class.
+// ---------------------------------------------------------
+async function fetchScheduleWithRoster(){
+  const [scheduleRows, { data: allAssignments, error }] = await Promise.all([
+    fetchSchedule(),
+    supabase.from("class_assignments").select("*, registrations(*)")
+  ]);
+  if (error) throw error;
+  const bySchedule = {};
+  (allAssignments || []).forEach(a=>{ (bySchedule[a.schedule_id] ||= []).push(a); });
+  return scheduleRows.map(r=>({
+    ...r,
+    students: (bySchedule[r.id] || [])
+      .map(a=>a.registrations ? registrantDisplayName(a.registrations) : null)
+      .filter(Boolean)
+  }));
+}
+
+document.getElementById("exportScheduleExcelBtn")?.addEventListener("click", async ()=>{
+  const msg = document.getElementById("exportScheduleMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (typeof XLSX === "undefined"){
+    msg.textContent = "Excel գրադարանը չհաջողվեց բեռնել (ստուգեք ինտերնետ կապը)։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const rows = await fetchScheduleWithRoster();
+    if (!rows.length){
+      msg.textContent = "Դասացուցակը դեռ դատարկ է։"; msg.classList.add("show","err"); return;
+    }
+    const sheetRows = rows.map(r=>({
+      "Ժամ": `${timeLabel(r.start)}–${timeLabel(r.end)}`,
+      "Դասընթաց": r.course || "",
+      "Ուսուցիչ": r.teacher || "",
+      "Ուսանողների թիվ": r.students.length,
+      "Ուսանողներ": r.students.join(", ")
+    }));
+    const ws = XLSX.utils.json_to_sheet(sheetRows);
+    ws["!cols"] = [{ wch: 14 }, { wch: 26 }, { wch: 20 }, { wch: 12 }, { wch: 60 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Դասացուցակ");
+    const today = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `dasacucak_${today}.xlsx`);
+    msg.textContent = "Ֆայլը ներբեռնվեց ✔"; msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+document.getElementById("exportSchedulePdfBtn")?.addEventListener("click", async ()=>{
+  const msg = document.getElementById("exportScheduleMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  if (typeof window.jspdf === "undefined" || typeof html2canvas === "undefined"){
+    msg.textContent = "PDF գրադարանը չհաջողվեց բեռնել (ստուգեք ինտերնետ կապը)։";
+    msg.classList.add("show","err"); return;
+  }
+  try{
+    const rows = await fetchScheduleWithRoster();
+    if (!rows.length){
+      msg.textContent = "Դասացուցակը դեռ դատարկ է։"; msg.classList.add("show","err"); return;
+    }
+
+    // Build the table as real, correctly-rendered HTML first (using the
+    // page's own Armenian-capable fonts), then rasterize that into the PDF —
+    // jsPDF's built-in fonts only cover Latin script and would show Armenian
+    // text as blank boxes if used directly.
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "position:fixed; left:-9999px; top:0; width:1000px; background:#fff; padding:28px; font-family:'Noto Serif Armenian', serif; color:#1a1a1a;";
+    wrap.innerHTML = `
+      <h1 style="font-size:22px; margin:0 0 4px;">Դասացուցակ</h1>
+      <p style="font-size:12px; color:#666; margin:0 0 18px;">Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց · ${new Date().toLocaleDateString("hy-AM")}</p>
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:#1F4B3F; color:#fff;">
+            <th style="padding:9px 10px; text-align:left; border:1px solid #ccc;">Ժամ</th>
+            <th style="padding:9px 10px; text-align:left; border:1px solid #ccc;">Դասընթաց</th>
+            <th style="padding:9px 10px; text-align:left; border:1px solid #ccc;">Ուսուցիչ</th>
+            <th style="padding:9px 10px; text-align:left; border:1px solid #ccc;">Ուսանողներ (թիվ)</th>
+            <th style="padding:9px 10px; text-align:left; border:1px solid #ccc;">Ուսանողների անուններ</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((r,i)=>`
+            <tr style="background:${i % 2 === 0 ? '#fff' : '#F8F4E6'};">
+              <td style="padding:8px 10px; border:1px solid #ddd; white-space:nowrap;">${escapeHtml(timeLabel(r.start))}–${escapeHtml(timeLabel(r.end))}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd; font-weight:700;">${escapeHtml(r.course||"")}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd;">${escapeHtml(r.teacher||"")}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd; text-align:center;">${r.students.length}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd;">${escapeHtml(r.students.join(", ")) || "—"}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+    document.body.appendChild(wrap);
+
+    const canvas = await html2canvas(wrap, { scale: 2, backgroundColor: "#ffffff" });
+    document.body.removeChild(wrap);
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    // Slice the tall canvas across as many pages as needed instead of
+    // squeezing a long schedule down to unreadable size on one page.
+    let renderedHeight = 0;
+    const usablePageHeight = pageHeight - 20;
+    const pxPerMm = canvas.width / imgWidth;
+    let first = true;
+    while (renderedHeight < imgHeight){
+      if (!first) pdf.addPage();
+      first = false;
+      const sliceHeightMm = Math.min(usablePageHeight, imgHeight - renderedHeight);
+      const sliceCanvas = document.createElement("canvas");
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = sliceHeightMm * pxPerMm;
+      sliceCanvas.getContext("2d").drawImage(
+        canvas, 0, renderedHeight * pxPerMm, canvas.width, sliceHeightMm * pxPerMm,
+        0, 0, canvas.width, sliceHeightMm * pxPerMm
+      );
+      pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", 10, 10, imgWidth, sliceHeightMm);
+      renderedHeight += sliceHeightMm;
+    }
+
+    const today = new Date().toISOString().slice(0,10);
+    pdf.save(`dasacucak_${today}.pdf`);
+    msg.textContent = "Ֆայլը ներբեռնվեց ✔"; msg.classList.add("show","ok");
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
+
+// ---------------------------------------------------------
 // Class roster — assign registered students to a schedule slot,
 // so the class list can be built directly from registrations.
 // ---------------------------------------------------------
@@ -1415,8 +1550,12 @@ function selectRosterClass(scheduleId, courseName){
   });
   const heading = document.getElementById("rosterStudentsHeading");
   const search = document.getElementById("rosterStudentSearch");
+  const showAllRow = document.getElementById("rosterShowAllRow");
+  const showAllToggle = document.getElementById("rosterShowAllToggle");
   if (heading) heading.textContent = `➕ Ավելացնել «${courseName}» դասին`;
   if (search){ search.style.display = ""; search.value = ""; }
+  if (showAllRow) showAllRow.style.display = "flex";
+  if (showAllToggle) showAllToggle.checked = false; // default to "only matching" for every newly selected class
   renderRosterStudentList();
   // On narrow screens the two columns stack vertically, so jump straight to
   // the student list instead of leaving admin to scroll past the class cards
@@ -1430,8 +1569,10 @@ function selectRosterClass(scheduleId, courseName){
 async function renderRosterStudentList(){
   const listEl = document.getElementById("rosterStudentList");
   const searchInput = document.getElementById("rosterStudentSearch");
+  const showAllToggle = document.getElementById("rosterShowAllToggle");
   if (!listEl || !selectedRosterScheduleId) return;
   const searchTerm = (searchInput?.value || "").trim().toLowerCase();
+  const showAll = !!showAllToggle?.checked;
 
   if (!registrationsCache.length){
     const { data } = await supabase.from("registrations").select("*").order("submitted_at", { ascending:false });
@@ -1440,17 +1581,26 @@ async function renderRosterStudentList(){
 
   const assignedIds = new Set((rosterAssignmentsBySchedule[selectedRosterScheduleId] || []).map(a=>a.registration_id));
   let candidates = registrationsCache.filter(r=>!assignedIds.has(r.id));
+  const matchesCourse = r => (r.courses||[]).some(c=>courseNamesLikelyMatch(selectedRosterCourseName, c));
+
+  // Default view: only registrants whose chosen course matches this class,
+  // since that covers the common case with no extra scanning needed. The
+  // "show all" toggle reveals everyone else too, for switching a student
+  // into a different class than what they originally registered for.
+  const matching = candidates.filter(matchesCourse);
+  const others = candidates.filter(r=>!matchesCourse(r));
+  candidates = showAll ? [...matching, ...others] : matching;
+
   if (searchTerm){
     candidates = candidates.filter(r=>registrantDisplayName(r).toLowerCase().includes(searchTerm));
   }
-  candidates.sort((a,b)=>{
-    const aMatch = (a.courses||[]).some(c=>courseNamesLikelyMatch(selectedRosterCourseName, c));
-    const bMatch = (b.courses||[]).some(c=>courseNamesLikelyMatch(selectedRosterCourseName, c));
-    return (bMatch - aMatch);
-  });
+
+  const emptyMsg = searchTerm
+    ? "Ոչինչ չի գտնվել։"
+    : (showAll ? "Բոլորը արդեն նշանակված են այս դասին։" : "Այս դասընթացին գրանցված ոչ ոք չկա։ Փորձեք միացնել «Ցուցադրել բոլորին»։");
 
   listEl.innerHTML = candidates.length ? candidates.map(r=>{
-    const isMatch = (r.courses||[]).some(c=>courseNamesLikelyMatch(selectedRosterCourseName, c));
+    const isMatch = matchesCourse(r);
     return `
       <div class="roster-student-card" data-addstudent="${r.id}">
         <div>
@@ -1459,7 +1609,7 @@ async function renderRosterStudentList(){
         </div>
         <span class="rs-add-icon">➕</span>
       </div>`;
-  }).join("") : `<p class="helper">${searchTerm ? "Ոչինչ չի գտնվել։" : "Բոլորը արդեն նշանակված են այս դասին։"}</p>`;
+  }).join("") : `<p class="helper">${emptyMsg}</p>`;
 
   listEl.querySelectorAll("[data-addstudent]").forEach(card=>{
     card.addEventListener("click", async ()=>{
@@ -1481,6 +1631,7 @@ async function renderRosterStudentList(){
 }
 
 document.getElementById("rosterStudentSearch")?.addEventListener("input", ()=> renderRosterStudentList());
+document.getElementById("rosterShowAllToggle")?.addEventListener("change", ()=> renderRosterStudentList());
 
 document.getElementById("rosterBackToClasses")?.addEventListener("click", (e)=>{
   e.preventDefault();

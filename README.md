@@ -256,6 +256,27 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: download a full schedule overview as Excel or PDF.** Two buttons at the top
+  of the "🗓️ Դասացուցակ" tab — "⬇️ Excel դասացուցակ" and "⬇️ PDF դասացուցակ" — export
+  every class time, course, and teacher, **plus the actual students assigned to each
+  one** (from the class roster board), so it's a real, ready-to-use schedule rather
+  than just times and course names. The PDF is landscape, styled to match the site,
+  and splits across multiple pages automatically if the schedule is long rather than
+  shrinking everything down to unreadable size. One technical note worth knowing: PDF
+  generation in the browser can't use Armenian text with its normal built-in fonts —
+  it only renders Armenian correctly because the export first builds the table as
+  real webpage HTML (using the fonts already on the site) and then converts that into
+  the PDF, rather than asking the PDF library to draw the text directly.
+
+- **The student list now defaults to only who registered for that course.** Selecting
+  a class used to show every unassigned registrant with matches merely starred at the
+  top — now it shows *only* the matching ones by default, so there's nothing to scan
+  past. A "Ցուցադրել բոլոր գրանցվածներին" (Show everyone) checkbox reveals the rest
+  when needed — useful for switching a student into a different class than what they
+  originally registered for. It resets back to "matching only" every time you select a
+  different class, so it stays the quick default rather than something to remember to
+  turn off.
+
 - **The class roster board is now mobile-friendly.** On a phone, the two columns
   stack (classes on top, students below) — tapping a class now auto-scrolls straight
   down to the student list instead of leaving you to scroll past the class cards
