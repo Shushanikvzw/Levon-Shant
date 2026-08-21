@@ -1518,7 +1518,11 @@ async function loadClassRosterTab(){
     listEl.querySelectorAll("[data-classcard]").forEach(card=>{
       card.addEventListener("click", (e)=>{
         if (e.target.closest("[data-removechip]")) return; // handled separately below
-        selectRosterClass(card.dataset.classcard, card.dataset.course);
+        if (card.dataset.classcard === selectedRosterScheduleId){
+          deselectRosterClass();
+        } else {
+          selectRosterClass(card.dataset.classcard, card.dataset.course);
+        }
       });
     });
     listEl.querySelectorAll("[data-removechip]").forEach(btn=>{
@@ -1564,6 +1568,24 @@ function selectRosterClass(scheduleId, courseName){
   if (window.matchMedia("(max-width: 900px)").matches){
     document.querySelector(".roster-col-students")?.scrollIntoView({ behavior:"smooth", block:"start" });
   }
+}
+
+// Clicking an already-selected class card again closes its student list,
+// so the other class cards are easy to see again without an open panel
+// taking up attention — same behavior on desktop (side-by-side columns)
+// and mobile (stacked columns), since it's the same click handler either way.
+function deselectRosterClass(){
+  selectedRosterScheduleId = null;
+  selectedRosterCourseName = null;
+  document.querySelectorAll("[data-classcard]").forEach(c=> c.classList.remove("selected"));
+  const heading = document.getElementById("rosterStudentsHeading");
+  const search = document.getElementById("rosterStudentSearch");
+  const showAllRow = document.getElementById("rosterShowAllRow");
+  const listEl = document.getElementById("rosterStudentList");
+  if (heading) heading.textContent = "👈 Նախ ընտրեք դասը ձախից";
+  if (search){ search.style.display = "none"; search.value = ""; }
+  if (showAllRow) showAllRow.style.display = "none";
+  if (listEl) listEl.innerHTML = "";
 }
 
 async function renderRosterStudentList(){
