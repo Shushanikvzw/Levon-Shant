@@ -281,6 +281,26 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: the address (and other Settings fields) reverting to the old value.** The
+  save itself was actually working correctly — the bug was that the Settings form
+  had a shortcut that reused an in-memory copy of the site's text instead of
+  re-checking the database, and nothing ever refreshed that copy after a save. So the
+  database had your new address, but the form kept showing whatever it had loaded at
+  the very start of the session. It now always re-fetches fresh data whenever the
+  form is shown, and also refreshes its own copy immediately after every successful
+  save — so this can't happen again even within the same session, not just after a
+  page reload.
+
+- **New: registering multiple children in one submission.** The child registration
+  form now has "➕ Ավելացնել ևս մեկ երեխա" — clicking it adds another name/birth
+  date/gender/courses block for a second (or third, etc.) child, while the shared
+  family fields (address, parents' contact, native language, photo consent) are only
+  filled in once and apply to all of them. Each child still becomes its own separate
+  row in the database (so admin's registration list, roster board, and everything
+  else works exactly as before) — the family just gets one combined confirmation
+  email listing every child, and the school gets one combined notification, instead
+  of a separate email per child for what was really one submission.
+
 - **Fixed: an announcement's "signed by" line showed the teacher's email instead of
   their name.** When posting, the code was literally storing the teacher's login
   email as their display name. It now uses their actual name from sign-up instead

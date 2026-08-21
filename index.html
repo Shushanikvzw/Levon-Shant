@@ -336,16 +336,41 @@
 
         <!-- ===== Child registration form ===== -->
         <form class="card-form" id="childRegForm" data-regform="child">
-          <div class="field"><label for="c_childName" data-i18n="reg.c.childName">Երեխայի անուն, ազգանուն, հայրանուն</label><input id="c_childName" required></div>
-          <div class="field-row">
-            <div class="field"><label for="c_childDob" data-i18n="reg.c.childDob">Ծննդյան տարեթիվ</label><input id="c_childDob" type="date" required></div>
-            <div class="field"><label data-i18n="reg.c.gender">Սեռ</label>
-              <div class="choice-group">
-                <label class="choice-item"><input type="radio" name="c_gender" value="Արական" required> <span data-i18n="reg.male">Արական</span></label>
-                <label class="choice-item"><input type="radio" name="c_gender" value="Իգական"> <span data-i18n="reg.female">Իգական</span></label>
+          <div id="childBlocksWrap">
+            <div class="child-block" data-childblock="0">
+              <h4 class="child-block-title"><span data-i18n="reg.childN">Երեխա</span> <span class="child-block-num">1</span></h4>
+              <div class="field"><label data-i18n="reg.c.childName">Երեխայի անուն, ազգանուն, հայրանուն</label><input class="cf-childName" required></div>
+              <div class="field-row">
+                <div class="field"><label data-i18n="reg.c.childDob">Ծննդյան տարեթիվ</label><input class="cf-childDob" type="date" required></div>
+                <div class="field"><label data-i18n="reg.c.gender">Սեռ</label>
+                  <div class="choice-group">
+                    <label class="choice-item"><input type="radio" class="cf-gender" name="c_gender_0" value="Արական" required> <span data-i18n="reg.male">Արական</span></label>
+                    <label class="choice-item"><input type="radio" class="cf-gender" name="c_gender_0" value="Իգական"> <span data-i18n="reg.female">Իգական</span></label>
+                  </div>
+                </div>
               </div>
+              <div class="field">
+                <label data-i18n="reg.courses">Նշել դասընթացի անուն(ներ)ը</label>
+                <div class="choice-group cf-courses">
+                  <label class="choice-item"><input type="checkbox" value="Նախադպրոցական"> <span data-i18n="reg.crs.preschool">Նախադպրոցական</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Այբբենարան"> <span data-i18n="reg.crs.abc">Այբբենարան</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Մայրենի"> <span data-i18n="reg.crs.mayreni">Մայրենի</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Գրականություն"> <span data-i18n="reg.crs.literature">Գրականություն</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Ես և շրջակա միջավայրը"> <span data-i18n="reg.crs.environment">Ես և շրջակա միջավայրը</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Հայրենագիտություն"> <span data-i18n="reg.crs.homeland">Հայրենագիտություն</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Պատմություն"> <span data-i18n="reg.crs.history">Պատմություն</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար"> <span data-i18n="reg.crs.armForeign">Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Ժողովրդական պար"> <span data-i18n="reg.crs.folkDance">Ժողովրդական պար</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Ավանդական երգ ու պար"> <span data-i18n="reg.crs.tradDance">Ավանդական երգ ու պար</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Դաշնամուր"> <span data-i18n="reg.crs.piano">Դաշնամուր</span></label>
+                  <label class="choice-item"><input type="checkbox" value="Շախմատ"> <span data-i18n="reg.crs.chess">Շախմատ</span></label>
+                </div>
+              </div>
+              <button type="button" class="btn ghost small remove-child-btn" style="display:none;" data-i18n="reg.removeChild">✕ Հեռացնել այս երեխային</button>
             </div>
           </div>
+          <button type="button" class="btn blue small" id="addChildBtn" style="margin-bottom:20px;" data-i18n="reg.addChild">➕ Ավելացնել ևս մեկ երեխա</button>
+
           <div class="field"><label for="c_address" data-i18n="reg.c.address">Հասցե (լատինատառ)</label><input id="c_address" required></div>
           <div class="field-row">
             <div class="field"><label for="c_nationality" data-i18n="reg.c.nationality">Ազգություն</label><input id="c_nationality"></div>
@@ -355,23 +380,6 @@
           <div class="field-row">
             <div class="field"><label for="c_mother" data-i18n="reg.c.mother">Մայր (անուն, ազգանուն) և հեռախոսահամար</label><input id="c_mother" required></div>
             <div class="field"><label for="c_father" data-i18n="reg.c.father">Հայր (անուն, ազգանուն) և հեռախոսահամար</label><input id="c_father" required></div>
-          </div>
-          <div class="field">
-            <label data-i18n="reg.courses">Նշել դասընթացի անուն(ներ)ը</label>
-            <div class="choice-group" id="c_courses">
-              <label class="choice-item"><input type="checkbox" value="Նախադպրոցական"> <span data-i18n="reg.crs.preschool">Նախադպրոցական</span></label>
-              <label class="choice-item"><input type="checkbox" value="Այբբենարան"> <span data-i18n="reg.crs.abc">Այբբենարան</span></label>
-              <label class="choice-item"><input type="checkbox" value="Մայրենի"> <span data-i18n="reg.crs.mayreni">Մայրենի</span></label>
-              <label class="choice-item"><input type="checkbox" value="Գրականություն"> <span data-i18n="reg.crs.literature">Գրականություն</span></label>
-              <label class="choice-item"><input type="checkbox" value="Ես և շրջակա միջավայրը"> <span data-i18n="reg.crs.environment">Ես և շրջակա միջավայրը</span></label>
-              <label class="choice-item"><input type="checkbox" value="Հայրենագիտություն"> <span data-i18n="reg.crs.homeland">Հայրենագիտություն</span></label>
-              <label class="choice-item"><input type="checkbox" value="Պատմություն"> <span data-i18n="reg.crs.history">Պատմություն</span></label>
-              <label class="choice-item"><input type="checkbox" value="Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար"> <span data-i18n="reg.crs.armForeign">Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար</span></label>
-              <label class="choice-item"><input type="checkbox" value="Ժողովրդական պար"> <span data-i18n="reg.crs.folkDance">Ժողովրդական պար</span></label>
-              <label class="choice-item"><input type="checkbox" value="Ավանդական երգ ու պար"> <span data-i18n="reg.crs.tradDance">Ավանդական երգ ու պար</span></label>
-              <label class="choice-item"><input type="checkbox" value="Դաշնամուր"> <span data-i18n="reg.crs.piano">Դաշնամուր</span></label>
-              <label class="choice-item"><input type="checkbox" value="Շախմատ"> <span data-i18n="reg.crs.chess">Շախմատ</span></label>
-            </div>
           </div>
           <div class="field">
             <label data-i18n="reg.consentQ">Համաձա՞յն եք, որպեսզի դպրոցական միջոցառումների և դասապրոցեսի ընթացքում արված լուսանկարներն ու տեսանյութերը, որոնցում պատկերված է Ձեր երեխան, տեղադրվեն դպրոցի պաշտոնական կայքում և սոցիալական էջերում (Facebook և այլն)</label>

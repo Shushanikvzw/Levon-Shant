@@ -151,6 +151,9 @@ const i18n = {
     "reg.consentYes": "Ja, ik ga akkoord",
     "reg.consentNo": "Nee, ik ga niet akkoord",
     "reg.levelQ": "Wat is uw huidige niveau Armeens?",
+    "reg.childN": "Kind",
+    "reg.addChild": "➕ Nog een kind toevoegen",
+    "reg.removeChild": "✕ Dit kind verwijderen",
     "reg.c.childName": "Voor-, achter- en patroniemnaam van het kind",
     "reg.c.childDob": "Geboortedatum",
     "reg.c.gender": "Geslacht",
@@ -306,6 +309,9 @@ const i18n = {
     "reg.consentYes": "Yes, I agree",
     "reg.consentNo": "No, I do not agree",
     "reg.levelQ": "What is your current level of Armenian?",
+    "reg.childN": "Child",
+    "reg.addChild": "➕ Add another child",
+    "reg.removeChild": "✕ Remove this child",
     "reg.c.childName": "Child's full name (first, last, patronymic)",
     "reg.c.childDob": "Date of birth",
     "reg.c.gender": "Gender",
@@ -964,6 +970,47 @@ function radioValue(name){
   return el ? el.value : "";
 }
 
+// ---------------------------------------------------------
+// Child registration: repeatable per-child blocks (name, birth
+// date, gender, courses), so a family with several children fills
+// the shared fields (address, parents, contact, consent) only
+// once and just adds another block per additional child.
+// ---------------------------------------------------------
+let childBlockCounter = 1; // next index to assign; block 0 already exists in the markup
+
+function renumberChildBlocks(){
+  const blocks = document.querySelectorAll("#childBlocksWrap .child-block");
+  blocks.forEach((block, i)=>{
+    block.querySelector(".child-block-num").textContent = String(i + 1);
+    block.querySelector(".remove-child-btn").style.display = blocks.length > 1 ? "" : "none";
+  });
+}
+
+document.getElementById("addChildBtn")?.addEventListener("click", ()=>{
+  const wrap = document.getElementById("childBlocksWrap");
+  const firstBlock = wrap.querySelector(".child-block");
+  const newBlock = firstBlock.cloneNode(true);
+  const idx = childBlockCounter++;
+  newBlock.dataset.childblock = idx;
+  newBlock.querySelectorAll("input").forEach(input=>{
+    if (input.type === "radio") input.name = `c_gender_${idx}`;
+    else if (input.type === "checkbox") input.checked = false;
+    else input.value = "";
+  });
+  wrap.appendChild(newBlock);
+  renumberChildBlocks();
+  newBlock.querySelector(".cf-childName")?.focus();
+});
+
+document.getElementById("childBlocksWrap")?.addEventListener("click", (e)=>{
+  const btn = e.target.closest(".remove-child-btn");
+  if (!btn) return;
+  const wrap = document.getElementById("childBlocksWrap");
+  if (wrap.querySelectorAll(".child-block").length <= 1) return; // always keep at least one
+  btn.closest(".child-block").remove();
+  renumberChildBlocks();
+});
+
 function toRegistrationRow(p){
   if (p.type === "child"){
     return {
@@ -1110,23 +1157,119 @@ async function sendConfirmationEmail(payload){
   }
 }
 
+// ---------------------------------------------------------
+// Registering several children in one submission: one combined
+// email either way (school notification + family confirmation),
+// listing every child, rather than firing off several separate
+// emails for what the family experiences as a single submission.
+// ---------------------------------------------------------
+function buildMultiChildRegistrationEmail(payloads){
+  const today = new Date().toLocaleDateString("hy-AM");
+  const first = payloads[0];
+  const lines = [
+    `Բարև Ձեզ,`, ``,
+    `Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցի կայքի միջոցով նոր գրանցում է ստացվել՝ ${payloads.length} երեխայի համար  (ուղարկվել է ${today})`,
+    "—".repeat(32),
+    `Հասցե.  ${first.address || "—"}`,
+    `Ազգություն.  ${first.nationality || "—"}`,
+    `Մայրենի լեզու.  ${first.nativeLang || "—"}`,
+    `Էլ. հասցե.  ${first.email || "—"}`,
+    `Մայր (անուն, հեռախոս).  ${first.mother || "—"}`,
+    `Հայր (անուն, հեռախոս).  ${first.father || "—"}`,
+    `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${first.photoConsent || "—"}`,
+  ];
+  payloads.forEach((p, i)=>{
+    lines.push("", `Երեխա ${i+1}`, "—".repeat(16),
+      `Անուն, ազգանուն, հայրանուն.  ${p.childName || "—"}`,
+      `Ծննդյան տարեթիվ.  ${p.childDob || "—"}`,
+      `Սեռ.  ${p.gender || "—"}`,
+      `Ընտրված դասընթացներ.`,
+      ...(p.courses && p.courses.length ? p.courses.map(c=>`  • ${c}`) : ["  —"])
+    );
+  });
+  lines.push("", `Գրանցումն արդեն հասանելի է նաև կայքի կառավարման վահանակում՝ «📋 Գրանցումներ» բաժնում։`, ``, `Հարգանքով,`, `Կայքի ավտոմատ ծանուցումների համակարգ`);
+  return { subject: `Նոր գրանցում ստացվել է — ${payloads.length} երեխա`, message: lines.join("\n"), replyTo: first.email || "" };
+}
+
+function buildMultiChildConfirmationEmail(payloads){
+  const first = payloads[0];
+  const subject = `Ձեր գրանցումը ստացվել է ✔ — Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց`;
+  const lines = [
+    `Հարգելի՛ ծնող,`, ``,
+    `Շնորհակալություն, որ գրանցեցիք Ձեր ${payloads.length} երեխաներին Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում։ Գրանցումները հաջողությամբ ստացվել են և արդեն գտնվում են մեր համակարգում.`, ``
+  ];
+  payloads.forEach((p, i)=>{
+    const coursesList = (p.courses && p.courses.length) ? p.courses.join(", ") : "—";
+    lines.push(`${i+1}. ${p.childName || ""} — ${coursesList}`);
+  });
+  lines.push(
+    ``, `Դպրոցի պատասխանատուն շուտով կկապվի Ձեզ հետ՝ գրանցումները հաստատելու և հետագա մանրամասները փոխանցելու համար։`, ``,
+    `Հարցերի դեպքում կարող եք պատասխանել այս նամակին կամ գրել մեզ՝ levon.shant.dproc@gmail.com հասցեով, կամ զանգահարել +32 487 53 40 61 հեռախոսահամարով։`, ``,
+    `Անհամբեր սպասում ենք Ձեզ դպրոցում տեսնելու։`, ``, `Ջերմությամբ,`, `Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց`, `Մեխելեն, Բելգիա`
+  );
+  return { subject, message: lines.join("\n"), toEmail: first.email || "" };
+}
+
+async function submitMultipleChildRegistrations(payloads, msgEl, formEl){
+  msgEl.className = "form-msg"; msgEl.textContent = "";
+  if (!SUPABASE_READY){
+    msgEl.textContent = "Կայքը դեռ միացված չէ տվյալների բազային. տես README.md։";
+    msgEl.classList.add("show","err"); return;
+  }
+  try{
+    const { error } = await supabase.from("registrations").insert(payloads.map(toRegistrationRow));
+    if (error) throw error;
+    msgEl.textContent = payloads.length > 1
+      ? `Շնորհակալություն, ${payloads.length} երեխաների գրանցումներն ուղարկվեցին ✔`
+      : "Շնորհակալություն, ձեր դիմումն ուղարկվեց ✔";
+    msgEl.classList.add("show","ok");
+    formEl.reset();
+    // Collapse back down to a single empty child block after a successful submit.
+    const wrap = document.getElementById("childBlocksWrap");
+    wrap.querySelectorAll(".child-block").forEach((block, i)=>{ if (i > 0) block.remove(); });
+    renumberChildBlocks();
+
+    if (payloads.length > 1){
+      const { subject, message, replyTo } = buildMultiChildRegistrationEmail(payloads);
+      if (EMAILJS_READY){
+        window.emailjs.send(emailjsConfig.serviceId, emailjsConfig.templateId, { subject, message, reply_to: replyTo })
+          .catch(err=>console.warn("Registration email could not be sent (saved regardless):", err.message || err));
+      }
+      if (CONFIRMATION_READY && payloads[0].email){
+        const { subject: cSubject, message: cMessage, toEmail } = buildMultiChildConfirmationEmail(payloads);
+        window.emailjs.send(emailjsConfig.serviceId, emailjsConfig.confirmationTemplateId, { subject: cSubject, message: cMessage, to_email: toEmail })
+          .catch(err=>console.warn("Confirmation email could not be sent (saved regardless):", err.message || err));
+      }
+    } else {
+      sendRegistrationEmail(payloads[0]);
+      sendConfirmationEmail(payloads[0]);
+    }
+  }catch(err){
+    msgEl.textContent = "Սխալ՝ " + err.message;
+    msgEl.classList.add("show","err");
+  }
+}
+
 document.getElementById("childRegForm")?.addEventListener("submit", async (e)=>{
   e.preventDefault();
-  const payload = {
-    type: "child",
-    childName: document.getElementById("c_childName").value.trim(),
-    childDob: document.getElementById("c_childDob").value,
-    gender: radioValue("c_gender"),
+  const shared = {
     address: document.getElementById("c_address").value.trim(),
     nationality: document.getElementById("c_nationality").value.trim(),
     nativeLang: document.getElementById("c_nativeLang").value.trim(),
     email: document.getElementById("c_email").value.trim(),
     mother: document.getElementById("c_mother").value.trim(),
     father: document.getElementById("c_father").value.trim(),
-    courses: checkedValues("c_courses"),
     photoConsent: radioValue("c_consent")
   };
-  await submitRegistration(payload, document.getElementById("childRegMsg"), e.target);
+  const payloads = Array.from(document.querySelectorAll("#childBlocksWrap .child-block")).map(block=>({
+    type: "child",
+    ...shared,
+    childName: block.querySelector(".cf-childName").value.trim(),
+    childDob: block.querySelector(".cf-childDob").value,
+    gender: block.querySelector('input[type="radio"]:checked')?.value || "",
+    courses: Array.from(block.querySelectorAll(".cf-courses input:checked")).map(i=>i.value)
+  }));
+  await submitMultipleChildRegistrations(payloads, document.getElementById("childRegMsg"), e.target);
 });
 
 document.getElementById("adultRegForm")?.addEventListener("submit", async (e)=>{

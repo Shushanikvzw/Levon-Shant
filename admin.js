@@ -1393,7 +1393,7 @@ document.getElementById("contentForm")?.addEventListener("submit", async (e)=>{
     return { key: f.key, value_hy: hyVal || existing.hy, value_nl: nlVal || existing.nl, value_en: enVal || existing.en };
   });
   try{
-    const { error } = await supabase.from("site_content").upsert(rows);
+    const { error } = await supabase.from("site_content").upsert(rows, { onConflict: "key" });
     if (error) throw error;
     msg.textContent = "Պահպանվեց ✔ (փոփոխությունները տեսանելի են հանրային կայքում)";
     msg.classList.add("show","ok");
@@ -1409,11 +1409,13 @@ document.getElementById("contentForm")?.addEventListener("submit", async (e)=>{
 // same across all three languages)
 // ---------------------------------------------------------
 async function loadContactInfoForm(){
-  const overrides = Object.keys(contentOverrides).length ? contentOverrides : await fetchSiteContent();
-  contentOverrides = overrides;
+  // Always fetch fresh — reusing a cached contentOverrides here (even if
+  // recently populated) risked showing a value from before the last save,
+  // since nothing else was refreshing that cache after a successful save.
+  contentOverrides = await fetchSiteContent();
   const setVal = (id, key) => {
     const el = document.getElementById(id);
-    if (el) el.value = overrides[key]?.hy || "";
+    if (el) el.value = contentOverrides[key]?.hy || "";
   };
   setVal("cf_address", "contactAddress");
   setVal("cf_parking", "contactParkingAddress");
@@ -1446,8 +1448,9 @@ document.getElementById("contactInfoForm")?.addEventListener("submit", async (e)
     .map(([key,v])=>({ key, value_hy:v, value_nl:v, value_en:v }));
   if (!rows.length){ msg.textContent = "Լրացրեք գոնե մեկ դաշտ։"; msg.classList.add("show","err"); return; }
   try{
-    const { error } = await supabase.from("site_content").upsert(rows);
+    const { error } = await supabase.from("site_content").upsert(rows, { onConflict: "key" });
     if (error) throw error;
+    contentOverrides = await fetchSiteContent(); // keep the cache in sync immediately, not just after the next page load
     msg.textContent = "Պահպանվեց ✔ (փոփոխությունները տեսանելի են հանրային կայքում)";
     msg.classList.add("show","ok");
   }catch(err){
