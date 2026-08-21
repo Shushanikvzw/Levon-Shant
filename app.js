@@ -2114,16 +2114,30 @@ async function renderPortalTeacherView(){
 
     const registrationIds = [...new Set((rosters || []).map(r=>r.registration_id))];
     let parentLinksData = [];
+    let profilesById = {};
     if (registrationIds.length){
       const { data: pl, error: plErr } = await supabase
         .from("parent_links")
-        .select("*, profiles(*)")
+        .select("*")
         .in("registration_id", registrationIds);
       if (plErr) throw plErr;
       parentLinksData = pl || [];
+
+      // parent_links.parent_user_id references auth.users, not public.profiles
+      // directly — PostgREST can't auto-join across that, even though
+      // profiles.id is the same value, so fetch profiles separately instead.
+      const parentUserIds = [...new Set(parentLinksData.map(l=>l.parent_user_id))];
+      if (parentUserIds.length){
+        const { data: profs, error: profErr } = await supabase.from("profiles").select("*").in("id", parentUserIds);
+        if (profErr) throw profErr;
+        (profs || []).forEach(p=>{ profilesById[p.id] = p; });
+      }
     }
     const parentsByReg = {};
-    parentLinksData.forEach(l=>{ if (l.profiles) (parentsByReg[l.registration_id] ||= []).push(l.profiles); });
+    parentLinksData.forEach(l=>{
+      const p = profilesById[l.parent_user_id];
+      if (p) (parentsByReg[l.registration_id] ||= []).push(p);
+    });
 
     content.innerHTML = assigns.map(a=>{
       const sched = a.schedule;

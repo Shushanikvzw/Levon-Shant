@@ -281,6 +281,16 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: teacher's "students and parents" list showed "Could not find a
+  relationship between 'parent_links' and 'profiles'."** This is a different bug
+  from the recursion issue above, in the same new feature. The code tried to fetch a
+  parent's name/email directly alongside `parent_links` in one request, but
+  `parent_links.parent_user_id` points to `auth.users`, not directly to `profiles` —
+  even though they share the same underlying ID, Supabase can't automatically
+  combine two tables that aren't directly connected by a foreign key. Fixed by
+  fetching the two pieces separately and joining them in the browser instead — no
+  database migration needed for this one, it was purely how the request was built.
+
 - **🚨 Critical fix — run `0019_fix_rls_recursion.sql` immediately if you've run `0018`.**
   Migration `0018` had a real bug: it added a rule on `class_assignments` that checks
   `parent_links`, and a rule on `parent_links` that checks `class_assignments` right
