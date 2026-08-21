@@ -1543,11 +1543,11 @@ document.getElementById("exportSchedulePdfBtn")?.addEventListener("click", async
         <tbody>
           ${rows.map((r,i)=>`
             <tr style="background:${i % 2 === 0 ? '#fff' : '#F8F4E6'};">
-              <td style="padding:8px 10px; border:1px solid #ddd; white-space:nowrap;">${escapeHtml(timeLabel(r.start))}–${escapeHtml(timeLabel(r.end))}</td>
-              <td style="padding:8px 10px; border:1px solid #ddd; font-weight:700;">${escapeHtml(r.course||"")}</td>
-              <td style="padding:8px 10px; border:1px solid #ddd;">${escapeHtml(r.teacher||"")}</td>
-              <td style="padding:8px 10px; border:1px solid #ddd; text-align:center;">${r.students.length}</td>
-              <td style="padding:8px 10px; border:1px solid #ddd;">${escapeHtml(r.students.join(", ")) || "—"}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd; white-space:nowrap; vertical-align:top;">${escapeHtml(timeLabel(r.start))}–${escapeHtml(timeLabel(r.end))}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd; font-weight:700; vertical-align:top;">${escapeHtml(r.course||"")}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd; vertical-align:top;">${escapeHtml(r.teacher||"")}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd; text-align:center; vertical-align:top;">${r.students.length}</td>
+              <td style="padding:8px 10px; border:1px solid #ddd; line-height:1.6; vertical-align:top;">${r.students.length ? r.students.map(s=>escapeHtml(s)).join("<br>") : "—"}</td>
             </tr>`).join("")}
         </tbody>
       </table>`;

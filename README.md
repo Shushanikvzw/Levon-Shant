@@ -67,6 +67,8 @@ supabase/migrations/0015_cancel_specific_course.sql  adds the ability to cancel 
                                           specific course on a Saturday, not just the whole day
 supabase/migrations/0016_parent_teacher_roles.sql  adds parent and teacher roles, with
                                           per-class announcements and access control
+supabase/migrations/0017_allow_teacher_parent_roles.sql  fixes a database constraint that
+                                          was rejecting the teacher/parent roles outright
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -144,8 +146,11 @@ all succeeded).
     → **Run**. Adds the ability to cancel one specific course on a Saturday.
 17. New query again → paste `supabase/migrations/0016_parent_teacher_roles.sql`
     → **Run**. Adds parent and teacher roles, per-class announcements, and access control.
+18. New query again → paste `supabase/migrations/0017_allow_teacher_parent_roles.sql`
+    → **Run**. Fixes a leftover database constraint that rejected the teacher/parent
+    roles outright — **required** for approving any teacher/parent account to work.
 
-All sixteen files are safe to re-run if needed.
+All seventeen files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -261,6 +266,15 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **Fixed: approving a teacher/parent account showed an error.** The database had a
+  leftover rule (a `CHECK` constraint on `profiles.role`) from before teacher/parent
+  roles existed, that only allowed `'admin'` or `'smm'` — so trying to assign
+  "🧑‍🏫 Ուսուցիչ" or "👨‍👩‍👧 Ծնող" to a pending account was being rejected by the
+  database itself, not a bug in the page's own code. **Migration
+  `0017_allow_teacher_parent_roles.sql` must be run** for role approval to work at
+  all for these two roles — if you already ran `0016` before this fix, you still need
+  to run `0017` on top of it.
 
 - **New: parent and teacher roles, with per-class announcements.** A separate page,
   `portal.html`, is where parents and teachers sign in — completely separate from
