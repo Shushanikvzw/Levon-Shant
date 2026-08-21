@@ -130,10 +130,14 @@ async function handleAuthChange(session){
     return;
   }
   currentUser = session.user;
-  try{
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
-    currentRole = profile ? profile.role : null;
-  }catch(err){ currentRole = null; }
+  const { data: profile, error: profileErr } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
+  if (profileErr){
+    currentUser = null; currentRole = null;
+    await supabase.auth.signOut();
+    showAuthScreen("Սխալ՝ " + profileErr.message);
+    return;
+  }
+  currentRole = profile ? profile.role : null;
   if (!currentRole){
     currentUser = null;
     await supabase.auth.signOut();

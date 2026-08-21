@@ -72,6 +72,10 @@ supabase/migrations/0017_allow_teacher_parent_roles.sql  fixes a database constr
 supabase/migrations/0018_parent_teacher_read_access.sql  grants parents/teachers the read
                                           access to their own child/class that was missing,
                                           which is why a parent's own view showed nothing
+supabase/migrations/0019_fix_rls_recursion.sql  fixes an "infinite recursion" bug that
+                                          0018 accidentally introduced — this broke logging
+                                          in for everyone, not just parents/teachers, and
+                                          is REQUIRED on top of 0018
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -155,8 +159,12 @@ all succeeded).
 19. New query again → paste `supabase/migrations/0018_parent_teacher_read_access.sql`
     → **Run**. **Required** for parents to actually see their child's class/announcements,
     and for teachers to see their students and connected parents.
+20. New query again → paste `supabase/migrations/0019_fix_rls_recursion.sql` → **Run**.
+    **Critical, run this immediately if you've already run 0018** — it fixes an
+    "infinite recursion" bug in 0018 that broke logging in for *everyone* (admin
+    included), not just parents/teachers.
 
-All eighteen files are safe to re-run if needed.
+All nineteen files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -272,6 +280,31 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **🚨 Critical fix — run `0019_fix_rls_recursion.sql` immediately if you've run `0018`.**
+  Migration `0018` had a real bug: it added a rule on `class_assignments` that checks
+  `parent_links`, and a rule on `parent_links` that checks `class_assignments` right
+  back — the database ends up needing to check one to verify the other, forever,
+  and gives up with an error: `"infinite recursion detected in policy for relation
+  parent_links"`. The serious part isn't just that the parent/teacher portal broke —
+  it's that this made the `profiles` table's own permission check fail for
+  **everyone**, including admin, since the database has to consider every rule on a
+  table for any query against it, and one broken rule fails the whole check. That's
+  why even a normal admin login started incorrectly showing "still awaiting approval."
+  `0019` fixes this by rewriting those rules to use a small helper function instead of
+  querying the other table directly (the same technique already used successfully
+  elsewhere in this project) — that breaks the loop entirely. If you've already run
+  `0018`, run `0019` right after it and everything (including plain admin login)
+  should go back to working immediately.
+
+- **Also fixed: two places that could silently show "pending approval" for any
+  failure, not just an actual pending account.** Both `admin.js` and the portal
+  modal's code checked whether a role was found, but never checked whether the
+  underlying database query itself had actually failed for some other reason —
+  Supabase doesn't throw an exception for a failed query, it returns the failure
+  quietly in a separate field that wasn't being read. A real error (like the
+  recursion bug above) looked identical to "you haven't been approved yet." Both now
+  show the real error message when there is one.
 
 - **Fixed the real reason a parent's view showed nothing.** The `class_assignments`
   table (which records which child is in which class) could previously only be read
