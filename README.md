@@ -256,6 +256,15 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **The class roster board is now mobile-friendly.** On a phone, the two columns
+  stack (classes on top, students below) — tapping a class now auto-scrolls straight
+  down to the student list instead of leaving you to scroll past the class cards
+  every time, and a "← Դասերին վերադառնալ" link at the top of the student list jumps
+  back up when you're ready for the next class. Touch targets (the ✕ on each chip,
+  the ➕ add icon) are bigger on small screens, both lists are shorter so one doesn't
+  push the other far off-screen, and the search box uses a font size that stops iOS
+  from auto-zooming in when you tap it.
+
 - **New: cancel just one course on a Saturday, not the whole day.** The "🚫 Չեղարկել
   դասերը որոշակի շաբաթ օրով" form now has a dropdown — "Ողջ oրվա բոլոր դասերը" (default,
   same as before) or any specific class time/course. Pick a specific one, and only that

@@ -623,6 +623,20 @@ footer.site a:hover{color:var(--apricot);}
   display:flex; align-items:center; justify-content:center; font-size:1rem;
 }
 
+@media (max-width:900px){
+  .roster-class-list, .roster-student-list{ max-height:340px; }
+  .roster-col-students{ scroll-margin-top:70px; }
+  .roster-back-link{ display:inline-block; margin-bottom:10px; font-weight:600; color:var(--blue); }
+}
+.roster-back-link{ display:none; }
+@media (max-width:480px){
+  .roster-class-card, .roster-student-card{ padding:14px; }
+  .roster-chip{ padding:6px 8px 6px 12px; font-size:.82rem; }
+  .roster-chip button{ width:26px; height:26px; font-size:.8rem; }
+  .roster-student-card .rs-add-icon{ width:36px; height:36px; font-size:1.15rem; }
+  #rosterStudentSearch{ font-size:16px; } /* prevents iOS auto-zoom on focus */
+}
+
 .content-section-head{
   font-family:'Noto Serif Armenian',serif; font-size:1.05rem; color:var(--blue);
   margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid var(--gold);

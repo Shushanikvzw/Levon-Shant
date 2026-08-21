@@ -1418,6 +1418,13 @@ function selectRosterClass(scheduleId, courseName){
   if (heading) heading.textContent = `➕ Ավելացնել «${courseName}» դասին`;
   if (search){ search.style.display = ""; search.value = ""; }
   renderRosterStudentList();
+  // On narrow screens the two columns stack vertically, so jump straight to
+  // the student list instead of leaving admin to scroll past the class cards
+  // every single time. On wide screens both columns are already visible
+  // side by side, so no scroll is needed there.
+  if (window.matchMedia("(max-width: 900px)").matches){
+    document.querySelector(".roster-col-students")?.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
 }
 
 async function renderRosterStudentList(){
@@ -1474,6 +1481,11 @@ async function renderRosterStudentList(){
 }
 
 document.getElementById("rosterStudentSearch")?.addEventListener("input", ()=> renderRosterStudentList());
+
+document.getElementById("rosterBackToClasses")?.addEventListener("click", (e)=>{
+  e.preventDefault();
+  document.querySelector(".roster-col-classes")?.scrollIntoView({ behavior:"smooth", block:"start" });
+});
 
 // ---------------------------------------------------------
 // Cancel classes on a specific Saturday (holiday/break, etc.)
