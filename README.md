@@ -76,6 +76,10 @@ supabase/migrations/0019_fix_rls_recursion.sql  fixes an "infinite recursion" bu
                                           0018 accidentally introduced — this broke logging
                                           in for everyone, not just parents/teachers, and
                                           is REQUIRED on top of 0018
+supabase/migrations/0020_announcement_reads.sql  adds read-tracking so a teacher can see
+                                          which connected parents have viewed each announcement
+supabase/migrations/0021_announcement_votes.sql  adds optional yes/no voting on an
+                                          announcement, teacher-controlled per announcement
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -163,8 +167,13 @@ all succeeded).
     **Critical, run this immediately if you've already run 0018** — it fixes an
     "infinite recursion" bug in 0018 that broke logging in for *everyone* (admin
     included), not just parents/teachers.
+21. New query again → paste `supabase/migrations/0020_announcement_reads.sql` → **Run**.
+    Adds read-tracking so a teacher can see which connected parents have viewed
+    each announcement.
+22. New query again → paste `supabase/migrations/0021_announcement_votes.sql` → **Run**.
+    Adds optional yes/no voting on an announcement, teacher-controlled per announcement.
 
-All nineteen files are safe to re-run if needed.
+All twenty-one files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -280,6 +289,25 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: optional yes/no voting on an announcement.** When posting, a teacher can
+  check "🗳️ Այս հայտարարությունը պահանջում է Այո/Ոչ քվեարկություն ծնողներից" — it's
+  entirely optional per announcement, left unchecked by default, exactly as asked.
+  When checked, connected parents see "✅ Այո" / "❌ Ոչ" buttons right on that
+  announcement (and only that one — a normal announcement never shows voting
+  buttons), can change their answer any time by clicking the other option, and the
+  teacher sees a live tally — "🗳️ Քվեարկություն՝ ✅ Այո 3 · ❌ Ոչ 1 · ⏳ դեռ 2" — plus
+  exactly who voted which way and who hasn't answered yet, using the same connected-
+  parents list already built for the "seen by" feature.
+
+- **New: teachers can see who's seen their announcement.** Every announcement in a
+  teacher's view now shows "👁️ Ովքեր են տեսել (2/4)" — a checklist of every parent
+  connected to a student in that specific class, each marked ✅ (seen) or ⏳ (not yet).
+  It works automatically: whenever a parent opens their announcements, viewing the
+  page itself marks everything currently shown to them as read — there's nothing for
+  the parent to click or do differently. Only that class's connected parents are
+  counted; a class with no linked parent accounts yet shows a note explaining that,
+  rather than an empty or misleading checklist.
 
 - **New: the homepage's "1999 / Mechelen / Hamazkayin" stats strip is now editable.**
   These three items (and their small captions underneath — "հիմնադրման տարեթիվ",

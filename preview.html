@@ -3602,6 +3602,18 @@ async function renderPortalParentView(){
       .order("created_at", { ascending:false });
     if (annErr) throw annErr;
 
+    const votingAnnouncementIds = (announcements || []).filter(a=>a.requires_vote).map(a=>a.id);
+    let myVotes = {};
+    if (votingAnnouncementIds.length){
+      const { data: myVoteRows, error: myVotesErr } = await supabase
+        .from("announcement_votes")
+        .select("*")
+        .eq("parent_user_id", portalUser.id)
+        .in("announcement_id", votingAnnouncementIds);
+      if (myVotesErr) throw myVotesErr;
+      (myVoteRows || []).forEach(v=>{ myVotes[v.announcement_id] = v.vote; });
+    }
+
     const scheduleById = {};
     allAssignments.forEach(a=>{ if (a.schedule) scheduleById[a.schedule_id] = a.schedule; });
 
@@ -3610,13 +3622,26 @@ async function renderPortalParentView(){
       if (!sched) return "";
       const items = (announcements || []).filter(a=>a.schedule_id === sid);
       const body = items.length
-        ? items.map(a=>`
+        ? items.map(a=>{
+            const myVote = myVotes[a.id];
+            const voteUi = a.requires_vote ? `
+              <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);">
+                <span class="helper" style="font-weight:600; display:block; margin-bottom:8px;">🗳️ Ուսուցիչը խնդրում է Ձեր պատասխանը՝</span>
+                <div style="display:flex; gap:8px;" data-votegroup="${a.id}">
+                  <button type="button" class="btn ${myVote === "yes" ? "apricot" : "ghost"} small" data-vote="yes" data-annid="${a.id}">✅ Այո</button>
+                  <button type="button" class="btn ${myVote === "no" ? "apricot" : "ghost"} small" data-vote="no" data-annid="${a.id}">❌ Ոչ</button>
+                </div>
+                <div class="form-msg" data-votemsg="${a.id}"></div>
+              </div>` : "";
+            return `
             <div class="portal-announcement">
               <span class="a-date">${new Date(a.created_at).toLocaleDateString("hy-AM")}</span>
               <h3>${escapeHtml(a.title)}</h3>
               ${a.body ? `<p>${escapeHtml(a.body)}</p>` : ""}
               ${a.teacher_name ? `<div class="a-teacher">— ${escapeHtml(a.teacher_name)}</div>` : ""}
-            </div>`).join("")
+              ${voteUi}
+            </div>`;
+          }).join("")
         : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան այս դասի համար։</p></div>`;
       return `
         <div class="course-group">
@@ -3626,6 +3651,38 @@ async function renderPortalParentView(){
     }).join("");
 
     content.innerHTML = childSummaryHtml + `<h3 style="margin:22px 0 14px;">📢 Հայտարարություններ</h3>` + announcementGroupsHtml;
+
+    content.querySelectorAll("[data-vote]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const annId = btn.dataset.annid;
+        const vote = btn.dataset.vote;
+        const msgEl = content.querySelector(`[data-votemsg="${annId}"]`);
+        msgEl.className = "form-msg"; msgEl.textContent = "";
+        try{
+          const { error } = await supabase.from("announcement_votes")
+            .upsert({ announcement_id: annId, parent_user_id: portalUser.id, vote, voted_at: new Date().toISOString() }, { onConflict: "announcement_id,parent_user_id" });
+          if (error) throw error;
+          content.querySelectorAll(`[data-votegroup="${annId}"] [data-vote]`).forEach(b=>{
+            b.classList.toggle("apricot", b.dataset.vote === vote);
+            b.classList.toggle("ghost", b.dataset.vote !== vote);
+          });
+          msgEl.textContent = "Ձեր պատասխանն ընդունվեց ✔"; msgEl.classList.add("show","ok");
+        }catch(err){
+          msgEl.textContent = "Սխալ՝ " + err.message; msgEl.classList.add("show","err");
+        }
+      });
+    });
+
+    // Mark every announcement just shown as read by this parent, so the
+    // teacher can see who has (and hasn't) viewed it. Re-marking on every
+    // view just refreshes "last seen" — harmless and simpler than tracking
+    // whether it was already marked.
+    const announcementIds = (announcements || []).map(a=>a.id);
+    if (announcementIds.length){
+      supabase.from("announcement_reads")
+        .upsert(announcementIds.map(id=>({ announcement_id: id, parent_user_id: portalUser.id })), { onConflict: "announcement_id,parent_user_id" })
+        .then(({ error })=>{ if (error) console.warn("Could not mark announcements as read:", error.message); });
+    }
   }catch(err){
     content.innerHTML = `<div class="portal-empty-note">Սխալ՝ ${err.message}</div>`;
   }
@@ -3689,11 +3746,68 @@ async function renderPortalTeacherView(){
       if (p) (parentsByReg[l.registration_id] ||= []).push(p);
     });
 
+    // Read receipts: which connected parents have viewed each announcement.
+    const announcementIds = (announcements || []).map(a=>a.id);
+    let readsByAnnouncement = {};
+    let votesByAnnouncement = {};
+    if (announcementIds.length){
+      const { data: reads, error: readsErr } = await supabase
+        .from("announcement_reads")
+        .select("*")
+        .in("announcement_id", announcementIds);
+      if (readsErr) throw readsErr;
+      (reads || []).forEach(r=>{ (readsByAnnouncement[r.announcement_id] ||= new Set()).add(r.parent_user_id); });
+
+      const { data: votes, error: votesErr } = await supabase
+        .from("announcement_votes")
+        .select("*")
+        .in("announcement_id", announcementIds);
+      if (votesErr) throw votesErr;
+      (votes || []).forEach(v=>{ (votesByAnnouncement[v.announcement_id] ||= {})[v.parent_user_id] = v.vote; });
+    }
+
     content.innerHTML = assigns.map(a=>{
       const sched = a.schedule;
       if (!sched) return "";
+      const classRosterForParents = (rosters || []).filter(r=>r.schedule_id === a.schedule_id);
+      // Every unique parent connected to a student in this specific class —
+      // used to show a per-announcement "seen by" checklist below.
+      const classParents = [];
+      const seenParentIds = new Set();
+      classRosterForParents.forEach(r=>{
+        (parentsByReg[r.registration_id] || []).forEach(p=>{
+          if (!seenParentIds.has(p.id)){ seenParentIds.add(p.id); classParents.push(p); }
+        });
+      });
+
       const items = (announcements || []).filter(x=>x.schedule_id === a.schedule_id);
-      const list = items.length ? items.map(x=>`
+      const list = items.length ? items.map(x=>{
+        const readIds = readsByAnnouncement[x.id] || new Set();
+        const seenHtml = classParents.length ? `
+          <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);">
+            <span class="helper" style="font-weight:600;">👁️ Ովքեր են տեսել (${classParents.filter(p=>readIds.has(p.id)).length}/${classParents.length})՝</span>
+            <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
+              ${classParents.map(p=>{
+                const seen = readIds.has(p.id);
+                return `<span class="status-pill" style="${seen ? "" : "background:var(--paper-dim); color:var(--ink-soft);"}">${seen ? "✅" : "⏳"} ${escapeHtml(portalCleanName(p.name) || p.email || "")}</span>`;
+              }).join("")}
+            </div>
+          </div>` : `<p class="helper" style="margin-top:8px;">Դեռ ոչ մի ծնողի հաշիվ կապակցված չէ այս դասի ուսանողներին։</p>`;
+        const votes = votesByAnnouncement[x.id] || {};
+        const yesCount = classParents.filter(p=>votes[p.id] === "yes").length;
+        const noCount = classParents.filter(p=>votes[p.id] === "no").length;
+        const voteHtml = x.requires_vote ? `
+          <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);">
+            <span class="helper" style="font-weight:600;">🗳️ Քվեարկություն՝ ✅ Այո ${yesCount} · ❌ Ոչ ${noCount} · ⏳ դեռ ${classParents.length - yesCount - noCount}</span>
+            ${classParents.length ? `<div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
+              ${classParents.map(p=>{
+                const v = votes[p.id];
+                const label = v === "yes" ? "✅ Այո" : v === "no" ? "❌ Ոչ" : "⏳ դեռ չի քվեարկել";
+                return `<span class="status-pill" style="${v ? "" : "background:var(--paper-dim); color:var(--ink-soft);"}">${escapeHtml(portalCleanName(p.name) || p.email || "")} — ${label}</span>`;
+              }).join("")}
+            </div>` : ""}
+          </div>` : "";
+        return `
         <div class="portal-announcement">
           <span class="a-date">${new Date(x.created_at).toLocaleDateString("hy-AM")}</span>
           <h3>${escapeHtml(x.title)}</h3>
@@ -3702,7 +3816,10 @@ async function renderPortalTeacherView(){
             <button class="btn ghost small" data-editann="${x.id}">Խմբագրել</button>
             <button class="btn danger small" data-delann="${x.id}">Ջնջել</button>
           </div>
-        </div>`).join("") : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան։</p></div>`;
+          ${seenHtml}
+          ${voteHtml}
+        </div>`;
+      }).join("") : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան։</p></div>`;
 
       const classRoster = (rosters || []).filter(r=>r.schedule_id === a.schedule_id);
       const rosterRows = classRoster.length ? classRoster.map(r=>{
@@ -3730,6 +3847,10 @@ async function renderPortalTeacherView(){
               <form data-postform="${a.schedule_id}">
                 <div class="field"><label>Վերնագիր</label><input data-field="title" required></div>
                 <div class="field" style="margin-top:10px;"><label>Տեքստ</label><textarea data-field="body" rows="3"></textarea></div>
+                <label style="display:flex; align-items:center; gap:8px; margin-top:10px; cursor:pointer;">
+                  <input type="checkbox" data-field="requiresVote" style="width:auto;">
+                  <span class="helper" style="margin:0;">🗳️ Այս հայտարարությունը պահանջում է Այո/Ոչ քվեարկություն ծնողներից</span>
+                </label>
                 <button class="btn apricot small" type="submit" style="margin-top:10px;">Հրապարակել</button>
                 <div class="form-msg" data-postmsg></div>
               </form>
@@ -3747,9 +3868,10 @@ async function renderPortalTeacherView(){
         msgEl.className = "form-msg"; msgEl.textContent = "";
         const title = form.querySelector('[data-field="title"]').value.trim();
         const body = form.querySelector('[data-field="body"]').value.trim();
+        const requiresVote = form.querySelector('[data-field="requiresVote"]').checked;
         try{
           const { error } = await supabase.from("course_announcements").insert({
-            schedule_id: scheduleId, title, body: body || null,
+            schedule_id: scheduleId, title, body: body || null, requires_vote: requiresVote,
             teacher_user_id: portalUser.id, teacher_name: portalUserName || portalUser.email
           });
           if (error) throw error;
