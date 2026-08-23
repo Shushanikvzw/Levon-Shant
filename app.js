@@ -897,6 +897,14 @@ function renderLightboxMedia(){
       : `<img src="${item.url}" alt="">`;
   counter.textContent = `${lightboxIndex + 1} / ${media.length}`;
 
+  // Photos are already shown as large as the modal allows, but clicking
+  // opens the original file in a new tab for examining fine detail (e.g.
+  // small text in a slide screenshot) beyond what fits in the lightbox.
+  if (item.type !== "video" && item.type !== "youtube"){
+    const img = stage.querySelector("img");
+    if (img) img.addEventListener("click", ()=> window.open(item.url, "_blank"));
+  }
+
   thumbs.innerHTML = media.map((m, i)=>
     m.type === "video"
       ? `<div class="vid-thumb${i===lightboxIndex ? ' active' : ''}" data-idx="${i}">▶</div>`

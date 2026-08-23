@@ -290,6 +290,16 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: images in the gallery lightbox showing with huge black bars.** The
+  lightbox was forcing every photo into a fixed, very wide 16:10 (or 4:3 on mobile)
+  box no matter the image's actual shape — a portrait photo or a slide screenshot
+  (closer to square or 4:3) got squeezed into the middle with large black bars on
+  both sides, exactly like the screenshot. It now sizes to each image's own real
+  proportions instead of forcing one fixed shape, so there's no more letterboxing.
+  Clicking the photo also now opens its original full-resolution file in a new tab,
+  for examining fine detail (like small text in a slide) beyond what fits in the
+  lightbox itself.
+
 - **New: a full recap right after registering, not just "thank you."** Submitting
   either registration form now opens a confirmation showing everything just
   submitted — for children, the shared family info (address, parents, native
