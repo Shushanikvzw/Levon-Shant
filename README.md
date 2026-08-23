@@ -290,6 +290,15 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: a full recap right after registering, not just "thank you."** Submitting
+  either registration form now opens a confirmation showing everything just
+  submitted — for children, the shared family info (address, parents, native
+  language, consent) plus each child's own name, birth date, and chosen courses as
+  clear tags; for an adult, all their own details the same way. This appears
+  immediately on-screen (so it doesn't depend on email actually arriving), and the
+  confirmation email sent to the family now includes the same full recap too,
+  rather than just the name and course list it showed before.
+
 - **New: optional yes/no voting on an announcement.** When posting, a teacher can
   check "🗳️ Այս հայտարարությունը պահանջում է Այո/Ոչ քվեարկություն ծնողներից" — it's
   entirely optional per announcement, left unchecked by default, exactly as asked.

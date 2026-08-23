@@ -1046,6 +1046,7 @@ async function submitRegistration(payload, msgEl, formEl){
     formEl.reset();
     sendRegistrationEmail(payload); // best-effort; never blocks the confirmation above
     sendConfirmationEmail(payload); // best-effort email back to the family, independent of the one above
+    openRegConfirmModal(buildAdultConfirmationHtml(payload));
   }catch(err){
     msgEl.textContent = "Սխալ՝ " + err.message;
     msgEl.classList.add("show","err");
@@ -1131,12 +1132,27 @@ function buildConfirmationEmail(payload){
 
   const subject = `Ձեր գրանցումը ստացվել է ✔ — Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց`;
 
+  const recap = [
+    `Ստորև՝ Ձեր լրացրած տվյալների ամփոփումը՝`, "",
+    `Անուն, ազգանուն.  ${name || "—"}`,
+    `Սեռ.  ${payload.gender || "—"}`,
+    `Ծննդյան տարեթիվ.  ${payload.dob || "—"}`,
+    `Ազգություն.  ${payload.nationality || "—"}`,
+    `Մայրենի լեզու.  ${payload.nativeLang || "—"}`,
+    payload.level ? `Հայերենի մակարդակ.  ${payload.level}` : null,
+    `Հասցե.  ${payload.address || "—"}`,
+    `Էլ. հասցե.  ${payload.email || "—"}`,
+    payload.phone ? `Հեռախոս.  ${payload.phone}` : null,
+    `Ընտրված դասընթաց(ներ).  ${coursesList}`,
+    `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${payload.photoConsent || "—"}`
+  ].filter(l=>l !== null);
+
   const lines = [
     `Հարգելի՛ ${name || ""},`,
     ``,
     `Շնորհակալություն, որ գրանցվեցիք Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում։ Ձեր ${isChild ? "երեխայի" : "Ձեր"} գրանցումը հաջողությամբ ստացվել է և արդեն գտնվում է մեր համակարգում։`,
     ``,
-    `Ընտրված դասընթաց(ներ)՝ ${coursesList}`,
+    ...recap,
     ``,
     `Դպրոցի պատասխանատուն շուտով կկապվի Ձեզ հետ՝ գրանցումը հաստատելու և հետագա մանրամասները փոխանցելու համար։`,
     ``,
@@ -1202,11 +1218,24 @@ function buildMultiChildConfirmationEmail(payloads){
   const subject = `Ձեր գրանցումը ստացվել է ✔ — Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց`;
   const lines = [
     `Հարգելի՛ ծնող,`, ``,
-    `Շնորհակալություն, որ գրանցեցիք Ձեր ${payloads.length} երեխաներին Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում։ Գրանցումները հաջողությամբ ստացվել են և արդեն գտնվում են մեր համակարգում.`, ``
+    `Շնորհակալություն, որ գրանցեցիք Ձեր ${payloads.length} երեխաներին Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոցում։ Գրանցումները հաջողությամբ ստացվել են և արդեն գտնվում են մեր համակարգում.`, "",
+    `Ընտանիքի տվյալներ`, "—".repeat(16),
+    `Հասցե.  ${first.address || "—"}`,
+    `Ազգություն.  ${first.nationality || "—"}`,
+    `Մայրենի լեզու.  ${first.nativeLang || "—"}`,
+    `Էլ. հասցե.  ${first.email || "—"}`,
+    `Մայր.  ${first.mother || "—"}`,
+    `Հայր.  ${first.father || "—"}`,
+    `Համաձայնություն նկար/տեսանյութի հրապարակմանը.  ${first.photoConsent || "—"}`
   ];
   payloads.forEach((p, i)=>{
     const coursesList = (p.courses && p.courses.length) ? p.courses.join(", ") : "—";
-    lines.push(`${i+1}. ${p.childName || ""} — ${coursesList}`);
+    lines.push("", `Երեխա ${i+1}`, "—".repeat(16),
+      `Անուն, ազգանուն.  ${p.childName || "—"}`,
+      `Ծննդյան տարեթիվ.  ${p.childDob || "—"}`,
+      `Սեռ.  ${p.gender || "—"}`,
+      `Ընտրված դասընթաց(ներ).  ${coursesList}`
+    );
   });
   lines.push(
     ``, `Դպրոցի պատասխանատուն շուտով կկապվի Ձեզ հետ՝ գրանցումները հաստատելու և հետագա մանրամասները փոխանցելու համար։`, ``,
@@ -1214,6 +1243,87 @@ function buildMultiChildConfirmationEmail(payloads){
     `Անհամբեր սպասում ենք Ձեզ դպրոցում տեսնելու։`, ``, `Ջերմությամբ,`, `Համազգայինի Լևոն Շանթի անվան շաբաթօրյա դպրոց`, `Մեխելեն, Բելգիա`
   );
   return { subject, message: lines.join("\n"), toEmail: first.email || "" };
+}
+
+// ---------------------------------------------------------
+// On-screen registration confirmation: a full recap of exactly
+// what was submitted (shared family info + every child/adult's
+// own details and chosen courses), shown right after a successful
+// submission — doesn't depend on email deliverability, and lets
+// the family immediately double-check everything is correct.
+// ---------------------------------------------------------
+function openRegConfirmModal(html){
+  const backdrop = document.getElementById("regConfirmBackdrop");
+  const body = document.getElementById("regConfirmBody");
+  if (!backdrop || !body) return;
+  body.innerHTML = html;
+  backdrop.classList.add("open");
+}
+document.getElementById("closeRegConfirm")?.addEventListener("click", ()=>{
+  document.getElementById("regConfirmBackdrop")?.classList.remove("open");
+});
+document.getElementById("regConfirmBackdrop")?.addEventListener("click", (e)=>{
+  if (e.target.id === "regConfirmBackdrop") e.target.classList.remove("open");
+});
+
+function regConfirmRow(label, value){
+  return value ? `<div style="display:flex; justify-content:space-between; gap:14px; padding:7px 0; border-bottom:1px dashed var(--line);"><span class="helper" style="flex:none;">${escapeHtml(label)}</span><span style="text-align:right;">${escapeHtml(value)}</span></div>` : "";
+}
+
+function buildChildConfirmationHtml(payloads){
+  const first = payloads[0];
+  const sharedHtml = `
+    <div style="background:var(--paper-dim); border-radius:12px; padding:16px 18px; margin-bottom:18px;">
+      <h3 style="margin:0 0 10px;">👪 Ընտանիքի տվյալներ</h3>
+      ${regConfirmRow("Հասցե", first.address)}
+      ${regConfirmRow("Ազգություն", first.nationality)}
+      ${regConfirmRow("Մայրենի լեզու", first.nativeLang)}
+      ${regConfirmRow("Էլ. հասցե", first.email)}
+      ${regConfirmRow("Մայր", first.mother)}
+      ${regConfirmRow("Հայր", first.father)}
+      ${regConfirmRow("Համաձայնություն նկար/տեսանյութի հրապարակմանը", first.photoConsent)}
+    </div>`;
+  const childrenHtml = payloads.map((p, i)=>`
+    <div style="border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px;">
+      <h3 style="margin:0 0 10px;">👶 ${escapeHtml(p.childName || `Երեխա ${i+1}`)}</h3>
+      ${regConfirmRow("Ծննդյան տարեթիվ", p.childDob)}
+      ${regConfirmRow("Սեռ", p.gender)}
+      <div style="padding-top:8px;">
+        <span class="helper">Ընտրված դասընթացներ՝</span>
+        <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
+          ${(p.courses && p.courses.length) ? p.courses.map(c=>`<span class="status-pill">${escapeHtml(c)}</span>`).join("") : `<span class="helper">—</span>`}
+        </div>
+      </div>
+    </div>`).join("");
+  return `
+    <h2 style="margin-bottom:4px;">✅ Ձեր գրանցումը հաստատված է</h2>
+    <p class="helper" style="margin-bottom:20px;">${payloads.length > 1 ? `${payloads.length} երեխաների` : "Ձեր երեխայի"} գրանցումն ընդունվեց։ Ստուգեք ստորև, որ ամեն ինչ ճիշտ է լրացված։ Կրկնօրինակ ուղարկվել է Ձեր էլ. փոստին (եթե նշված է)։</p>
+    ${sharedHtml}
+    ${childrenHtml}`;
+}
+
+function buildAdultConfirmationHtml(payload){
+  return `
+    <h2 style="margin-bottom:4px;">✅ Ձեր գրանցումը հաստատված է</h2>
+    <p class="helper" style="margin-bottom:20px;">Ձեր գրանցումն ընդունվեց։ Ստուգեք ստորև, որ ամեն ինչ ճիշտ է լրացված։ Կրկնօրինակ ուղարկվել է Ձեր էլ. փոստին (եթե նշված է)։</p>
+    <div style="border:1px solid var(--line); border-radius:12px; padding:16px 18px;">
+      <h3 style="margin:0 0 10px;">🧑 ${escapeHtml(payload.name || "")}</h3>
+      ${regConfirmRow("Ծննդյան տարեթիվ", payload.dob)}
+      ${regConfirmRow("Սեռ", payload.gender)}
+      ${regConfirmRow("Ազգություն", payload.nationality)}
+      ${regConfirmRow("Մայրենի լեզու", payload.nativeLang)}
+      ${regConfirmRow("Հայերենի մակարդակ", payload.level)}
+      ${regConfirmRow("Հասցե", payload.address)}
+      ${regConfirmRow("Էլ. հասցե", payload.email)}
+      ${regConfirmRow("Հեռախոս", payload.phone)}
+      ${regConfirmRow("Համաձայնություն նկար/տեսանյութի հրապարակմանը", payload.photoConsent)}
+      <div style="padding-top:8px;">
+        <span class="helper">Ընտրված դասընթացներ՝</span>
+        <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
+          ${(payload.courses && payload.courses.length) ? payload.courses.map(c=>`<span class="status-pill">${escapeHtml(c)}</span>`).join("") : `<span class="helper">—</span>`}
+        </div>
+      </div>
+    </div>`;
 }
 
 async function submitMultipleChildRegistrations(payloads, msgEl, formEl){
@@ -1250,6 +1360,8 @@ async function submitMultipleChildRegistrations(payloads, msgEl, formEl){
       sendRegistrationEmail(payloads[0]);
       sendConfirmationEmail(payloads[0]);
     }
+
+    openRegConfirmModal(buildChildConfirmationHtml(payloads));
   }catch(err){
     msgEl.textContent = "Սխալ՝ " + err.message;
     msgEl.classList.add("show","err");
