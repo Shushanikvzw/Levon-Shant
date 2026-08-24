@@ -290,6 +290,20 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: searching for a child to link, instead of scrolling a long dropdown.**
+  In "🔑 Ուսուցիչ/ծնող կապեր," the "➕ Կապակցել նոր գրանցում" dropdown is now a search
+  box — type a name and matching registrations appear as clickable cards below it,
+  same as the class roster board's student picker. Clicking a card links it
+  immediately, and you can keep linking as many additional children as needed, one
+  click each, without the list closing or resetting.
+- **New: automatic match suggestion by email.** Selecting a parent account now
+  checks whether any unlinked registration's own contact email matches that parent's
+  login email — if so, a banner suggests them by name with a single "✔ Կապակցել
+  բոլորը" button to link them all at once. This is just a suggestion, not automatic
+  linking on its own — admin still confirms it with one click, and can always search
+  and link further children manually on top of it (e.g. if a sibling registered
+  under a different email).
+
 - **New: admin can edit and delete registrations.** The "📋 Գրանցումներ" table was
   previously read-only (view and export only) — each row now has "Խմբագրել" (Edit)
   and "Ջնջել" (Delete) buttons. Edit opens a form pre-filled with everything that

@@ -1065,14 +1065,20 @@ document.getElementById("teacherLinkSaveBtn")?.addEventListener("click", async (
 
 document.getElementById("parentLinkSelect")?.addEventListener("change", ()=> refreshParentLinks());
 
+let parentLinkCandidates = [];
+let parentLinkCurrentParentEmail = "";
+
 async function refreshParentLinks(){
   const parentId = document.getElementById("parentLinkSelect").value;
   const content = document.getElementById("parentLinkContent");
   const listEl = document.getElementById("parentLinkedList");
-  const addSelect = document.getElementById("parentLinkAddSelect");
+  const suggestionEl = document.getElementById("parentLinkSuggestion");
+  const searchInput = document.getElementById("parentLinkSearch");
   if (!parentId){ content.style.display = "none"; return; }
   content.style.display = "";
   listEl.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
+  suggestionEl.style.display = "none";
+  if (searchInput) searchInput.value = "";
   try{
     const { data: links, error } = await supabase.from("parent_links").select("*, registrations(*)").eq("parent_user_id", parentId);
     if (error) throw error;
@@ -1119,30 +1125,92 @@ async function refreshParentLinks(){
       registrationsCache = data || [];
     }
     const linkedRegIds = new Set((links || []).map(l=>l.registration_id));
-    const candidates = registrationsCache.filter(r=>!linkedRegIds.has(r.id));
-    addSelect.innerHTML = candidates.length
-      ? candidates.map(r=>`<option value="${r.id}">${escapeHtml(registrantDisplayName(r))} (${r.type === "child" ? "երեխա" : "մեծահասակ"})</option>`).join("")
-      : `<option value="">Բոլոր գրանցումներն արդեն կապակցված են</option>`;
+    parentLinkCandidates = registrationsCache.filter(r=>!linkedRegIds.has(r.id));
+
+    // Auto-match: any unlinked registration whose own contact email matches
+    // this parent account's login email is very likely the same family —
+    // suggest linking all of them with one click, rather than making admin
+    // hunt for them manually. Still fully optional either way.
+    const { data: parentProfile } = await supabase.from("profiles").select("email").eq("id", parentId).single();
+    parentLinkCurrentParentEmail = (parentProfile?.email || "").trim().toLowerCase();
+    const emailMatches = parentLinkCurrentParentEmail
+      ? parentLinkCandidates.filter(r=>(r.email||"").trim().toLowerCase() === parentLinkCurrentParentEmail)
+      : [];
+    if (emailMatches.length){
+      suggestionEl.style.display = "";
+      suggestionEl.innerHTML = `
+        <div class="banner warn">
+          🔎 Այս ծնողի էլ. փոստին (${escapeHtml(parentLinkCurrentParentEmail)}) համապատասխանող ${emailMatches.length} գրանցում գտնվեց՝
+          <strong>${emailMatches.map(r=>escapeHtml(registrantDisplayName(r))).join(", ")}</strong>։
+          Հավանաբար նույն ընտանիքից են։
+          <button class="btn blue small" id="parentLinkAutoMatchBtn" style="margin-top:8px;">✔ Կապակցել բոլորը (${emailMatches.length})</button>
+        </div>`;
+      document.getElementById("parentLinkAutoMatchBtn")?.addEventListener("click", async ()=>{
+        const msg = document.getElementById("parentLinkMsg");
+        msg.className = "form-msg"; msg.textContent = "";
+        try{
+          const { error } = await supabase.from("parent_links").insert(emailMatches.map(r=>({ parent_user_id: parentId, registration_id: r.id })));
+          if (error) throw error;
+          msg.textContent = "Կապակցվեց ✔"; msg.classList.add("show","ok");
+          refreshParentLinks();
+        }catch(err){
+          msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+        }
+      });
+    }
+
+    renderParentLinkResults("");
   }catch(err){
     listEl.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
   }
 }
 
-document.getElementById("parentLinkAddBtn")?.addEventListener("click", async ()=>{
-  const parentId = document.getElementById("parentLinkSelect").value;
-  const registrationId = document.getElementById("parentLinkAddSelect").value;
-  const msg = document.getElementById("parentLinkMsg");
-  msg.className = "form-msg"; msg.textContent = "";
-  if (!parentId || !registrationId) return;
-  try{
-    const { error } = await supabase.from("parent_links").insert({ parent_user_id: parentId, registration_id: registrationId });
-    if (error) throw error;
-    msg.textContent = "Կապակցվեց ✔"; msg.classList.add("show","ok");
-    refreshParentLinks();
-  }catch(err){
-    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+function renderParentLinkResults(searchTerm){
+  const resultsEl = document.getElementById("parentLinkSearchResults");
+  if (!resultsEl) return;
+  const term = (searchTerm || "").trim().toLowerCase();
+  const matches = term
+    ? parentLinkCandidates.filter(r=>registrantDisplayName(r).toLowerCase().includes(term))
+    : parentLinkCandidates;
+
+  if (!parentLinkCandidates.length){
+    resultsEl.innerHTML = `<p class="helper">Բոլոր գրանցումներն արդեն կապակցված են։</p>`;
+    return;
   }
-});
+  if (!matches.length){
+    resultsEl.innerHTML = `<p class="helper">Ոչինչ չի գտնվել։</p>`;
+    return;
+  }
+  resultsEl.innerHTML = matches.slice(0, 30).map(r=>{
+    const emailMatch = parentLinkCurrentParentEmail && (r.email||"").trim().toLowerCase() === parentLinkCurrentParentEmail;
+    return `
+    <div class="roster-student-card" data-linkreg="${r.id}">
+      <div>
+        <div class="rs-name">${emailMatch ? '<span class="rs-star">⭐</span> ' : ""}${escapeHtml(registrantDisplayName(r))}</div>
+        <div class="rs-meta">${r.type === "child" ? "Երեխա" : "Մեծահասակ"}${r.email ? " · " + escapeHtml(r.email) : ""}</div>
+      </div>
+      <span class="rs-add-icon">➕</span>
+    </div>`;
+  }).join("") + (matches.length > 30 ? `<p class="helper" style="margin-top:6px;">Ցուցադրված է առաջին 30-ը։ Կիրառեք որոնումը՝ ավելի ճշգրիտ արդյունքի համար։</p>` : "");
+
+  resultsEl.querySelectorAll("[data-linkreg]").forEach(card=>{
+    card.addEventListener("click", async ()=>{
+      const parentId = document.getElementById("parentLinkSelect").value;
+      const msg = document.getElementById("parentLinkMsg");
+      msg.className = "form-msg"; msg.textContent = "";
+      try{
+        const { error } = await supabase.from("parent_links").insert({ parent_user_id: parentId, registration_id: card.dataset.linkreg });
+        if (error) throw error;
+        msg.textContent = "Կապակցվեց ✔"; msg.classList.add("show","ok");
+        refreshParentLinks();
+      }catch(err){
+        msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+      }
+    });
+  });
+}
+
+document.getElementById("parentLinkSearch")?.addEventListener("input", (e)=> renderParentLinkResults(e.target.value));
 
 // ---------------------------------------------------------
 // Custom sections — admin can add whole new content blocks

@@ -445,11 +445,14 @@
         <div id="parentLinkContent" style="display:none;">
           <p class="helper" style="margin-bottom:8px;">Կապակցված գրանցում(ներ).</p>
           <div id="parentLinkedList" style="margin-bottom:16px;"></div>
+
+          <div id="parentLinkSuggestion" style="display:none; margin-bottom:16px;"></div>
+
           <div class="field" style="max-width:420px;">
-            <label for="parentLinkAddSelect">➕ Կապակցել նոր գրանցում</label>
-            <select id="parentLinkAddSelect"></select>
+            <label for="parentLinkSearch">➕ Փնտրել և կապակցել նոր գրանցում</label>
+            <input type="search" id="parentLinkSearch" placeholder="🔍 Փնտրել անունով...">
           </div>
-          <button class="btn blue small" id="parentLinkAddBtn" style="margin-top:10px;">Կապակցել</button>
+          <div id="parentLinkSearchResults" style="margin-top:10px; max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
           <div class="form-msg" id="parentLinkMsg"></div>
         </div>
       </div>
