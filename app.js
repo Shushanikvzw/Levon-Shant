@@ -2350,17 +2350,20 @@ async function renderPortalParentView(){
     // chosen to share contact details. teacher_assignments.teacher_user_id
     // references auth.users, not public.profiles directly, so fetch the
     // profile separately rather than trying to auto-embed it.
-    const { data: teacherAssigns } = await supabase.from("teacher_assignments").select("*").in("schedule_id", scheduleIds);
+    const { data: teacherAssigns, error: taAssignErr } = await supabase.from("teacher_assignments").select("*").in("schedule_id", scheduleIds);
+    if (taAssignErr) console.warn("Could not load teacher_assignments for parent view (likely an RLS/migration issue):", taAssignErr.message);
     const teacherUserIds = [...new Set((teacherAssigns || []).map(t=>t.teacher_user_id))];
     let teacherProfilesById = {};
     let teacherContactById = {};
     if (teacherUserIds.length){
-      const { data: profs } = await supabase.from("profiles").select("*").in("id", teacherUserIds);
+      const { data: profs, error: profsErr } = await supabase.from("profiles").select("*").in("id", teacherUserIds);
+      if (profsErr) console.warn("Could not load teacher profiles for parent view (likely an RLS/migration issue):", profsErr.message);
       (profs || []).forEach(p=>{ teacherProfilesById[p.id] = p; });
       // RLS already only returns a row here if that teacher has switched
       // sharing on AND actually teaches one of this parent's own children's
       // classes — nothing further to check client-side.
-      const { data: contacts } = await supabase.from("teacher_contact_prefs").select("*").in("teacher_user_id", teacherUserIds);
+      const { data: contacts, error: contactsErr } = await supabase.from("teacher_contact_prefs").select("*").in("teacher_user_id", teacherUserIds);
+      if (contactsErr) console.warn("Could not load teacher_contact_prefs for parent view:", contactsErr.message);
       (contacts || []).forEach(c=>{ teacherContactById[c.teacher_user_id] = c; });
     }
     const teachersBySchedule = {};
@@ -2373,7 +2376,7 @@ async function renderPortalParentView(){
       const teacherHtml = teacherIds.length ? teacherIds.map(tid=>{
         const prof = teacherProfilesById[tid];
         const name = portalCleanName(prof?.name) || prof?.email || "Ուսուցիչ";
-        return `<button type="button" class="btn ghost small" data-toggleteacher="${sid}-${tid}" style="padding:3px 10px; font-size:.8rem; margin-left:6px;">🧑‍🏫 ${escapeHtml(name)} ▾</button>`;
+        return `<button type="button" class="btn small" data-toggleteacher="${sid}-${tid}" style="padding:3px 10px; font-size:.8rem; margin-left:6px; background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.35);">🧑‍🏫 ${escapeHtml(name)} ▾</button>`;
       }).join("") : "";
       const teacherDetailsHtml = teacherIds.map(tid=>{
         const contact = teacherContactById[tid];
