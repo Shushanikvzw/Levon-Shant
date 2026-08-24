@@ -80,6 +80,8 @@ supabase/migrations/0020_announcement_reads.sql  adds read-tracking so a teacher
                                           which connected parents have viewed each announcement
 supabase/migrations/0021_announcement_votes.sql  adds optional yes/no voting on an
                                           announcement, teacher-controlled per announcement
+supabase/migrations/0022_teacher_contact_sharing.sql  adds optional, teacher-controlled
+                                          contact-sharing with connected parents
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -172,8 +174,10 @@ all succeeded).
     each announcement.
 22. New query again → paste `supabase/migrations/0021_announcement_votes.sql` → **Run**.
     Adds optional yes/no voting on an announcement, teacher-controlled per announcement.
+23. New query again → paste `supabase/migrations/0022_teacher_contact_sharing.sql`
+    → **Run**. Adds optional, teacher-controlled contact-sharing with connected parents.
 
-All twenty-one files are safe to re-run if needed.
+All twenty-two files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -289,6 +293,28 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: teachers can optionally share contact details with connected parents, and
+  parents now see who the teacher is.** At the top of a teacher's own portal view,
+  "📞 Իմ կոնտակտային տվյալները ծնողների համար" lets them switch sharing on/off and
+  fill in a phone number and/or email — off by default, nothing shown to anyone
+  until a teacher turns it on. Every class a parent sees now shows "🧑‍🏫 [teacher
+  name]" right in the course header; clicking it reveals the phone/email only if
+  that teacher has chosen to share, or a plain note that they haven't. This is
+  enforced by the database itself, not just hidden in the interface — a parent can
+  only ever see this for a teacher who actually teaches their own child's class, and
+  the raw table is kept completely separate from the teacher's login profile, so a
+  parent can never see the teacher's actual login email unless the teacher
+  specifically chose to share that as their contact address.
+
+- **New: teachers can click a parent's name to see contact details.** In a
+  teacher's "👨‍👩‍👧 Ուսանողներ և ծնողներ" list, each parent's name is now a button —
+  clicking it reveals the parent account's email plus the family's own mother/father
+  contact info from the child's registration (which already includes phone numbers,
+  since that's how the registration form was filled in) — useful if a teacher needs
+  to actually call or message home about something. This uses data the teacher's
+  view already had access to, just not shown before, so no new database migration
+  was needed.
 
 - **New: linking a parent works from the teacher's side too, not just the parent's
   side.** In "🧑‍🏫 Ուսուցիչի դասեր," any student showing "⚠️ Ծնող կապակցված չէ" now has

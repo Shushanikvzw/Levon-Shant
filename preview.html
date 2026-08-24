@@ -3745,9 +3745,45 @@ async function renderPortalParentView(){
     const scheduleById = {};
     allAssignments.forEach(a=>{ if (a.schedule) scheduleById[a.schedule_id] = a.schedule; });
 
+    // Which teacher(s) teach each of these classes, and whether they've
+    // chosen to share contact details. teacher_assignments.teacher_user_id
+    // references auth.users, not public.profiles directly, so fetch the
+    // profile separately rather than trying to auto-embed it.
+    const { data: teacherAssigns } = await supabase.from("teacher_assignments").select("*").in("schedule_id", scheduleIds);
+    const teacherUserIds = [...new Set((teacherAssigns || []).map(t=>t.teacher_user_id))];
+    let teacherProfilesById = {};
+    let teacherContactById = {};
+    if (teacherUserIds.length){
+      const { data: profs } = await supabase.from("profiles").select("*").in("id", teacherUserIds);
+      (profs || []).forEach(p=>{ teacherProfilesById[p.id] = p; });
+      // RLS already only returns a row here if that teacher has switched
+      // sharing on AND actually teaches one of this parent's own children's
+      // classes — nothing further to check client-side.
+      const { data: contacts } = await supabase.from("teacher_contact_prefs").select("*").in("teacher_user_id", teacherUserIds);
+      (contacts || []).forEach(c=>{ teacherContactById[c.teacher_user_id] = c; });
+    }
+    const teachersBySchedule = {};
+    (teacherAssigns || []).forEach(t=>{ (teachersBySchedule[t.schedule_id] ||= []).push(t.teacher_user_id); });
+
     const announcementGroupsHtml = scheduleIds.map(sid=>{
       const sched = scheduleById[sid];
       if (!sched) return "";
+      const teacherIds = teachersBySchedule[sid] || [];
+      const teacherHtml = teacherIds.length ? teacherIds.map(tid=>{
+        const prof = teacherProfilesById[tid];
+        const name = portalCleanName(prof?.name) || prof?.email || "Ուսուցիչ";
+        return `<button type="button" class="btn ghost small" data-toggleteacher="${sid}-${tid}" style="padding:3px 10px; font-size:.8rem; margin-left:6px;">🧑‍🏫 ${escapeHtml(name)} ▾</button>`;
+      }).join("") : "";
+      const teacherDetailsHtml = teacherIds.map(tid=>{
+        const contact = teacherContactById[tid];
+        const detailLines = contact ? [
+          contact.contact_phone ? `📞 ${escapeHtml(contact.contact_phone)}` : "",
+          contact.contact_email ? `✉️ ${escapeHtml(contact.contact_email)}` : ""
+        ].filter(Boolean) : [];
+        return `<div data-teacherdetails="${sid}-${tid}" style="display:none; padding:14px 18px; background:var(--paper-dim); font-size:.85rem; border-bottom:1px dashed var(--line);">
+          ${detailLines.length ? detailLines.join("<br>") : `<span class="helper">Ուսուցիչը դեռ չի կիսվել կոնտակտային տվյալներով։</span>`}
+        </div>`;
+      }).join("");
       const items = (announcements || []).filter(a=>a.schedule_id === sid);
       const body = items.length
         ? items.map(a=>{
@@ -3773,12 +3809,19 @@ async function renderPortalParentView(){
         : `<div class="portal-announcement"><p class="helper">Դեռ հայտարարություններ չկան այս դասի համար։</p></div>`;
       return `
         <div class="course-group">
-          <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
-          <div class="course-group-body">${body}</div>
+          <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span>${teacherHtml}</div>
+          <div class="course-group-body">${teacherDetailsHtml}${body}</div>
         </div>`;
     }).join("");
 
     content.innerHTML = childSummaryHtml + `<h3 style="margin:22px 0 14px;">📢 Հայտարարություններ</h3>` + announcementGroupsHtml;
+
+    content.querySelectorAll("[data-toggleteacher]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const panel = content.querySelector(`[data-teacherdetails="${btn.dataset.toggleteacher}"]`);
+        if (panel) panel.style.display = panel.style.display === "none" ? "" : "none";
+      });
+    });
 
     content.querySelectorAll("[data-vote]").forEach(btn=>{
       btn.addEventListener("click", async ()=>{
@@ -3821,13 +3864,54 @@ async function renderPortalTeacherView(){
   const content = document.getElementById("portalMainContent");
   content.innerHTML = `<p class="helper">Բեռնվում է…</p>`;
   try{
+    const { data: myPrefs } = await supabase.from("teacher_contact_prefs").select("*").eq("teacher_user_id", portalUser.id).maybeSingle();
+    const contactSettingsHtml = `
+      <div class="portal-announcement" style="background:var(--paper-dim); margin-bottom:22px;">
+        <h3 style="margin-top:0;">📞 Իմ կոնտակտային տվյալները ծնողների համար</h3>
+        <p class="helper" style="margin-bottom:12px;">Ընտրովի է։ Եթե միացնեք, ծնողները կկարողանան տեսնել Ձեր լրացրած հեռախոսահամարը և/կամ էլ. հասցեն՝ սեղմելով Ձեր անվան կամ դասընթացի վրա։ Անջատած վիճակում ոչինչ չի ցուցադրվի։</p>
+        <form id="teacherContactForm">
+          <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; cursor:pointer;">
+            <input type="checkbox" id="tc_share" style="width:auto;" ${myPrefs?.share_contact ? "checked" : ""}>
+            <span>Կիսվել իմ կոնտակտային տվյալներով ծնողների հետ</span>
+          </label>
+          <div class="field-row">
+            <div class="field"><label for="tc_phone">Հեռախոսահամար</label><input id="tc_phone" type="tel" value="${escapeHtml(myPrefs?.contact_phone || "")}"></div>
+            <div class="field"><label for="tc_email">Էլ. հասցե</label><input id="tc_email" type="email" value="${escapeHtml(myPrefs?.contact_email || "")}"></div>
+          </div>
+          <button class="btn blue small" type="submit" style="margin-top:10px;">Պահպանել</button>
+          <div class="form-msg" id="teacherContactMsg"></div>
+        </form>
+      </div>`;
+
+    function wireTeacherContactForm(){
+      document.getElementById("teacherContactForm")?.addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        const msg = document.getElementById("teacherContactMsg");
+        msg.className = "form-msg"; msg.textContent = "";
+        try{
+          const { error } = await supabase.from("teacher_contact_prefs").upsert({
+            teacher_user_id: portalUser.id,
+            share_contact: document.getElementById("tc_share").checked,
+            contact_phone: document.getElementById("tc_phone").value.trim() || null,
+            contact_email: document.getElementById("tc_email").value.trim() || null,
+            updated_at: new Date().toISOString()
+          }, { onConflict: "teacher_user_id" });
+          if (error) throw error;
+          msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
+        }catch(err){
+          msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+        }
+      });
+    }
+
     const { data: assigns, error: taErr } = await supabase
       .from("teacher_assignments")
       .select("*, schedule(*)")
       .eq("teacher_user_id", portalUser.id);
     if (taErr) throw taErr;
     if (!assigns || !assigns.length){
-      content.innerHTML = `<div class="portal-empty-note">Ձեր հաշիվը դեռ կապակցված չէ որևէ դասի հետ։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      content.innerHTML = contactSettingsHtml + `<div class="portal-empty-note">Ձեր հաշիվը դեռ կապակցված չէ որևէ դասի հետ։ Դիմեք դպրոցի ադմինիստրատորին։</div>`;
+      wireTeacherContactForm();
       return;
     }
 
@@ -3894,7 +3978,7 @@ async function renderPortalTeacherView(){
       (votes || []).forEach(v=>{ (votesByAnnouncement[v.announcement_id] ||= {})[v.parent_user_id] = v.vote; });
     }
 
-    content.innerHTML = assigns.map(a=>{
+    content.innerHTML = contactSettingsHtml + assigns.map(a=>{
       const sched = a.schedule;
       if (!sched) return "";
       const classRosterForParents = (rosters || []).filter(r=>r.schedule_id === a.schedule_id);
@@ -3955,11 +4039,19 @@ async function renderPortalTeacherView(){
         if (!student) return "";
         const parents = parentsByReg[r.registration_id] || [];
         const parentText = parents.length
-          ? parents.map(p=>escapeHtml(p.name || p.email || "")).join(", ")
+          ? parents.map(p=>`<button type="button" class="btn ghost small" data-toggleparent="${r.registration_id}" style="padding:4px 10px; font-size:.82rem;">${escapeHtml(portalCleanName(p.name) || p.email || "")} ▾</button>`).join(" ")
           : `<span class="helper">Ծնողի հաշիվ դեռ կապակցված չէ</span>`;
-        return `<div style="display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line);">
+        const detailsHtml = parents.length ? `
+          <div data-parentdetails="${r.registration_id}" style="display:none; grid-column:1 / -1; margin-top:8px; padding:10px 12px; background:var(--paper-dim); border-radius:10px; font-size:.85rem;">
+            <div style="font-weight:600; margin-bottom:6px;">📞 Կապի տվյալներ</div>
+            ${parents.map(p=>`<div>${escapeHtml(portalCleanName(p.name) || "Ծնող")} — ${p.email ? escapeHtml(p.email) : "—"}</div>`).join("")}
+            ${student.mother ? `<div style="margin-top:4px;">Մայր՝ ${escapeHtml(student.mother)}</div>` : ""}
+            ${student.father ? `<div>Հայր՝ ${escapeHtml(student.father)}</div>` : ""}
+          </div>` : "";
+        return `<div style="display:grid; grid-template-columns:1fr auto; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line);">
           <span><strong>${escapeHtml(registrantDisplayName(student))}</strong></span>
           <span style="text-align:right;">${parentText}</span>
+          ${detailsHtml}
         </div>`;
       }).join("") : `<p class="helper">Դեռ ուսանողներ նշանակված չեն այս դասին։</p>`;
 
@@ -3987,6 +4079,15 @@ async function renderPortalTeacherView(){
           </div>
         </div>`;
     }).join("");
+
+    wireTeacherContactForm();
+
+    content.querySelectorAll("[data-toggleparent]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const panel = content.querySelector(`[data-parentdetails="${btn.dataset.toggleparent}"]`);
+        if (panel) panel.style.display = panel.style.display === "none" ? "" : "none";
+      });
+    });
 
     content.querySelectorAll("[data-postform]").forEach(form=>{
       form.addEventListener("submit", async (e)=>{
