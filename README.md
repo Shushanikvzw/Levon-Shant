@@ -290,6 +290,15 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: admin can edit and delete registrations.** The "📋 Գրանցումներ" table was
+  previously read-only (view and export only) — each row now has "Խմբագրել" (Edit)
+  and "Ջնջել" (Delete) buttons. Edit opens a form pre-filled with everything that
+  registration currently has, correctly showing only the child-specific fields
+  (name, birth date, parents) or the adult-specific ones (phone, level) depending on
+  which type it is, plus the shared fields (address, native language, courses,
+  photo consent) either way. Delete asks for confirmation first, since it can't be
+  undone — useful for a duplicate or mistaken submission.
+
 - **Fixed: images in the gallery lightbox showing with huge black bars.** The
   lightbox was forcing every photo into a fixed, very wide 16:10 (or 4:3 on mobile)
   box no matter the image's actual shape — a portrait photo or a slide screenshot

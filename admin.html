@@ -397,8 +397,8 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Տեսակ</th><th>Անուն</th><th>Ծնունդ</th><th>Կապ</th><th>Դասընթացներ</th><th>Ուղարկվել է</th></tr></thead>
-            <tbody id="regBody"><tr><td colspan="6">Բեռնվում է…</td></tr></tbody>
+            <thead><tr><th>Տեսակ</th><th>Անուն</th><th>Ծնունդ</th><th>Կապ</th><th>Դասընթացներ</th><th>Ուղարկվել է</th><th></th></tr></thead>
+            <tbody id="regBody"><tr><td colspan="7">Բեռնվում է…</td></tr></tbody>
           </table>
         </div>
         <div class="form-msg" id="exportRegMsg" style="margin-top:12px;"></div>
@@ -562,6 +562,91 @@
       </div>
 
   </main>
+</div>
+
+<!-- ============ EDIT REGISTRATION MODAL ============ -->
+<div class="modal-backdrop" id="editRegBackdrop">
+  <div class="modal wide">
+    <button class="modal-close" id="closeEditReg" aria-label="Փակել">✕</button>
+    <h2 id="editRegTitle" style="margin-bottom:16px;">Խմբագրել գրանցումը</h2>
+    <form id="editRegForm">
+      <input type="hidden" id="er_id">
+
+      <!-- Child-only fields -->
+      <div id="er_childFields">
+        <div class="field"><label for="er_childName">Երեխայի անուն, ազգանուն, հայրանուն</label><input id="er_childName"></div>
+        <div class="field-row">
+          <div class="field"><label for="er_childDob">Ծննդյան տարեթիվ</label><input id="er_childDob" type="date"></div>
+          <div class="field"><label for="er_gender_c">Սեռ</label>
+            <div class="choice-group">
+              <label class="choice-item"><input type="radio" name="er_gender_c" value="Արական"> Արական</label>
+              <label class="choice-item"><input type="radio" name="er_gender_c" value="Իգական"> Իգական</label>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="er_mother">Մայր (անուն, հեռախոս)</label><input id="er_mother"></div>
+          <div class="field"><label for="er_father">Հայր (անուն, հեռախոս)</label><input id="er_father"></div>
+        </div>
+      </div>
+
+      <!-- Adult-only fields -->
+      <div id="er_adultFields">
+        <div class="field"><label for="er_name">Անուն, ազգանուն, հայրանուն</label><input id="er_name"></div>
+        <div class="field-row">
+          <div class="field"><label for="er_dob">Ծննդյան տարեթիվ</label><input id="er_dob" type="date"></div>
+          <div class="field"><label for="er_gender_a">Սեռ</label>
+            <div class="choice-group">
+              <label class="choice-item"><input type="radio" name="er_gender_a" value="Արական"> Արական</label>
+              <label class="choice-item"><input type="radio" name="er_gender_a" value="Իգական"> Իգական</label>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="er_phone">Հեռախոս</label><input id="er_phone"></div>
+          <div class="field"><label for="er_level">Հայերենի մակարդակ</label><input id="er_level"></div>
+        </div>
+      </div>
+
+      <!-- Shared fields -->
+      <div class="field-row">
+        <div class="field"><label for="er_address">Հասցե</label><input id="er_address"></div>
+        <div class="field"><label for="er_nationality">Ազգություն</label><input id="er_nationality"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="er_nativeLang">Մայրենի լեզու</label><input id="er_nativeLang"></div>
+        <div class="field"><label for="er_email">Էլ. հասցե</label><input id="er_email" type="email"></div>
+      </div>
+      <div class="field">
+        <label>Ընտրված դասընթացներ</label>
+        <div class="choice-group" id="er_courses">
+          <label class="choice-item"><input type="checkbox" value="Նախադպրոցական"> Նախադպրոցական</label>
+          <label class="choice-item"><input type="checkbox" value="Այբբենարան"> Այբբենարան</label>
+          <label class="choice-item"><input type="checkbox" value="Մայրենի"> Մայրենի</label>
+          <label class="choice-item"><input type="checkbox" value="Գրականություն"> Գրականություն</label>
+          <label class="choice-item"><input type="checkbox" value="Ես և շրջակա միջավայրը"> Ես և շրջակա միջավայրը</label>
+          <label class="choice-item"><input type="checkbox" value="Հայրենագիտություն"> Հայրենագիտություն</label>
+          <label class="choice-item"><input type="checkbox" value="Պատմություն"> Պատմություն</label>
+          <label class="choice-item"><input type="checkbox" value="Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար"> Հայերեն՝ օտարախոս երեխաների և մեծահասակների համար</label>
+          <label class="choice-item"><input type="checkbox" value="Ժողովրդական պար"> Ժողովրդական պար</label>
+          <label class="choice-item"><input type="checkbox" value="Ավանդական երգ ու պար"> Ավանդական երգ ու պար</label>
+          <label class="choice-item"><input type="checkbox" value="Դաշնամուր"> Դաշնամուր</label>
+          <label class="choice-item"><input type="checkbox" value="Շախմատ"> Շախմատ</label>
+          <label class="choice-item"><input type="checkbox" value="Տառաուսուցում"> Տառաուսուցում</label>
+          <label class="choice-item"><input type="checkbox" value="Հայերենը որպես երկրորդ լեզու"> Հայերենը որպես երկրորդ լեզու</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Համաձայնություն նկար/տեսանյութի հրապարակմանը</label>
+        <div class="choice-group">
+          <label class="choice-item"><input type="radio" name="er_consent" value="Այո, համաձայն եմ"> Այո, համաձայն եմ</label>
+          <label class="choice-item"><input type="radio" name="er_consent" value="Ոչ, համաձայն չեմ"> Ոչ, համաձայն չեմ</label>
+        </div>
+      </div>
+      <button class="btn apricot" type="submit">Պահպանել փոփոխությունները</button>
+      <div class="form-msg" id="editRegMsg"></div>
+    </form>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>

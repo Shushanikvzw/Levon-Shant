@@ -603,13 +603,126 @@ async function loadRegistrations(){
         <td>${contact}</td>
         <td>${escapeHtml(courses)}</td>
         <td>${submitted}</td>
+        <td style="display:flex; gap:6px;">
+          <button class="btn ghost small" data-editreg="${r.id}">Խմբագրել</button>
+          <button class="btn danger small" data-delreg="${r.id}">Ջնջել</button>
+        </td>
       </tr>`;
-    }).join("") : `<tr><td colspan="6">Դեռ գրանցումներ չկան։</td></tr>`;
+    }).join("") : `<tr><td colspan="7">Դեռ գրանցումներ չկան։</td></tr>`;
     renderRegistrationSummary();
+
+    body.querySelectorAll("[data-delreg]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս գրանցումը։ Այս գործողությունը հնարավոր չէ հետարկել։")) return;
+        try{
+          const { error } = await supabase.from("registrations").delete().eq("id", b.dataset.delreg);
+          if (error) throw error;
+          loadRegistrations();
+        }catch(err){
+          alert("Սխալ՝ " + err.message);
+        }
+      });
+    });
+    body.querySelectorAll("[data-editreg]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const reg = registrationsCache.find(r=>r.id === b.dataset.editreg);
+        if (reg) openEditRegistration(reg);
+      });
+    });
   }catch(err){
-    body.innerHTML = `<tr><td colspan="6">Սխալ՝ ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="7">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
+
+// ---------------------------------------------------------
+// Edit a registration — type-aware (child vs adult show/hide
+// their own fields), everything else shared.
+// ---------------------------------------------------------
+function openEditRegistration(reg){
+  const isChild = reg.type === "child";
+  document.getElementById("editRegTitle").textContent = `Խմբագրել գրանցումը՝ ${isChild ? (reg.child_name||"") : (reg.name||"")}`;
+  document.getElementById("er_id").value = reg.id;
+  document.getElementById("er_childFields").style.display = isChild ? "" : "none";
+  document.getElementById("er_adultFields").style.display = isChild ? "none" : "";
+
+  if (isChild){
+    document.getElementById("er_childName").value = reg.child_name || "";
+    document.getElementById("er_childDob").value = reg.child_dob || "";
+    document.querySelectorAll('input[name="er_gender_c"]').forEach(r=>{ r.checked = r.value === reg.gender; });
+    document.getElementById("er_mother").value = reg.mother || "";
+    document.getElementById("er_father").value = reg.father || "";
+  } else {
+    document.getElementById("er_name").value = reg.name || "";
+    document.getElementById("er_dob").value = reg.dob || "";
+    document.querySelectorAll('input[name="er_gender_a"]').forEach(r=>{ r.checked = r.value === reg.gender; });
+    document.getElementById("er_phone").value = reg.phone || "";
+    document.getElementById("er_level").value = reg.level || "";
+  }
+  document.getElementById("er_address").value = reg.address || "";
+  document.getElementById("er_nationality").value = reg.nationality || "";
+  document.getElementById("er_nativeLang").value = reg.native_lang || "";
+  document.getElementById("er_email").value = reg.email || "";
+  const courseSet = new Set(reg.courses || []);
+  document.querySelectorAll("#er_courses input[type=checkbox]").forEach(cb=>{ cb.checked = courseSet.has(cb.value); });
+  document.querySelectorAll('input[name="er_consent"]').forEach(r=>{ r.checked = r.value === reg.photo_consent; });
+
+  document.getElementById("editRegMsg").className = "form-msg";
+  document.getElementById("editRegMsg").textContent = "";
+  document.getElementById("editRegBackdrop").classList.add("open");
+}
+
+document.getElementById("closeEditReg")?.addEventListener("click", ()=>{
+  document.getElementById("editRegBackdrop").classList.remove("open");
+});
+document.getElementById("editRegBackdrop")?.addEventListener("click", (e)=>{
+  if (e.target.id === "editRegBackdrop") e.target.classList.remove("open");
+});
+
+document.getElementById("editRegForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById("editRegMsg");
+  msg.className = "form-msg"; msg.textContent = "";
+  const id = document.getElementById("er_id").value;
+  const reg = registrationsCache.find(r=>r.id === id);
+  if (!reg) return;
+  const isChild = reg.type === "child";
+  const courses = Array.from(document.querySelectorAll("#er_courses input:checked")).map(i=>i.value);
+  const photoConsent = document.querySelector('input[name="er_consent"]:checked')?.value || reg.photo_consent;
+
+  const payload = isChild ? {
+    child_name: document.getElementById("er_childName").value.trim(),
+    child_dob: document.getElementById("er_childDob").value || null,
+    gender: document.querySelector('input[name="er_gender_c"]:checked')?.value || reg.gender,
+    mother: document.getElementById("er_mother").value.trim(),
+    father: document.getElementById("er_father").value.trim(),
+    address: document.getElementById("er_address").value.trim(),
+    nationality: document.getElementById("er_nationality").value.trim(),
+    native_lang: document.getElementById("er_nativeLang").value.trim(),
+    email: document.getElementById("er_email").value.trim(),
+    courses, photo_consent: photoConsent
+  } : {
+    name: document.getElementById("er_name").value.trim(),
+    dob: document.getElementById("er_dob").value || null,
+    gender: document.querySelector('input[name="er_gender_a"]:checked')?.value || reg.gender,
+    phone: document.getElementById("er_phone").value.trim(),
+    level: document.getElementById("er_level").value.trim(),
+    address: document.getElementById("er_address").value.trim(),
+    nationality: document.getElementById("er_nationality").value.trim(),
+    native_lang: document.getElementById("er_nativeLang").value.trim(),
+    email: document.getElementById("er_email").value.trim(),
+    courses, photo_consent: photoConsent
+  };
+
+  try{
+    const { error } = await supabase.from("registrations").update(payload).eq("id", id);
+    if (error) throw error;
+    msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
+    loadRegistrations();
+    setTimeout(()=>{ document.getElementById("editRegBackdrop").classList.remove("open"); }, 700);
+  }catch(err){
+    msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+  }
+});
 
 function registrantDisplayName(r){
   return r.type === "child" ? (r.child_name || "") : (r.name || "");
