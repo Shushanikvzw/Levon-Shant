@@ -82,6 +82,9 @@ supabase/migrations/0021_announcement_votes.sql  adds optional yes/no voting on 
                                           announcement, teacher-controlled per announcement
 supabase/migrations/0022_teacher_contact_sharing.sql  adds optional, teacher-controlled
                                           contact-sharing with connected parents
+supabase/migrations/0023_parent_see_teacher.sql  fixes a missing permission that silently
+                                          prevented parents from seeing the teacher's
+                                          name at all — REQUIRED on top of 0022
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -176,8 +179,11 @@ all succeeded).
     Adds optional yes/no voting on an announcement, teacher-controlled per announcement.
 23. New query again → paste `supabase/migrations/0022_teacher_contact_sharing.sql`
     → **Run**. Adds optional, teacher-controlled contact-sharing with connected parents.
+24. New query again → paste `supabase/migrations/0023_parent_see_teacher.sql` → **Run**.
+    **Critical, run this right after 0022** — without it, a parent has no permission
+    to see the teacher's name at all, so nothing from 0022 appears for them.
 
-All twenty-two files are safe to re-run if needed.
+All twenty-three files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -293,6 +299,17 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **🚨 Fixed: the teacher's name (and contact details) never showed up for
+  parents.** This wasn't a display bug — the database had simply never been given
+  permission to let a parent read `teacher_assignments` (to know which teacher
+  teaches their child's class) or that teacher's own profile (to get their name).
+  Only the reverse direction — a teacher seeing a parent's profile — existed from an
+  earlier migration. Without this, the parent's query for "who teaches this class"
+  silently came back empty, so the whole "🧑‍🏫 [teacher name]" button never rendered
+  at all, regardless of whether the teacher had filled in and shared their contact
+  details. **Migration `0023_parent_see_teacher.sql` is required right after `0022`**
+  for any of this to actually show up.
 
 - **New: teachers can optionally share contact details with connected parents, and
   parents now see who the teacher is.** At the top of a teacher's own portal view,
