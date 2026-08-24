@@ -1008,6 +1008,13 @@ async function refreshTeacherLinkRoster(teacherId, scheduleIds){
       });
     }
 
+    // All parent accounts, for the inline "find a parent for this student"
+    // search — sorted so whichever one's login email matches the student's
+    // own registration email is starred and shown first, same idea as the
+    // parent-side linking search.
+    const { data: allParents } = await supabase.from("profiles").select("*").eq("role", "parent");
+    teacherLinkAllParents = allParents || [];
+
     const bySchedule = {};
     (rosters || []).forEach(r=>{ (bySchedule[r.schedule_id] ||= []).push(r); });
 
@@ -1018,14 +1025,21 @@ async function refreshTeacherLinkRoster(teacherId, scheduleIds){
         const student = r.registrations;
         if (!student) return "";
         const isAdult = student.type === "adult";
+        const hasParent = (parentsByReg[r.registration_id] || []).length;
         const contactHtml = isAdult
           ? `<span class="helper">${escapeHtml(registrantContact(student)) || "—"}</span>`
-          : ((parentsByReg[r.registration_id] || []).length
+          : (hasParent
               ? escapeHtml(parentsByReg[r.registration_id].map(p=>cleanAccountName(p.name) || p.email).join(", "))
               : `<span class="helper" style="color:var(--pomegranate);">⚠️ Ծնող կապակցված չէ</span>`);
-        return `<div style="display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px dashed var(--line);">
+        const pickerHtml = (!isAdult && !hasParent) ? `
+          <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); grid-column:1 / -1;">
+            <input type="search" class="teacher-parent-search" data-forreg="${r.registration_id}" data-forchildemail="${escapeHtml(student.email||"")}" placeholder="🔍 Փնտրել և կապակցել ծնողի հաշիվ...">
+            <div class="teacher-parent-results" data-resultsfor="${r.registration_id}" style="margin-top:6px; display:flex; flex-direction:column; gap:4px;"></div>
+          </div>` : "";
+        return `<div style="display:grid; grid-template-columns:1fr auto; gap:12px; padding:6px 0; border-bottom:1px dashed var(--line);">
           <span>${escapeHtml(registrantDisplayName(student))}${isAdult ? ' <span class="status-pill">Մեծահասակ</span>' : ""}</span>
           <span style="text-align:right;">${contactHtml}</span>
+          ${pickerHtml}
         </div>`;
       }).join("") : `<p class="helper">Դեռ ուսանողներ նշանակված չեն այս դասին։</p>`;
       return `<div style="margin-bottom:18px;">
@@ -1033,9 +1047,58 @@ async function refreshTeacherLinkRoster(teacherId, scheduleIds){
         <div style="margin-top:6px;">${rowsHtml}</div>
       </div>`;
     }).join("");
+
+    previewEl.querySelectorAll(".teacher-parent-search").forEach(input=>{
+      renderTeacherParentResults(input.dataset.forreg, input.dataset.forchildemail, "");
+      input.addEventListener("input", ()=> renderTeacherParentResults(input.dataset.forreg, input.dataset.forchildemail, input.value));
+    });
   }catch(err){
     previewEl.innerHTML = `<p class="helper">Սխալ՝ ${err.message}</p>`;
   }
+}
+
+let teacherLinkAllParents = [];
+
+function renderTeacherParentResults(registrationId, childEmail, searchTerm){
+  const resultsEl = document.querySelector(`.teacher-parent-results[data-resultsfor="${registrationId}"]`);
+  if (!resultsEl) return;
+  const term = (searchTerm || "").trim().toLowerCase();
+  const childEmailNorm = (childEmail || "").trim().toLowerCase();
+  const isEmailMatch = p => childEmailNorm && (p.email||"").trim().toLowerCase() === childEmailNorm;
+
+  if (!teacherLinkAllParents.length){
+    resultsEl.innerHTML = `<p class="helper">Դեռ ոչ մի ծնողի հաշիվ չկա համակարգում։</p>`;
+    return;
+  }
+  const matches = (term
+    ? teacherLinkAllParents.filter(p=>(cleanAccountName(p.name) || p.email || "").toLowerCase().includes(term))
+    : teacherLinkAllParents
+  ).slice().sort((a, b) => isEmailMatch(b) - isEmailMatch(a)).slice(0, 8);
+
+  resultsEl.innerHTML = matches.length ? matches.map(p=>{
+    const match = isEmailMatch(p);
+    return `<div class="roster-student-card" style="padding:8px 12px;" data-pickparent="${p.id}" data-forreg="${registrationId}">
+      <div>
+        <div class="rs-name" style="font-size:.88rem;">${match ? '<span class="rs-star">⭐</span> ' : ""}${escapeHtml(cleanAccountName(p.name) || p.email || "")}</div>
+        ${p.email ? `<div class="rs-meta">${escapeHtml(p.email)}</div>` : ""}
+      </div>
+      <span class="rs-add-icon" style="width:24px; height:24px; font-size:.85rem;">➕</span>
+    </div>`;
+  }).join("") : `<p class="helper">Ոչինչ չի գտնվել։</p>`;
+
+  resultsEl.querySelectorAll("[data-pickparent]").forEach(card=>{
+    card.addEventListener("click", async ()=>{
+      try{
+        const { error } = await supabase.from("parent_links").insert({ parent_user_id: card.dataset.pickparent, registration_id: card.dataset.forreg });
+        if (error) throw error;
+        const teacherId = document.getElementById("teacherLinkSelect").value;
+        const checked = [...document.querySelectorAll("#teacherLinkChecklist input:checked")].map(cb=>cb.value);
+        refreshTeacherLinkRoster(teacherId, checked);
+      }catch(err){
+        alert("Սխալ՝ " + err.message);
+      }
+    });
+  });
 }
 
 document.getElementById("teacherLinkSaveBtn")?.addEventListener("click", async ()=>{
@@ -1169,9 +1232,11 @@ function renderParentLinkResults(searchTerm){
   const resultsEl = document.getElementById("parentLinkSearchResults");
   if (!resultsEl) return;
   const term = (searchTerm || "").trim().toLowerCase();
-  const matches = term
+  const isEmailMatch = r => parentLinkCurrentParentEmail && (r.email||"").trim().toLowerCase() === parentLinkCurrentParentEmail;
+  const matches = (term
     ? parentLinkCandidates.filter(r=>registrantDisplayName(r).toLowerCase().includes(term))
-    : parentLinkCandidates;
+    : parentLinkCandidates
+  ).slice().sort((a, b) => isEmailMatch(b) - isEmailMatch(a));
 
   if (!parentLinkCandidates.length){
     resultsEl.innerHTML = `<p class="helper">Բոլոր գրանցումներն արդեն կապակցված են։</p>`;
@@ -1182,7 +1247,7 @@ function renderParentLinkResults(searchTerm){
     return;
   }
   resultsEl.innerHTML = matches.slice(0, 30).map(r=>{
-    const emailMatch = parentLinkCurrentParentEmail && (r.email||"").trim().toLowerCase() === parentLinkCurrentParentEmail;
+    const emailMatch = isEmailMatch(r);
     return `
     <div class="roster-student-card" data-linkreg="${r.id}">
       <div>

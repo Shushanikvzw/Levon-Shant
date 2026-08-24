@@ -290,6 +290,16 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **New: linking a parent works from the teacher's side too, not just the parent's
+  side.** In "🧑‍🏫 Ուսուցիչի դասեր," any student showing "⚠️ Ծնող կապակցված չէ" now has
+  its own search box right there — type a name (or leave it blank to browse) and
+  matching parent accounts appear as clickable cards, with whichever one's login
+  email matches that student's own registration email starred (⭐) and sorted to the
+  top automatically, exactly like the parent-side search. Click one to link it
+  instantly, no need to go find that specific parent account in the other section
+  first. Both directions now work — start from a parent and search for their
+  child, or start from a teacher's class and search for the right parent.
+
 - **New: searching for a child to link, instead of scrolling a long dropdown.**
   In "🔑 Ուսուցիչ/ծնող կապեր," the "➕ Կապակցել նոր գրանցում" dropdown is now a search
   box — type a name and matching registrations appear as clickable cards below it,
