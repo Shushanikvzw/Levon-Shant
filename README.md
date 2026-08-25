@@ -85,6 +85,8 @@ supabase/migrations/0022_teacher_contact_sharing.sql  adds optional, teacher-con
 supabase/migrations/0023_parent_see_teacher.sql  fixes a missing permission that silently
                                           prevented parents from seeing the teacher's
                                           name at all — REQUIRED on top of 0022
+supabase/migrations/0024_schedule_day_of_week.sql  adds a day-of-week to schedule
+                                          entries, so a class can be on Saturday or Sunday
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -182,8 +184,11 @@ all succeeded).
 24. New query again → paste `supabase/migrations/0023_parent_see_teacher.sql` → **Run**.
     **Critical, run this right after 0022** — without it, a parent has no permission
     to see the teacher's name at all, so nothing from 0022 appears for them.
+25. New query again → paste `supabase/migrations/0024_schedule_day_of_week.sql`
+    → **Run**. Adds a day-of-week to schedule entries, so a class can be set to
+    Saturday or Sunday instead of always assuming Saturday.
 
-All twenty-three files are safe to re-run if needed.
+All twenty-four files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -299,6 +304,56 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: albums can be edited, not just deleted and recreated.** Each album in
+  "🖼️ Լուսանկարների ալբոմներ" now has a "Խմբագրել" button next to "Ջնջել ալբոմը" —
+  it opens the title (all 3 languages), description (all 3 languages), and event
+  date pre-filled, so a typo or missing detail can be fixed directly. This only
+  touches the text — the photos/videos themselves are untouched and still managed
+  the same way as before (the ➕/✕ controls under each album), so fixing the
+  description never risks the media.
+- **News/event posts and photo albums are more compact on the public site.** Both
+  card types had a fairly tall image area, generous padding, and a 3-line text
+  preview — reduced to a shorter image, tighter spacing, and a 2-line preview, so
+  more of the feed and gallery fit on screen at once without needing to scroll as
+  much to browse through everything.
+
+- **Full mobile pass across the admin dashboard and public site.** Several real
+  issues turned up from a systematic check, not just guesses:
+  - **The admin sidebar's menu, rebuilt.** With about 14 tabs accumulated over this
+    whole build, the mobile version showed them all as an always-expanded wrapping
+    row of chips, pushing the actual panel content far down the page — exactly the
+    "too much scrolling" problem. It's now a collapsible menu: a "☰ Ցանկ" button
+    shows/hides the tab list, and picking a tab automatically collapses it again so
+    the chosen panel is immediately visible.
+  - **A genuine layout bug, not just a mobile one**: the Schedule form's day/start
+    time/end time row used a CSS class meant for exactly 2 columns to hold 3 fields —
+    broken at any screen width, not only on phones. Fixed with a proper 3-column class
+    that also stacks correctly on narrow screens.
+  - **Long names could overflow**: both the teacher's "students & parents" list and
+    the admin's teacher-linking roster used a fixed two-column row (name | contact)
+    that could push wider than the screen if a name or contact string was long.
+    Converted to a shared class that stacks vertically on narrow screens instead.
+  - **Multiple children in one registration had no visual separation** — especially
+    confusing once everything stacks on a phone. Each child now gets its own
+    bordered, padded card with a numbered badge.
+  - **A search box that could shrink to an awkward width**: the inline "find a
+    parent for this student" search (in the teacher-linking roster) wasn't wrapped in
+    the form styling that normally makes inputs full-width, so it could end up
+    narrower than expected on some screens. Given explicit full-width styling
+    matching the rest of the site's inputs.
+  - A few remaining action-button pairs (Edit/Delete, etc.) were given the same
+    wrapping behavior already used elsewhere, for consistency.
+
+- **New: classes can be on Sunday, not just Saturday.** Adding or editing a class in
+  "🗓️ Դասացուցակ" now has a "Շաբաթվա oր" dropdown (Շաբաթ/Կիրակի) — this used to be
+  entirely hardcoded, with no field for it at all, and the whole public calendar
+  assumed every class was on Saturday. That assumption is gone: the calendar now
+  shows the "class day" dot and each class's schedule on whichever actual day it's
+  set to, cancellations work the same way regardless of which day, and the schedule
+  table shows each entry's day directly. **Also fixed while doing this**: the
+  admin's own schedule table had a header row that didn't match its actual columns
+  (missing a label for the day itself) — corrected so the columns line up properly.
 
 - **🚨 Fixed: the teacher's name (and contact details) never showed up for
   parents.** This wasn't a display bug — the database had simply never been given

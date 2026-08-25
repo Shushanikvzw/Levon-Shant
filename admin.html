@@ -50,14 +50,27 @@
   .admin-main{ flex:1; padding:36px 40px; overflow-y:auto; max-height:calc(100vh - 60px); }
   .admin-main-head{ margin-bottom:28px; }
   .admin-main-head h1{ font-size:1.6rem; margin:0; }
+  .sidebar-nav-groups{ display:flex; flex-direction:column; gap:22px; flex:1; }
+  .mobile-sidebar-toggle{ display:none; }
   @media (max-width:860px){
     .admin-shell{ flex-direction:column; }
-    .admin-sidebar{ width:100%; flex-direction:row; flex-wrap:wrap; gap:8px; padding:12px; align-items:center; }
+    .admin-sidebar{ width:100%; padding:12px; gap:10px; }
     .sidebar-user{ display:none; }
+    /* With ~14 tabs now, an always-expanded wrapping row pushed the
+       actual panel content far down the page on a phone — collapsed
+       behind a toggle instead, so picking a tab is one tap away but
+       doesn't cost scrolling the rest of the time */
+    .mobile-sidebar-toggle{
+      display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+      background:rgba(251,243,231,.1); color:#fff; border:1px solid rgba(251,243,231,.25);
+      border-radius:10px; padding:11px; font-weight:600; font-size:.9rem; cursor:pointer;
+    }
+    .sidebar-nav-groups{ display:none; flex-direction:column; gap:16px; width:100%; }
+    .sidebar-nav-groups.open{ display:flex; }
     .sidebar-group-label{ display:none; }
     .sidebar-group{ flex-direction:row; flex-wrap:wrap; }
-    .sidebar-foot{ margin-top:0; padding-top:0; border-top:none; width:auto; margin-left:auto; }
-    .sidebar-foot .btn{ width:auto; padding:9px 14px; }
+    .sidebar-foot{ margin-top:4px; padding-top:0; border-top:none; width:100%; }
+    .sidebar-foot .btn{ width:100%; }
     .admin-main{ max-height:none; padding:20px 16px; }
     .admin-main-head h1{ font-size:1.3rem; }
   }
@@ -112,29 +125,33 @@
       <div class="email" id="dashEmail">—</div>
     </div>
 
-    <div>
-      <div class="sidebar-group-label">Բովանդակություն</div>
-      <div class="sidebar-group">
-        <button class="sidebar-link active" data-panel="panel-publish" data-title="✍️ Հրապարակել">✍️ Հրապարակել</button>
-        <button class="sidebar-link" data-panel="panel-schedule" data-title="🗓️ Դասացուցակ" data-admin-only="1">🗓️ Դասացուցակ</button>
-        <button class="sidebar-link" data-panel="panel-staff" data-title="🧑‍🏫 Անձնակազմ" data-admin-only="1">🧑‍🏫 Անձնակազմ</button>
-        <button class="sidebar-link" data-panel="panel-yearcal" data-title="📅 Տարեկան օրացույց">📅 Տարեկան օրացույց</button>
-        <button class="sidebar-link" data-panel="panel-albums" data-title="🖼️ Լուսանկարների ալբոմներ">🖼️ Լուսանկարների ալբոմներ</button>
-        <button class="sidebar-link" data-panel="panel-manage" data-title="🗂️ Իմ հրապարակումները">🗂️ Իմ հրապարակումները</button>
-      </div>
-    </div>
+    <button type="button" id="mobileSidebarToggle" class="mobile-sidebar-toggle">☰ Ցանկ</button>
 
-    <div data-admin-only="1">
-      <div class="sidebar-group-label">Կառավարում</div>
-      <div class="sidebar-group">
-        <button class="sidebar-link" data-panel="panel-regsummary" data-title="📊 Գրանցումների ամփոփում" data-admin-only="1">📊 Ամփոփում</button>
-        <button class="sidebar-link" data-panel="panel-classroster" data-title="👥 Դասարանների ուսանողներ" data-admin-only="1">👥 Դասարանների ուսանողներ</button>
-        <button class="sidebar-link" data-panel="panel-reg" data-title="📋 Գրանցումներ" data-admin-only="1">📋 Գրանցումներ</button>
-        <button class="sidebar-link" data-panel="panel-users" data-title="👤 Հաշիվներ" data-admin-only="1">👤 Հաշիվներ</button>
-        <button class="sidebar-link" data-panel="panel-teacherparent" data-title="🔑 Ուսուցիչ/ծնող կապեր" data-admin-only="1">🔑 Ուսուցիչ/ծնող կապեր</button>
-        <button class="sidebar-link" data-panel="panel-content" data-title="📝 Կայքի բովանդակություն" data-admin-only="1">📝 Կայքի բովանդակություն</button>
-        <button class="sidebar-link" data-panel="panel-newsections" data-title="🧩 Նոր բաժիններ" data-admin-only="1">🧩 Նոր բաժիններ</button>
-        <button class="sidebar-link" data-panel="panel-settings" data-title="⚙️ Կարգավորումներ" data-admin-only="1">⚙️ Կարգավորումներ</button>
+    <div class="sidebar-nav-groups" id="sidebarNavGroups">
+      <div>
+        <div class="sidebar-group-label">Բովանդակություն</div>
+        <div class="sidebar-group">
+          <button class="sidebar-link active" data-panel="panel-publish" data-title="✍️ Հրապարակել">✍️ Հրապարակել</button>
+          <button class="sidebar-link" data-panel="panel-schedule" data-title="🗓️ Դասացուցակ" data-admin-only="1">🗓️ Դասացուցակ</button>
+          <button class="sidebar-link" data-panel="panel-staff" data-title="🧑‍🏫 Անձնակազմ" data-admin-only="1">🧑‍🏫 Անձնակազմ</button>
+          <button class="sidebar-link" data-panel="panel-yearcal" data-title="📅 Տարեկան օրացույց">📅 Տարեկան օրացույց</button>
+          <button class="sidebar-link" data-panel="panel-albums" data-title="🖼️ Լուսանկարների ալբոմներ">🖼️ Լուսանկարների ալբոմներ</button>
+          <button class="sidebar-link" data-panel="panel-manage" data-title="🗂️ Իմ հրապարակումները">🗂️ Իմ հրապարակումները</button>
+        </div>
+      </div>
+
+      <div data-admin-only="1">
+        <div class="sidebar-group-label">Կառավարում</div>
+        <div class="sidebar-group">
+          <button class="sidebar-link" data-panel="panel-regsummary" data-title="📊 Գրանցումների ամփոփում" data-admin-only="1">📊 Ամփոփում</button>
+          <button class="sidebar-link" data-panel="panel-classroster" data-title="👥 Դասարանների ուսանողներ" data-admin-only="1">👥 Դասարանների ուսանողներ</button>
+          <button class="sidebar-link" data-panel="panel-reg" data-title="📋 Գրանցումներ" data-admin-only="1">📋 Գրանցումներ</button>
+          <button class="sidebar-link" data-panel="panel-users" data-title="👤 Հաշիվներ" data-admin-only="1">👤 Հաշիվներ</button>
+          <button class="sidebar-link" data-panel="panel-teacherparent" data-title="🔑 Ուսուցիչ/ծնող կապեր" data-admin-only="1">🔑 Ուսուցիչ/ծնող կապեր</button>
+          <button class="sidebar-link" data-panel="panel-content" data-title="📝 Կայքի բովանդակություն" data-admin-only="1">📝 Կայքի բովանդակություն</button>
+          <button class="sidebar-link" data-panel="panel-newsections" data-title="🧩 Նոր բաժիններ" data-admin-only="1">🧩 Նոր բաժիններ</button>
+          <button class="sidebar-link" data-panel="panel-settings" data-title="⚙️ Կարգավորումներ" data-admin-only="1">⚙️ Կարգավորումներ</button>
+        </div>
       </div>
     </div>
 
@@ -198,7 +215,13 @@
         </div>
         <div class="form-msg" id="exportScheduleMsg" style="margin-bottom:14px;"></div>
         <form class="card-form" id="scheduleForm" style="max-width:760px; margin-bottom:24px;">
-          <div class="field-row">
+          <div class="field-row-3-plain">
+            <div class="field"><label for="s_day">Շաբաթվա օր</label>
+              <select id="s_day">
+                <option value="6" selected>Շաբաթ</option>
+                <option value="0">Կիրակի</option>
+              </select>
+            </div>
             <div class="field"><label for="s_start">Ժամ (սկիզբ)</label><input type="time" id="s_start" required></div>
             <div class="field"><label for="s_end">Ժամ (ավարտ)</label><input type="time" id="s_end" required></div>
           </div>
@@ -219,12 +242,12 @@
         </form>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Ցուցադրել</th><th>Ժամ</th><th>Դասընթաց</th><th>Ուսուցիչ</th><th></th></tr></thead>
-            <tbody id="scheduleAdminBody"><tr><td colspan="5">Բեռնվում է…</td></tr></tbody>
+            <thead><tr><th>Ցուցադրել</th><th>Օր</th><th>Ժամ</th><th>Դասընթաց</th><th>Ուսուցիչ</th><th></th></tr></thead>
+            <tbody id="scheduleAdminBody"><tr><td colspan="6">Բեռնվում է…</td></tr></tbody>
           </table>
         </div>
 
-        <h3 style="margin-top:32px;">🚫 Չեղարկել դասերը որոշակի շաբաթ օրով</h3>
+        <h3 style="margin-top:32px;">🚫 Չեղարկել դասերը որոշակի օրով</h3>
         <p class="helper" style="margin-bottom:14px;">Օգտագործեք սա արձակուրդի, տոնի կամ այլ պատճառով դասերի բացակայության դեպքում։ Կարող եք չեղարկել կամ ողջ օրը, կամ միայն մեկ որոշակի դասընթաց՝ մյուսները նույն օրով բնականոն կերպով կշարունակվեն։</p>
         <form class="card-form" id="cancelSaturdayForm" style="max-width:760px; margin-bottom:24px;">
           <div class="field-row">

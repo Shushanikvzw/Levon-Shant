@@ -331,7 +331,7 @@ section.alt{background:var(--paper-dim);}
 .feed-toolbar{display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;}
 .chip{border:1px solid var(--line); background:var(--card); border-radius:999px; padding:7px 14px; font-size:.85rem; cursor:pointer; color:var(--ink-soft); font-weight:600;}
 .chip.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
-.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
 @media (max-width:900px){.card-grid{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:620px){.card-grid{grid-template-columns:1fr;}}
 .post-card{
@@ -340,18 +340,18 @@ section.alt{background:var(--paper-dim);}
   cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
 }
 .post-card:hover, .post-card:focus-visible{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(18,28,20,0.14); }
-.post-media{aspect-ratio:16/10; background:var(--paper-dim); overflow:hidden; position:relative;}
+.post-media{aspect-ratio:16/8; background:var(--paper-dim); overflow:hidden; position:relative;}
 .post-media img, .post-media video{width:100%; height:100%; object-fit:cover; object-position:center;}
 .post-media .kind{position:absolute; top:10px; left:10px; background:rgba(36,27,21,.7); color:#fff; font-size:.72rem; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em;}
-.post-body{padding:18px; display:flex; flex-direction:column; gap:8px; flex:1;}
-.post-date{font-size:.78rem; color:var(--ink-soft); font-weight:600; letter-spacing:.02em;}
-.post-body h3{margin:0;}
+.post-body{padding:14px; display:flex; flex-direction:column; gap:6px; flex:1;}
+.post-date{font-size:.75rem; color:var(--ink-soft); font-weight:600; letter-spacing:.02em;}
+.post-body h3{margin:0; font-size:1.05rem; line-height:1.3;}
 .post-body p{
-  color:var(--ink-soft); font-size:.92rem; margin:0; flex:1; line-height:1.55;
-  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  color:var(--ink-soft); font-size:.88rem; margin:0; flex:1; line-height:1.5;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   position:relative;
 }
-.post-foot{display:flex; align-items:center; justify-content:space-between; padding-top:10px; border-top:1px dashed var(--line); font-size:.78rem; color:var(--ink-soft);}
+.post-foot{display:flex; align-items:center; justify-content:space-between; padding-top:8px; border-top:1px dashed var(--line); font-size:.76rem; color:var(--ink-soft);}
 .post-more{
   color:#fff; background:var(--blue); font-weight:700; padding:6px 14px; border-radius:999px;
   font-size:.78rem; transition:background .15s ease, transform .15s ease;
@@ -370,7 +370,7 @@ section.alt{background:var(--paper-dim);}
   cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
 }
 .album-card:hover, .album-card:focus-visible{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(18,28,20,0.14); }
-.album-cover{aspect-ratio:16/10; background:var(--paper-dim); position:relative; overflow:hidden;}
+.album-cover{aspect-ratio:16/8; background:var(--paper-dim); position:relative; overflow:hidden;}
 .album-cover img{width:100%; height:100%; object-fit:cover; object-position:center;}
 .album-cover .count-badge{
   position:absolute; top:10px; right:10px; background:rgba(36,27,21,.72); color:#fff;
@@ -385,9 +385,9 @@ section.alt{background:var(--paper-dim);}
   position:absolute; inset:8px 8px auto auto; width:calc(100% - 20px); height:calc(100% - 20px);
   border:2px solid rgba(255,255,255,.5); border-radius:10px; pointer-events:none;
 }
-.album-body{padding:16px 18px; display:flex; flex-direction:column; gap:6px; flex:1;}
-.album-body h3{margin:0; font-size:1.02rem;}
-.album-body p{margin:0; color:var(--ink-soft); font-size:.85rem;}
+.album-body{padding:12px 14px; display:flex; flex-direction:column; gap:4px; flex:1;}
+.album-body h3{margin:0; font-size:.98rem;}
+.album-body p{margin:0; color:var(--ink-soft); font-size:.82rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
 .album-open-hint{color:var(--blue); font-weight:700; font-size:.78rem; align-self:flex-start; margin-top:auto;}
 
 /* Lightbox */
@@ -562,9 +562,23 @@ form.card-form{background:var(--card); border:1px solid var(--line); border-radi
 .field textarea{resize:vertical; min-height:96px; line-height:1.55;}
 .field select{appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234E5A4A' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:38px; cursor:pointer;}
 .field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.field-row-3-plain{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;}
+.roster-row-grid{display:grid; grid-template-columns:1fr auto; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line);}
+@media (max-width:520px){
+  .roster-row-grid{grid-template-columns:1fr; gap:4px;}
+  .roster-row-grid span[style*="text-align:right"]{text-align:left !important;}
+}
+.child-block{
+  border:1.5px solid var(--line); border-radius:14px; padding:18px; margin-bottom:18px; background:var(--paper-dim);
+}
+.child-block-title{display:flex; align-items:center; gap:8px; margin:0 0 14px;}
+.child-block-num{
+  display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+  border-radius:50%; background:var(--apricot); color:#2A1706; font-size:.85rem;
+}
 @media (max-width:520px){.field-row{grid-template-columns:1fr;}}
 .field-row-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; padding:16px; background:var(--paper-dim); border-radius:12px; border:1px solid var(--line);}
-@media (max-width:760px){.field-row-3{grid-template-columns:1fr;}}
+@media (max-width:760px){.field-row-3, .field-row-3-plain{grid-template-columns:1fr;}}
 .field-row-3 .field label{display:flex; align-items:center; gap:6px;}
 .field-row-3 .field:nth-child(1) input, .field-row-3 .field:nth-child(1) textarea{border-top:3px solid var(--gold);}
 .field-row-3 .field:nth-child(2) input, .field-row-3 .field:nth-child(2) textarea{border-top:3px solid var(--blue);}
@@ -2973,7 +2987,7 @@ async function fetchSchedule(){
   if (!SUPABASE_READY) return demoSchedule;
   const { data, error } = await supabase.from("schedule").select("*").order("start_time");
   if (error){ console.warn(error.message); return []; }
-  return (data || []).map(r=>({ id:r.id, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
+  return (data || []).map(r=>({ id:r.id, dayOfWeek: r.day_of_week ?? 6, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
 }
 
 // Saturdays admin has marked as "no classes" (holiday, break, etc.)
@@ -3096,12 +3110,12 @@ async function renderCalendar(){
   for (let d=1; d<=daysInMonth; d++){
     const iso = isoDate(year, month, d);
     const dow = new Date(year, month, d).getDay();
-    const isClassSaturday = dow === 6 && scheduleRows.length > 0 && !cancellations[iso]?.all;
+    const isClassDay = scheduleRows.some(r=>(r.dayOfWeek ?? 6) === dow) && !cancellations[iso]?.all;
     const hasEvents = !!eventsByDate[iso];
     const classes = ["cal-day"];
     if (iso === todayIso) classes.push("today");
     if (iso === calSelectedDate) classes.push("selected");
-    const dots = `${isClassSaturday ? '<span class="dot dot-class"></span>' : ''}${hasEvents ? '<span class="dot"></span>' : ''}`;
+    const dots = `${isClassDay ? '<span class="dot dot-class"></span>' : ''}${hasEvents ? '<span class="dot"></span>' : ''}`;
     cells += `<div class="${classes.join(' ')}" data-date="${iso}">${d}${dots ? `<span class="dots-wrap">${dots}</span>` : ''}</div>`;
   }
   grid.innerHTML = cells;
@@ -3119,15 +3133,16 @@ async function renderCalendar(){
   if (calSelectedDate){
     const [sy,sm,sd] = calSelectedDate.split("-").map(Number);
     const dow = new Date(sy, sm-1, sd).getDay();
+    const todaysSchedule = scheduleRows.filter(r=>(r.dayOfWeek ?? 6) === dow);
     const dayCancellation = cancellations[calSelectedDate];
-    if (dow === 6 && dayCancellation?.all){
+    if (todaysSchedule.length && dayCancellation?.all){
       const reason = (currentLang === "nl" ? dayCancellation.all.nl : currentLang === "en" ? dayCancellation.all.en : dayCancellation.all.hy) || dayCancellation.all.hy;
       html += `<div class="cal-event-item" style="border-color:var(--pomegranate);">
         <span class="cal-event-date" style="color:var(--pomegranate);">${pickLang({hy:"Դասեր չկան", nl:"Geen les", en:"No class"})}</span>
-        <div><h4>${pickLang({hy:"Այս շաբաթ դասեր չեն անցկացվում", nl:"Deze zaterdag zijn er geen lessen", en:"No classes this Saturday"})}</h4>${reason ? `<p>${escapeHtml(reason)}</p>` : ""}</div>
+        <div><h4>${pickLang({hy:"Այս oրը դասեր չեն անցկացվում", nl:"Op deze dag zijn er geen lessen", en:"No classes this day"})}</h4>${reason ? `<p>${escapeHtml(reason)}</p>` : ""}</div>
       </div>`;
-    } else if (dow === 6 && scheduleRows.length){
-      html += scheduleRows.map(r=>{
+    } else if (todaysSchedule.length){
+      html += todaysSchedule.map(r=>{
         const cancelledCourse = dayCancellation?.bySchedule?.[r.id];
         if (cancelledCourse){
           const reason = (currentLang === "nl" ? cancelledCourse.nl : currentLang === "en" ? cancelledCourse.en : cancelledCourse.hy) || cancelledCourse.hy;
@@ -4051,7 +4066,7 @@ async function renderPortalTeacherView(){
             ${student.mother ? `<div style="margin-top:4px;">Մայր՝ ${escapeHtml(student.mother)}</div>` : ""}
             ${student.father ? `<div>Հայր՝ ${escapeHtml(student.father)}</div>` : ""}
           </div>` : "";
-        return `<div style="display:grid; grid-template-columns:1fr auto; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line);">
+        return `<div class="roster-row-grid">
           <span><strong>${escapeHtml(registrantDisplayName(student))}</strong></span>
           <span style="text-align:right;">${parentText}</span>
           ${detailsHtml}

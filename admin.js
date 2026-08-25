@@ -201,7 +201,17 @@ document.querySelectorAll(".sidebar-link").forEach(btn=>{
     document.getElementById(btn.dataset.panel)?.classList.add("active");
     document.getElementById("panelTitle").textContent = btn.dataset.title || btn.textContent.trim();
     document.querySelector(".admin-main")?.scrollTo({ top:0, behavior:"smooth" });
+    // On mobile the tab list collapses after picking one, so the chosen
+    // panel is immediately visible instead of sitting below a long,
+    // still-open row of every other tab.
+    if (window.matchMedia("(max-width: 860px)").matches){
+      document.getElementById("sidebarNavGroups")?.classList.remove("open");
+    }
   });
+});
+
+document.getElementById("mobileSidebarToggle")?.addEventListener("click", ()=>{
+  document.getElementById("sidebarNavGroups")?.classList.toggle("open");
 });
 
 // ---------------------------------------------------------
@@ -384,7 +394,27 @@ async function loadAlbumsAdmin(){
       <div class="album-admin-card" data-album="${a.id}">
         <div class="album-admin-head">
           <h4>${escapeHtml(a.title||"")} <span class="helper">— ${a.event_date||""} — ${media.length} ֆայլ</span></h4>
-          <button class="btn danger small" data-delalbum="${a.id}">Ջնջել ալբոմը</button>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn ghost small" data-editalbum="${a.id}">Խմբագրել</button>
+            <button class="btn danger small" data-delalbum="${a.id}">Ջնջել ալբոմը</button>
+          </div>
+        </div>
+        <div class="album-edit-form" data-editformfor="${a.id}" style="display:none; margin-bottom:16px; padding:16px; background:var(--paper-dim); border-radius:12px;">
+          <div class="field-row">
+            <div class="field"><label>Միջոցառման ամսաթիվ</label><input type="date" data-ef="date" value="${a.event_date||""}"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label>Անվանում — ՀԱՅ</label><input data-ef="title_hy" value="${escapeHtml(a.title||"")}"></div>
+            <div class="field"><label>Titel — NL</label><input data-ef="title_nl" value="${escapeHtml(a.title_nl||"")}"></div>
+            <div class="field"><label>Title — EN</label><input data-ef="title_en" value="${escapeHtml(a.title_en||"")}"></div>
+          </div>
+          <div class="field-row-3">
+            <div class="field"><label>Նկարագրություն — ՀԱՅ</label><textarea rows="2" data-ef="desc_hy">${escapeHtml(a.description||"")}</textarea></div>
+            <div class="field"><label>Omschrijving — NL</label><textarea rows="2" data-ef="desc_nl">${escapeHtml(a.description_nl||"")}</textarea></div>
+            <div class="field"><label>Description — EN</label><textarea rows="2" data-ef="desc_en">${escapeHtml(a.description_en||"")}</textarea></div>
+          </div>
+          <button class="btn blue small" data-savealbum="${a.id}">Պահպանել</button>
+          <div class="form-msg" data-editalbummsg="${a.id}"></div>
         </div>
         <div class="album-admin-thumbs">
           ${media.map((m,i)=> m.type==="video"
@@ -402,6 +432,36 @@ async function loadAlbumsAdmin(){
       </div>`;
     }).join("") : `<p class="helper">Դեռ ալբոմներ չկան։</p>`;
 
+    wrap.querySelectorAll("[data-editalbum]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const form = wrap.querySelector(`[data-editformfor="${b.dataset.editalbum}"]`);
+        if (form) form.style.display = form.style.display === "none" ? "" : "none";
+      });
+    });
+    wrap.querySelectorAll("[data-savealbum]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const albumId = b.dataset.savealbum;
+        const form = wrap.querySelector(`[data-editformfor="${albumId}"]`);
+        const msg = wrap.querySelector(`[data-editalbummsg="${albumId}"]`);
+        msg.className = "form-msg"; msg.textContent = "";
+        try{
+          const { error } = await supabase.from("gallery_albums").update({
+            event_date: form.querySelector('[data-ef="date"]').value || null,
+            title: form.querySelector('[data-ef="title_hy"]').value.trim(),
+            title_nl: form.querySelector('[data-ef="title_nl"]').value.trim() || null,
+            title_en: form.querySelector('[data-ef="title_en"]').value.trim() || null,
+            description: form.querySelector('[data-ef="desc_hy"]').value.trim() || null,
+            description_nl: form.querySelector('[data-ef="desc_nl"]').value.trim() || null,
+            description_en: form.querySelector('[data-ef="desc_en"]').value.trim() || null
+          }).eq("id", albumId);
+          if (error) throw error;
+          msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
+          loadAlbumsAdmin();
+        }catch(err){
+          msg.textContent = "Սխալ՝ " + err.message; msg.classList.add("show","err");
+        }
+      });
+    });
     wrap.querySelectorAll("[data-delalbum]").forEach(b=>{
       b.addEventListener("click", async ()=>{
         if (!confirm("Ջնջե՞լ այս ամբողջ ալբոմը։")) return;
@@ -603,7 +663,7 @@ async function loadRegistrations(){
         <td>${contact}</td>
         <td>${escapeHtml(courses)}</td>
         <td>${submitted}</td>
-        <td style="display:flex; gap:6px;">
+        <td style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn ghost small" data-editreg="${r.id}">Խմբագրել</button>
           <button class="btn danger small" data-delreg="${r.id}">Ջնջել</button>
         </td>
@@ -1033,10 +1093,10 @@ async function refreshTeacherLinkRoster(teacherId, scheduleIds){
               : `<span class="helper" style="color:var(--pomegranate);">⚠️ Ծնող կապակցված չէ</span>`);
         const pickerHtml = (!isAdult && !hasParent) ? `
           <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); grid-column:1 / -1;">
-            <input type="search" class="teacher-parent-search" data-forreg="${r.registration_id}" data-forchildemail="${escapeHtml(student.email||"")}" placeholder="🔍 Փնտրել և կապակցել ծնողի հաշիվ...">
+            <input type="search" class="teacher-parent-search" data-forreg="${r.registration_id}" data-forchildemail="${escapeHtml(student.email||"")}" placeholder="🔍 Փնտրել և կապակցել ծնողի հաշիվ..." style="width:100%; box-sizing:border-box; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); font-family:inherit; font-size:.95rem; background:#fff; color:var(--ink);">
             <div class="teacher-parent-results" data-resultsfor="${r.registration_id}" style="margin-top:6px; display:flex; flex-direction:column; gap:4px;"></div>
           </div>` : "";
-        return `<div style="display:grid; grid-template-columns:1fr auto; gap:12px; padding:6px 0; border-bottom:1px dashed var(--line);">
+        return `<div class="roster-row-grid">
           <span>${escapeHtml(registrantDisplayName(student))}${isAdult ? ' <span class="status-pill">Մեծահասակ</span>' : ""}</span>
           <span style="text-align:right;">${contactHtml}</span>
           ${pickerHtml}
@@ -1378,7 +1438,7 @@ async function loadNewSectionsAdmin(){
       <div class="album-admin-card">
         <div class="album-admin-head">
           <h4>${escapeHtml(s.title_hy||"")} <span class="helper">— ${POSITION_LABELS[s.position_after] || s.position_after}${s.sort_order ? ", հերթ. " + s.sort_order : ""}${s.is_visible === false ? " — թաքցված" : ""}${s.show_in_nav ? " — 📍 ցանկում" : ""}</span></h4>
-          <div style="display:flex; gap:6px;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
             <button class="btn ghost small" data-togglevis="${s.id}">${s.is_visible === false ? "Ցուցադրել" : "Թաքցնել"}</button>
             <button class="btn ghost small" data-editsection="${s.id}">Խմբագրել</button>
             <button class="btn danger small" data-delsection="${s.id}">Ջնջել</button>
@@ -1721,11 +1781,13 @@ document.getElementById("contactInfoForm")?.addEventListener("submit", async (e)
 // ---------------------------------------------------------
 function timeLabel(t){ return t || ""; }
 
+const DAY_LABELS_HY = { 0: "Կիրակի", 1: "Երկուշաբթի", 2: "Երեքշաբթի", 3: "Չորեքշաբթի", 4: "Հինգշաբթի", 5: "Ուրբաթ", 6: "Շաբաթ" };
+
 async function fetchSchedule(){
   if (!SUPABASE_READY) return [];
-  const { data, error } = await supabase.from("schedule").select("*").order("start_time");
+  const { data, error } = await supabase.from("schedule").select("*").order("day_of_week").order("start_time");
   if (error){ console.warn(error.message); return []; }
-  return (data || []).map(r=>({ id:r.id, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
+  return (data || []).map(r=>({ id:r.id, dayOfWeek: r.day_of_week ?? 6, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
 }
 
 let editingScheduleId = null;
@@ -1745,6 +1807,7 @@ document.getElementById("scheduleForm")?.addEventListener("submit", async (e)=>{
     msg.classList.add("show","err"); return;
   }
   const payload = {
+    day_of_week: parseInt(document.getElementById("s_day").value, 10),
     start_time: document.getElementById("s_start").value,
     end_time: document.getElementById("s_end").value,
     course: document.getElementById("s_course_hy").value.trim(),
@@ -1791,6 +1854,7 @@ async function loadScheduleAdmin(){
           <input type="checkbox" data-toggleactive="${r.id}" ${r.active !== false ? "checked" : ""}>
           <span class="helper">${r.active !== false ? "Ցուցադրվում է" : "Թաքցված է"}</span>
         </label></td>
+        <td><span class="status-pill">${DAY_LABELS_HY[r.dayOfWeek] ?? "Շաբաթ"}</span></td>
         <td>${timeLabel(r.start)}–${timeLabel(r.end)}</td>
         <td>${escapeHtml(r.course||"")}${(r.courseNl || r.courseEn) ? ` <span class="helper" title="NL: ${escapeHtml(r.courseNl||"—")} · EN: ${escapeHtml(r.courseEn||"—")}">🌐</span>` : ""}</td>
         <td>${escapeHtml(r.teacher||"")}${r.teacherLatin ? ` <span class="helper" title="${escapeHtml(r.teacherLatin)}">🔤</span>` : ""}</td>
@@ -1798,7 +1862,7 @@ async function loadScheduleAdmin(){
           <button class="btn ghost small" data-editsched="${r.id}">Խմբագրել</button>
           <button class="btn danger small" data-delsched="${r.id}">Ջնջել</button>
         </td>
-      </tr>`).join("") : `<tr><td colspan="5">Դասացուցակը դատարկ է։</td></tr>`;
+      </tr>`).join("") : `<tr><td colspan="6">Դասացուցակը դատարկ է։</td></tr>`;
     body.querySelectorAll("[data-toggleactive]").forEach(cb=>{
       cb.addEventListener("change", async ()=>{
         await supabase.from("schedule").update({ active: cb.checked }).eq("id", cb.dataset.toggleactive);
@@ -1817,6 +1881,7 @@ async function loadScheduleAdmin(){
         const rows2 = await fetchSchedule();
         const row = rows2.find(r=>r.id === b.dataset.editsched);
         if (!row) return;
+        document.getElementById("s_day").value = String(row.dayOfWeek ?? 6);
         document.getElementById("s_start").value = row.start || "";
         document.getElementById("s_end").value = row.end || "";
         document.getElementById("s_course_hy").value = row.course || "";
@@ -1830,7 +1895,7 @@ async function loadScheduleAdmin(){
       });
     });
   }catch(err){
-    body.innerHTML = `<tr><td colspan="5">Սխալ՝ ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="6">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
 
@@ -2513,7 +2578,7 @@ async function loadYearCalAdmin(){
         <tr>
           <td>${formatDateRange(r.start, r.end)}</td>
           <td>${escapeHtml(r.labelHy||"")}${(r.labelNl || r.labelEn) ? ` <span class="helper" title="NL: ${escapeHtml(r.labelNl||"—")} · EN: ${escapeHtml(r.labelEn||"—")}">🌐</span>` : ""}</td>
-          <td style="display:flex; gap:6px;">
+          <td style="display:flex; gap:6px; flex-wrap:wrap;">
             <button class="btn ghost small" data-edityc="${r.id||''}">Խմբագրել</button>
             <button class="btn danger small" data-delyc="${r.id||''}">Ջնջել</button>
           </td>

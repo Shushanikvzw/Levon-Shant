@@ -1574,7 +1574,7 @@ async function fetchSchedule(){
   if (!SUPABASE_READY) return demoSchedule;
   const { data, error } = await supabase.from("schedule").select("*").order("start_time");
   if (error){ console.warn(error.message); return []; }
-  return (data || []).map(r=>({ id:r.id, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
+  return (data || []).map(r=>({ id:r.id, dayOfWeek: r.day_of_week ?? 6, start:r.start_time, end:r.end_time, course:r.course, courseNl:r.course_nl, courseEn:r.course_en, teacher:r.teacher, teacherLatin:r.teacher_latin, active:r.active }));
 }
 
 // Saturdays admin has marked as "no classes" (holiday, break, etc.)
@@ -1697,12 +1697,12 @@ async function renderCalendar(){
   for (let d=1; d<=daysInMonth; d++){
     const iso = isoDate(year, month, d);
     const dow = new Date(year, month, d).getDay();
-    const isClassSaturday = dow === 6 && scheduleRows.length > 0 && !cancellations[iso]?.all;
+    const isClassDay = scheduleRows.some(r=>(r.dayOfWeek ?? 6) === dow) && !cancellations[iso]?.all;
     const hasEvents = !!eventsByDate[iso];
     const classes = ["cal-day"];
     if (iso === todayIso) classes.push("today");
     if (iso === calSelectedDate) classes.push("selected");
-    const dots = `${isClassSaturday ? '<span class="dot dot-class"></span>' : ''}${hasEvents ? '<span class="dot"></span>' : ''}`;
+    const dots = `${isClassDay ? '<span class="dot dot-class"></span>' : ''}${hasEvents ? '<span class="dot"></span>' : ''}`;
     cells += `<div class="${classes.join(' ')}" data-date="${iso}">${d}${dots ? `<span class="dots-wrap">${dots}</span>` : ''}</div>`;
   }
   grid.innerHTML = cells;
@@ -1720,15 +1720,16 @@ async function renderCalendar(){
   if (calSelectedDate){
     const [sy,sm,sd] = calSelectedDate.split("-").map(Number);
     const dow = new Date(sy, sm-1, sd).getDay();
+    const todaysSchedule = scheduleRows.filter(r=>(r.dayOfWeek ?? 6) === dow);
     const dayCancellation = cancellations[calSelectedDate];
-    if (dow === 6 && dayCancellation?.all){
+    if (todaysSchedule.length && dayCancellation?.all){
       const reason = (currentLang === "nl" ? dayCancellation.all.nl : currentLang === "en" ? dayCancellation.all.en : dayCancellation.all.hy) || dayCancellation.all.hy;
       html += `<div class="cal-event-item" style="border-color:var(--pomegranate);">
         <span class="cal-event-date" style="color:var(--pomegranate);">${pickLang({hy:"Դասեր չկան", nl:"Geen les", en:"No class"})}</span>
-        <div><h4>${pickLang({hy:"Այս շաբաթ դասեր չեն անցկացվում", nl:"Deze zaterdag zijn er geen lessen", en:"No classes this Saturday"})}</h4>${reason ? `<p>${escapeHtml(reason)}</p>` : ""}</div>
+        <div><h4>${pickLang({hy:"Այս oրը դասեր չեն անցկացվում", nl:"Op deze dag zijn er geen lessen", en:"No classes this day"})}</h4>${reason ? `<p>${escapeHtml(reason)}</p>` : ""}</div>
       </div>`;
-    } else if (dow === 6 && scheduleRows.length){
-      html += scheduleRows.map(r=>{
+    } else if (todaysSchedule.length){
+      html += todaysSchedule.map(r=>{
         const cancelledCourse = dayCancellation?.bySchedule?.[r.id];
         if (cancelledCourse){
           const reason = (currentLang === "nl" ? cancelledCourse.nl : currentLang === "en" ? cancelledCourse.en : cancelledCourse.hy) || cancelledCourse.hy;
@@ -2652,7 +2653,7 @@ async function renderPortalTeacherView(){
             ${student.mother ? `<div style="margin-top:4px;">Մայր՝ ${escapeHtml(student.mother)}</div>` : ""}
             ${student.father ? `<div>Հայր՝ ${escapeHtml(student.father)}</div>` : ""}
           </div>` : "";
-        return `<div style="display:grid; grid-template-columns:1fr auto; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line);">
+        return `<div class="roster-row-grid">
           <span><strong>${escapeHtml(registrantDisplayName(student))}</strong></span>
           <span style="text-align:right;">${parentText}</span>
           ${detailsHtml}
