@@ -305,6 +305,14 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: YouTube Shorts links didn't work.** A Shorts URL looks like
+  `youtube.com/shorts/VIDEO_ID` — structurally different from a normal
+  `youtube.com/watch?v=VIDEO_ID` or `youtu.be/VIDEO_ID` link. The code that pulls the
+  video ID out of a pasted link (used for post/event videos, and the gallery album
+  lightbox) only recognized the two normal formats, so a Shorts link silently failed
+  to find any ID at all and showed nothing. Fixed in all three places this happens —
+  Shorts links now embed and play correctly everywhere a regular YouTube link does.
+
 - **New: albums can be edited, not just deleted and recreated.** Each album in
   "🖼️ Լուսանկարների ալբոմներ" now has a "Խմբագրել" button next to "Ջնջել ալբոմը" —
   it opens the title (all 3 languages), description (all 3 languages), and event

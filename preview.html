@@ -2023,7 +2023,7 @@ function postCardHTML(p){
   let media = "";
   if (p.media_type === "video") media = `<video src="${p.media_url}" controls></video>`;
   else if (p.media_type === "youtube") {
-    const idm = p.media_url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
+    const idm = p.media_url.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]+)/);
     const vid = idm ? idm[1] : "";
     media = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
   } else if (p.media_url) media = `<img src="${p.media_url}" alt="${title}">`;
@@ -2070,7 +2070,7 @@ async function openPostDetail(post){
   let media = "";
   if (post.media_type === "video") media = `<video src="${post.media_url}" controls style="width:100%; border-radius:12px;"></video>`;
   else if (post.media_type === "youtube") {
-    const idm = post.media_url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
+    const idm = post.media_url.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]+)/);
     const vid = idm ? idm[1] : "";
     media = `<div style="aspect-ratio:16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen style="border-radius:12px;"></iframe></div>`;
   } else if (post.media_url) media = `<img src="${post.media_url}" alt="${escapeHtml(title)}" style="width:100%; border-radius:12px; display:block;">`;
@@ -2229,7 +2229,7 @@ function albumText(a, field, lang){
 }
 
 function youtubeId(url){
-  const m = (url||"").match(/(?:v=|youtu\.be\/|embed\/)([\w-]{6,})/);
+  const m = (url||"").match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{6,})/);
   return m ? m[1] : "";
 }
 function youtubeThumb(url){
