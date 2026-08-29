@@ -1036,6 +1036,7 @@ async function loadTeacherParentLinks(){
     if (error) throw error;
     const teachers = (profiles || []).filter(p=>p.role === "teacher");
     const parents = (profiles || []).filter(p=>p.role === "parent");
+    allParentAccountsCache = parents;
     teacherSelect.innerHTML = `<option value="">— ընտրեք —</option>` + teachers.map(t=>
       `<option value="${t.id}">${escapeHtml(t.name||t.email||"")}</option>`
     ).join("");
@@ -1234,8 +1235,37 @@ document.getElementById("teacherLinkSaveBtn")?.addEventListener("click", async (
 
 document.getElementById("parentLinkSelect")?.addEventListener("change", ()=> refreshParentLinks());
 
+document.getElementById("parentAccountSearch")?.addEventListener("input", (e)=> renderParentAccountSearchResults(e.target.value));
+
+function renderParentAccountSearchResults(searchTerm){
+  const resultsEl = document.getElementById("parentAccountSearchResults");
+  if (!resultsEl) return;
+  const term = (searchTerm || "").trim().toLowerCase();
+  if (!term){ resultsEl.innerHTML = ""; return; }
+  const matches = allParentAccountsCache.filter(p=>(cleanAccountName(p.name) || p.email || "").toLowerCase().includes(term)).slice(0, 15);
+  resultsEl.innerHTML = matches.length ? matches.map(p=>`
+    <div class="roster-student-card" style="padding:10px 14px;" data-selectaccount="${p.id}">
+      <div>
+        <div class="rs-name">${escapeHtml(cleanAccountName(p.name) || p.email || "")}</div>
+        ${p.email ? `<div class="rs-meta">${escapeHtml(p.email)}</div>` : ""}
+      </div>
+      <span class="rs-add-icon">➜</span>
+    </div>`).join("") : `<p class="helper">Ոչինչ չի գտնվել։</p>`;
+
+  resultsEl.querySelectorAll("[data-selectaccount]").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      const select = document.getElementById("parentLinkSelect");
+      select.value = card.dataset.selectaccount;
+      select.dispatchEvent(new Event("change"));
+      document.getElementById("parentAccountSearch").value = "";
+      resultsEl.innerHTML = "";
+    });
+  });
+}
+
 let parentLinkCandidates = [];
 let parentLinkCurrentParentProfile = null;
+let allParentAccountsCache = [];
 
 async function refreshParentLinks(){
   const parentId = document.getElementById("parentLinkSelect").value;

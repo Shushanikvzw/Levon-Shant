@@ -305,6 +305,15 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: choosing which parent/adult account to work with had no working
+  dropdown, only a non-functional search box.** This was a real, unfinished change —
+  the dropdown had been swapped for a hidden field, and the search box that replaced
+  it visually was never actually connected to any logic to make it work.
+  "👨‍👩‍👧 Հաշվի կապակցում գրանցման հետ" now has both: a normal "Ընտրեք հաշիվը" dropdown
+  to browse and pick directly, and a "🔍 ...կամ փնտրել անունով" search box as a
+  faster alternative once there are many accounts — picking a result from the search
+  selects it in the dropdown too, so both paths lead to the exact same place.
+
 - **Fixed: matching a parent to their child failed for anyone who signed up using
   their phone number.** All the ⭐-starred suggestions (in both the parent-linking
   search and the teacher's per-student parent picker) only ever compared email

@@ -461,13 +461,15 @@
 
         <h3 style="margin-top:32px;">👨‍👩‍👧 Հաշվի կապակցում գրանցման հետ</h3>
         <p class="helper" style="margin-bottom:10px;">Երեխայի համար՝ կապակցեք ծնողի հաշիվը երեխայի գրանցմանը։ Մեծահասակ ուսանողի համար՝ ուղղակիորեն կապակցեք իր հաշիվը իր իսկ գրանցմանը (ծնող պետք չէ, քանի որ մեծահասակն ինքն է իր կոնտակտը)։</p>
+        <div class="field" style="max-width:420px; margin-bottom:14px;">
+          <label for="parentLinkSelect">Ընտրեք հաշիվը</label>
+          <select id="parentLinkSelect"><option value="">— ընտրեք —</option></select>
+        </div>
         <div class="field" style="max-width:420px; margin-bottom:10px;">
-          <label for="parentAccountSearch">🔍 Փնտրել ծնողի/ուսանողի հաշիվը</label>
+          <label for="parentAccountSearch">🔍 ...կամ փնտրել անունով</label>
           <input type="search" id="parentAccountSearch" placeholder="Փնտրել անունով...">
         </div>
         <div id="parentAccountSearchResults" style="margin-bottom:16px; max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
-        <input type="hidden" id="parentLinkSelect">
-        <h4 id="selectedParentHeading" style="display:none; margin-bottom:14px;"></h4>
         <div id="parentLinkContent" style="display:none;">
           <p class="helper" style="margin-bottom:8px;">Կապակցված գրանցում(ներ).</p>
           <div id="parentLinkedList" style="margin-bottom:16px;"></div>
