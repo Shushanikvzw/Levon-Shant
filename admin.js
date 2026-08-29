@@ -44,6 +44,49 @@ function cleanAccountName(name){
   return (name || "").replace(/^\[.*?\]\s*/, "").trim();
 }
 
+function onlyDigits(s){ return (s || "").replace(/[^0-9]/g, ""); }
+
+// Phone login stores the account's "email" as e.g. "32487534061@parent.local" —
+// the digits before the @ are the actual phone number the parent typed in.
+function accountPhoneDigits(profile){
+  const email = (profile?.email || "").trim().toLowerCase();
+  return email.endsWith("@parent.local") ? onlyDigits(email.split("@")[0]) : "";
+}
+
+// Matches a parent/teacher account to a registration by email, phone, or name —
+// not just email. Email-only matching silently fails for any parent who signed
+// up using their phone number instead (their stored "email" is a technical
+// placeholder that will never equal a real email typed into the registration
+// form), so phone and name give a real chance of matching those accounts too.
+function isLikelyFamilyMatch(profile, registration){
+  if (!profile || !registration) return false;
+
+  const profileEmail = (profile.email || "").trim().toLowerCase();
+  const regEmail = (registration.email || "").trim().toLowerCase();
+  if (profileEmail && regEmail && !profileEmail.endsWith("@parent.local") && profileEmail === regEmail) return true;
+
+  // Compare phone numbers by their last 8 digits, since one side may include
+  // a country code (+32...) and the other may not (0487...) — an exact
+  // full-string match would miss that even though it's the same number.
+  const profilePhone = accountPhoneDigits(profile);
+  const regPhoneSources = [registration.mother, registration.father, registration.phone].map(onlyDigits).filter(d=>d.length>=8);
+  if (profilePhone.length >= 8){
+    const profileTail = profilePhone.slice(-8);
+    if (regPhoneSources.some(d => d.slice(-8) === profileTail)) return true;
+  }
+
+  // Name match: does a meaningful word (3+ letters) from the account's own
+  // name appear inside the registration's mother/father contact text?
+  const accountName = cleanAccountName(profile.name || "").toLowerCase();
+  if (accountName){
+    const nameWords = accountName.split(/\s+/).filter(w => w.length >= 3);
+    const contactText = [registration.mother, registration.father].filter(Boolean).join(" ").toLowerCase();
+    if (contactText && nameWords.some(w => contactText.includes(w))) return true;
+  }
+
+  return false;
+}
+
 // A pasted link without "http(s)://" (e.g. "www.facebook.com/...") becomes a
 // broken *relative* link when used as an href/src. Always normalize before saving.
 function normalizeUrl(v){
@@ -1048,6 +1091,8 @@ async function refreshTeacherLinkRoster(teacherId, scheduleIds){
       .in("schedule_id", scheduleIds);
     if (rosterErr) throw rosterErr;
 
+    rosters?.forEach(r=>{ if (r.registrations) teacherLinkStudentsByReg[r.registration_id] = r.registrations; });
+
     // parent_links.parent_user_id references auth.users, not public.profiles
     // directly, so PostgREST can't auto-embed profiles here — fetch the two
     // separately and join them in the browser instead.
@@ -1118,13 +1163,14 @@ async function refreshTeacherLinkRoster(teacherId, scheduleIds){
 }
 
 let teacherLinkAllParents = [];
+let teacherLinkStudentsByReg = {};
 
 function renderTeacherParentResults(registrationId, childEmail, searchTerm){
   const resultsEl = document.querySelector(`.teacher-parent-results[data-resultsfor="${registrationId}"]`);
   if (!resultsEl) return;
   const term = (searchTerm || "").trim().toLowerCase();
-  const childEmailNorm = (childEmail || "").trim().toLowerCase();
-  const isEmailMatch = p => childEmailNorm && (p.email||"").trim().toLowerCase() === childEmailNorm;
+  const registration = teacherLinkStudentsByReg[registrationId] || { email: childEmail };
+  const isMatch = p => isLikelyFamilyMatch(p, registration);
 
   if (!teacherLinkAllParents.length){
     resultsEl.innerHTML = `<p class="helper">Դեռ ոչ մի ծնողի հաշիվ չկա համակարգում։</p>`;
@@ -1133,10 +1179,10 @@ function renderTeacherParentResults(registrationId, childEmail, searchTerm){
   const matches = (term
     ? teacherLinkAllParents.filter(p=>(cleanAccountName(p.name) || p.email || "").toLowerCase().includes(term))
     : teacherLinkAllParents
-  ).slice().sort((a, b) => isEmailMatch(b) - isEmailMatch(a)).slice(0, 8);
+  ).slice().sort((a, b) => isMatch(b) - isMatch(a)).slice(0, 8);
 
   resultsEl.innerHTML = matches.length ? matches.map(p=>{
-    const match = isEmailMatch(p);
+    const match = isMatch(p);
     return `<div class="roster-student-card" style="padding:8px 12px;" data-pickparent="${p.id}" data-forreg="${registrationId}">
       <div>
         <div class="rs-name" style="font-size:.88rem;">${match ? '<span class="rs-star">⭐</span> ' : ""}${escapeHtml(cleanAccountName(p.name) || p.email || "")}</div>
@@ -1189,7 +1235,7 @@ document.getElementById("teacherLinkSaveBtn")?.addEventListener("click", async (
 document.getElementById("parentLinkSelect")?.addEventListener("change", ()=> refreshParentLinks());
 
 let parentLinkCandidates = [];
-let parentLinkCurrentParentEmail = "";
+let parentLinkCurrentParentProfile = null;
 
 async function refreshParentLinks(){
   const parentId = document.getElementById("parentLinkSelect").value;
@@ -1250,29 +1296,32 @@ async function refreshParentLinks(){
     const linkedRegIds = new Set((links || []).map(l=>l.registration_id));
     parentLinkCandidates = registrationsCache.filter(r=>!linkedRegIds.has(r.id));
 
-    // Auto-match: any unlinked registration whose own contact email matches
-    // this parent account's login email is very likely the same family —
-    // suggest linking all of them with one click, rather than making admin
-    // hunt for them manually. Still fully optional either way.
-    const { data: parentProfile } = await supabase.from("profiles").select("email").eq("id", parentId).single();
-    parentLinkCurrentParentEmail = (parentProfile?.email || "").trim().toLowerCase();
-    const emailMatches = parentLinkCurrentParentEmail
-      ? parentLinkCandidates.filter(r=>(r.email||"").trim().toLowerCase() === parentLinkCurrentParentEmail)
+    // Auto-match: any unlinked registration whose contact info (email, phone,
+    // or name) resembles this parent account is very likely the same family
+    // — suggest linking all of them with one click, rather than making admin
+    // hunt for them manually. Still fully optional either way. Checking more
+    // than email matters specifically because a parent who signed up using
+    // their phone number has no real email on their account at all, so
+    // email-only matching would never find them.
+    const { data: parentProfile } = await supabase.from("profiles").select("*").eq("id", parentId).single();
+    parentLinkCurrentParentProfile = parentProfile || null;
+    const autoMatches = parentProfile
+      ? parentLinkCandidates.filter(r => isLikelyFamilyMatch(parentProfile, r))
       : [];
-    if (emailMatches.length){
+    if (autoMatches.length){
       suggestionEl.style.display = "";
       suggestionEl.innerHTML = `
         <div class="banner warn">
-          🔎 Այս ծնողի էլ. փոստին (${escapeHtml(parentLinkCurrentParentEmail)}) համապատասխանող ${emailMatches.length} գրանցում գտնվեց՝
-          <strong>${emailMatches.map(r=>escapeHtml(registrantDisplayName(r))).join(", ")}</strong>։
+          🔎 Այս ծնողի հետ համընկնող ${autoMatches.length} գրանցում գտնվեց (ըստ էլ. փոստի, հեռախոսի կամ անվան)՝
+          <strong>${autoMatches.map(r=>escapeHtml(registrantDisplayName(r))).join(", ")}</strong>։
           Հավանաբար նույն ընտանիքից են։
-          <button class="btn blue small" id="parentLinkAutoMatchBtn" style="margin-top:8px;">✔ Կապակցել բոլորը (${emailMatches.length})</button>
+          <button class="btn blue small" id="parentLinkAutoMatchBtn" style="margin-top:8px;">✔ Կապակցել բոլորը (${autoMatches.length})</button>
         </div>`;
       document.getElementById("parentLinkAutoMatchBtn")?.addEventListener("click", async ()=>{
         const msg = document.getElementById("parentLinkMsg");
         msg.className = "form-msg"; msg.textContent = "";
         try{
-          const { error } = await supabase.from("parent_links").insert(emailMatches.map(r=>({ parent_user_id: parentId, registration_id: r.id })));
+          const { error } = await supabase.from("parent_links").insert(autoMatches.map(r=>({ parent_user_id: parentId, registration_id: r.id })));
           if (error) throw error;
           msg.textContent = "Կապակցվեց ✔"; msg.classList.add("show","ok");
           refreshParentLinks();
@@ -1292,11 +1341,11 @@ function renderParentLinkResults(searchTerm){
   const resultsEl = document.getElementById("parentLinkSearchResults");
   if (!resultsEl) return;
   const term = (searchTerm || "").trim().toLowerCase();
-  const isEmailMatch = r => parentLinkCurrentParentEmail && (r.email||"").trim().toLowerCase() === parentLinkCurrentParentEmail;
+  const isMatch = r => isLikelyFamilyMatch(parentLinkCurrentParentProfile, r);
   const matches = (term
     ? parentLinkCandidates.filter(r=>registrantDisplayName(r).toLowerCase().includes(term))
     : parentLinkCandidates
-  ).slice().sort((a, b) => isEmailMatch(b) - isEmailMatch(a));
+  ).slice().sort((a, b) => isMatch(b) - isMatch(a));
 
   if (!parentLinkCandidates.length){
     resultsEl.innerHTML = `<p class="helper">Բոլոր գրանցումներն արդեն կապակցված են։</p>`;
@@ -1307,7 +1356,7 @@ function renderParentLinkResults(searchTerm){
     return;
   }
   resultsEl.innerHTML = matches.slice(0, 30).map(r=>{
-    const emailMatch = isEmailMatch(r);
+    const emailMatch = isMatch(r);
     return `
     <div class="roster-student-card" data-linkreg="${r.id}">
       <div>

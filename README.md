@@ -305,6 +305,19 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: matching a parent to their child failed for anyone who signed up using
+  their phone number.** All the ⭐-starred suggestions (in both the parent-linking
+  search and the teacher's per-student parent picker) only ever compared email
+  addresses. A parent who chose "📱 Հեռախոսահամար" at sign-up has no real email on
+  their account at all — it's stored as a technical placeholder like
+  `32487534061@parent.local` — so it could never match the real email typed into a
+  registration form, and those parents never got suggested at all. Matching now also
+  checks the phone number itself (comparing the last 8 digits, so a country-code
+  prefix like +32 doesn't cause a false miss against a registration's own contact
+  field) and the account's name against the registration's mother/father contact
+  text. Any one of email, phone, or name matching is enough to suggest the pairing —
+  admin always confirms with a click either way, nothing links automatically.
+
 - **Fixed: YouTube Shorts links didn't work.** A Shorts URL looks like
   `youtube.com/shorts/VIDEO_ID` — structurally different from a normal
   `youtube.com/watch?v=VIDEO_ID` or `youtu.be/VIDEO_ID` link. The code that pulls the
