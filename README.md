@@ -305,6 +305,13 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **The "assigned to a class" status now shows which class.** In "👨‍👩‍👧 Հաշվի
+  կապակցում գրանցման հետ," a linked child used to just show a generic
+  "✅ Դասին նշանակված է" — now it shows the actual course and time directly, e.g.
+  "✅ Շախմատ · 10:00–11:00" (and more than one, if the child is in several classes),
+  so there's no need to go check "👥 Դասարանների ուսանողներ" separately just to see
+  which class a specific child ended up in.
+
 - **Fixed: choosing which parent/adult account to work with had no working
   dropdown, only a non-functional search box.** This was a real, unfinished change —
   the dropdown had been swapped for a hidden field, and the search box that replaced
