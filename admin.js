@@ -236,6 +236,18 @@ function renderDashboard(){
 // ---------------------------------------------------------
 // Sidebar navigation
 // ---------------------------------------------------------
+// Password visibility toggle — lets someone confirm they typed their
+// password correctly instead of guessing behind masked dots.
+document.querySelectorAll(".password-toggle-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const input = document.getElementById(btn.dataset.toggletarget);
+    if (!input) return;
+    const showing = input.type === "text";
+    input.type = showing ? "password" : "text";
+    btn.textContent = showing ? "👁️" : "🙈";
+  });
+});
+
 document.querySelectorAll(".sidebar-link").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     document.querySelectorAll(".sidebar-link").forEach(b=>b.classList.remove("active"));

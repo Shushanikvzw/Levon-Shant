@@ -540,7 +540,12 @@
 
       <form id="portalLoginForm">
         <div class="field"><label for="portalLoginId">Էլ. փոստ կամ հեռախոսահամար</label><input id="portalLoginId" required placeholder="you@example.com կամ 04XX XX XX XX"></div>
-        <div class="field" style="margin-top:12px;"><label for="portalLoginPass">Գաղտնաբառ</label><input id="portalLoginPass" type="password" required></div>
+        <div class="field" style="margin-top:12px;"><label for="portalLoginPass">Գաղտնաբառ</label>
+          <div class="password-field-wrap">
+            <input id="portalLoginPass" type="password" required>
+            <button type="button" class="password-toggle-btn" data-toggletarget="portalLoginPass">👁️</button>
+          </div>
+        </div>
         <button class="btn apricot" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Մուտք</button>
         <div class="form-msg" id="portalLoginMsg"></div>
       </form>
@@ -560,7 +565,12 @@
           </div>
           <input id="portalSignupId" required placeholder="you@example.com">
         </div>
-        <div class="field" style="margin-top:12px;"><label for="portalSignupPass">Գաղտնաբառ (առնվազն 6 նիշ)</label><input id="portalSignupPass" type="password" minlength="6" required></div>
+        <div class="field" style="margin-top:12px;"><label for="portalSignupPass">Գաղտնաբառ (առնվազն 6 նիշ)</label>
+          <div class="password-field-wrap">
+            <input id="portalSignupPass" type="password" minlength="6" required>
+            <button type="button" class="password-toggle-btn" data-toggletarget="portalSignupPass">👁️</button>
+          </div>
+        </div>
         <button class="btn blue" type="submit" style="margin-top:18px; width:100%; justify-content:center;">Ուղարկել հայտը</button>
         <div class="form-msg" id="portalSignupMsg"></div>
       </form>

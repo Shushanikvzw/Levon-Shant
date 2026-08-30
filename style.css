@@ -501,6 +501,15 @@ section.alt{background:var(--paper-dim);}
 form.card-form{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:30px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:18px;}
 .field{display:flex; flex-direction:column; gap:7px;}
 .field label{font-size:.82rem; font-weight:700; color:var(--ink-soft); letter-spacing:.01em;}
+.password-field-wrap{position:relative;}
+.password-field-wrap input{padding-right:44px !important;}
+.password-toggle-btn{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  background:transparent; border:none; cursor:pointer; font-size:1.05rem;
+  padding:6px 8px; line-height:1; color:var(--ink-soft); border-radius:8px;
+}
+.password-toggle-btn:hover{background:var(--paper-dim);}
+
 .field input, .field textarea, .field select{
   border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff; color:var(--ink);
   font-size:.95rem; transition:border-color .15s ease, box-shadow .15s ease; font-family:inherit;

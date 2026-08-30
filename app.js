@@ -2132,6 +2132,30 @@ function portalNormalizeIdentifier(value, forcedMode){
   return trimmed.toLowerCase();
 }
 
+// Password visibility toggle — lets someone confirm they typed their
+// password correctly instead of guessing behind masked dots.
+document.querySelectorAll(".password-toggle-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const input = document.getElementById(btn.dataset.toggletarget);
+    if (!input) return;
+    const showing = input.type === "text";
+    input.type = showing ? "password" : "text";
+    btn.textContent = showing ? "👁️" : "🙈";
+  });
+});
+
+// Shares a piece of text via the device's native share sheet (lets the
+// person pick WhatsApp, Messages, email, etc. themselves) where supported,
+// falling back to opening a WhatsApp share link directly otherwise — this
+// covers desktop browsers that don't implement the Web Share API.
+async function shareTextViaAppOrWhatsApp(text){
+  if (navigator.share){
+    try{ await navigator.share({ text }); return; }
+    catch(err){ /* person cancelled the share sheet — do nothing further */ return; }
+  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+}
+
 function openPortalModal(){
   document.getElementById("portalBackdrop")?.classList.add("open");
 }
@@ -2528,6 +2552,13 @@ async function renderPortalTeacherView(){
       .order("created_at", { ascending:false });
     if (annErr) throw annErr;
 
+    const { data: classNotes, error: notesErr } = await supabase
+      .from("class_notes")
+      .select("*")
+      .in("schedule_id", scheduleIds)
+      .order("note_date", { ascending:false });
+    if (notesErr) throw notesErr;
+
     // Roster: which students (with their registration info) are in each of
     // this teacher's classes, and which parent is connected to each one.
     const { data: rosters, error: rosterErr } = await supabase
@@ -2632,6 +2663,7 @@ async function renderPortalTeacherView(){
           <div class="a-actions">
             <button class="btn ghost small" data-editann="${x.id}">Խմբագրել</button>
             <button class="btn danger small" data-delann="${x.id}">Ջնջել</button>
+            <button class="btn blue small" data-shareann="${x.id}" data-sharecourse="${escapeHtml(sched.course||"")}" data-sharetitle="${escapeHtml(x.title||"")}" data-sharebody="${escapeHtml(x.body||"")}">📤 Կիսվել</button>
           </div>
           ${seenHtml}
           ${voteHtml}
@@ -2660,6 +2692,21 @@ async function renderPortalTeacherView(){
         </div>`;
       }).join("") : `<p class="helper">Դեռ ուսանողներ նշանակված չեն այս դասին։</p>`;
 
+      const myNotes = (classNotes || []).filter(n=>n.schedule_id === a.schedule_id);
+      const notesListHtml = myNotes.length ? myNotes.map(n=>{
+        const dateLabel = new Date(n.note_date + "T00:00:00").toLocaleDateString("hy-AM");
+        const shareText = `📚 ${sched.course||""} (${dateLabel})\n\n${n.content}`;
+        return `<div class="portal-announcement">
+          <span class="a-date">${dateLabel}</span>
+          <p style="white-space:pre-line;">${escapeHtml(n.content)}</p>
+          <div class="a-actions">
+            <button class="btn ghost small" data-editnote="${n.id}">Խմբագրել</button>
+            <button class="btn danger small" data-delnote="${n.id}">Ջնջել</button>
+            <button class="btn blue small" data-sharenote data-sharetext="${escapeHtml(shareText)}">📤 Կիսվել փոխարինող ուսուցչի հետ</button>
+          </div>
+        </div>`;
+      }).join("") : `<div class="portal-announcement"><p class="helper">Դեռ նշումներ չկան։</p></div>`;
+
       return `
         <div class="course-group">
           <div class="course-group-head">📚 ${escapeHtml(sched.course||"")} <span style="font-weight:400; opacity:.85; font-size:.82rem;">(${timeLabel(sched.start_time)}–${timeLabel(sched.end_time)})</span></div>
@@ -2681,6 +2728,17 @@ async function renderPortalTeacherView(){
               </form>
             </div>
             ${list}
+            <h3 style="margin:22px 0 4px;">📝 Դասի նշումներ (ուսուցչի համար, ծնողները չեն տեսնում)</h3>
+            <p class="helper" style="margin-bottom:14px;">Գրեք, թե ինչ եք անցել այս դասին։ Եթե բացակայեք հաջորդ դասից, կարող եք կիսվել այս նշումով փոխարինող ուսուցչի հետ՝ WhatsApp-ով կամ որևէ այլ եղանակով։</p>
+            <div class="portal-announcement" style="background:var(--paper-dim);">
+              <form data-noteform="${a.schedule_id}">
+                <div class="field"><label>Ամսաթիվ</label><input type="date" data-field="date" value="${new Date().toISOString().slice(0,10)}" required></div>
+                <div class="field" style="margin-top:10px;"><label>Ինչ եք անցել այս դասին</label><textarea data-field="content" rows="3" required></textarea></div>
+                <button class="btn apricot small" type="submit" style="margin-top:10px;">Պահպանել</button>
+                <div class="form-msg" data-notemsg></div>
+              </form>
+            </div>
+            ${notesListHtml}
           </div>
         </div>`;
     }).join("");
@@ -2722,6 +2780,13 @@ async function renderPortalTeacherView(){
         renderPortalTeacherView();
       });
     });
+    content.querySelectorAll("[data-shareann]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const text = `📚 ${b.dataset.sharecourse}\n\n${b.dataset.sharetitle}${b.dataset.sharebody ? "\n" + b.dataset.sharebody : ""}`;
+        shareTextViaAppOrWhatsApp(text);
+      });
+    });
+
     content.querySelectorAll("[data-editann]").forEach(b=>{
       b.addEventListener("click", async ()=>{
         const newTitle = prompt("Նոր վերնագիր.");
@@ -2734,6 +2799,46 @@ async function renderPortalTeacherView(){
         }).eq("id", b.dataset.editann);
         renderPortalTeacherView();
       });
+    });
+
+    content.querySelectorAll("[data-noteform]").forEach(form=>{
+      form.addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        const scheduleId = form.dataset.noteform;
+        const msgEl = form.querySelector("[data-notemsg]");
+        msgEl.className = "form-msg"; msgEl.textContent = "";
+        const date = form.querySelector('[data-field="date"]').value;
+        const content_ = form.querySelector('[data-field="content"]').value.trim();
+        try{
+          const { error } = await supabase.from("class_notes").insert({
+            schedule_id: scheduleId, note_date: date, content: content_, teacher_user_id: portalUser.id
+          });
+          if (error) throw error;
+          renderPortalTeacherView();
+        }catch(err){
+          msgEl.textContent = "Սխալ՝ " + err.message; msgEl.classList.add("show","err");
+        }
+      });
+    });
+    content.querySelectorAll("[data-delnote]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        if (!confirm("Ջնջե՞լ այս նշումը։")) return;
+        await supabase.from("class_notes").delete().eq("id", b.dataset.delnote);
+        renderPortalTeacherView();
+      });
+    });
+    content.querySelectorAll("[data-editnote]").forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const newContent = prompt("Նոր տեքստ.");
+        if (newContent === null || !newContent.trim()) return;
+        await supabase.from("class_notes").update({
+          content: newContent.trim(), updated_at: new Date().toISOString()
+        }).eq("id", b.dataset.editnote);
+        renderPortalTeacherView();
+      });
+    });
+    content.querySelectorAll("[data-sharenote]").forEach(b=>{
+      b.addEventListener("click", ()=> shareTextViaAppOrWhatsApp(b.dataset.sharetext));
     });
   }catch(err){
     content.innerHTML = `<div class="portal-empty-note">Սխալ՝ ${err.message}</div>`;

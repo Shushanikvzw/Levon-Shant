@@ -87,6 +87,8 @@ supabase/migrations/0023_parent_see_teacher.sql  fixes a missing permission that
                                           name at all — REQUIRED on top of 0022
 supabase/migrations/0024_schedule_day_of_week.sql  adds a day-of-week to schedule
                                           entries, so a class can be on Saturday or Sunday
+supabase/migrations/0025_class_notes.sql  adds private teacher-only class notes,
+                                          shareable with a substitute teacher via WhatsApp
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -187,8 +189,11 @@ all succeeded).
 25. New query again → paste `supabase/migrations/0024_schedule_day_of_week.sql`
     → **Run**. Adds a day-of-week to schedule entries, so a class can be set to
     Saturday or Sunday instead of always assuming Saturday.
+26. New query again → paste `supabase/migrations/0025_class_notes.sql` → **Run**.
+    Adds private, teacher-only class notes that can be shared with a substitute
+    teacher via WhatsApp.
 
-All twenty-four files are safe to re-run if needed.
+All twenty-five files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -304,6 +309,27 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **New: a 👁️ eye icon on every password field**, across admin sign-in/sign-up and
+  the parent/teacher portal's sign-in/sign-up. Click it to reveal what was actually
+  typed instead of guessing behind masked dots, click again to hide it.
+
+- **New: teachers can share an announcement via WhatsApp (or any app).** Each
+  announcement in a teacher's own view now has a "📤 Կիսվել" button. Where supported
+  (most phones and modern browsers), it opens the device's native share sheet, so the
+  teacher can pick WhatsApp, Messages, email, or anything else themselves; where
+  that's not available (some desktop browsers), it opens a WhatsApp share link
+  directly instead. The shared text includes the course name, the announcement's
+  title, and its body.
+
+- **New: private class notes for teachers, shareable with a substitute.** Below the
+  announcements in each of a teacher's classes, "📝 Դասի նշումներ" lets them log what
+  was actually covered that day — dated, kept as a running history, editable, and
+  never shown to parents (these are teacher-to-teacher notes, not announcements).
+  Each note has its own "📤 Կիսվել փոխարինող ուսուցչի հետ" button, using the same
+  native-share-sheet-or-WhatsApp-link approach as announcement sharing above — so if
+  a teacher is out sick, whoever's covering their class can get exactly what was
+  taught last time sent straight to their phone.
 
 - **The "assigned to a class" status now shows which class.** In "👨‍👩‍👧 Հաշվի
   կապակցում գրանցման հետ," a linked child used to just show a generic
