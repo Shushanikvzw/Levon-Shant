@@ -310,6 +310,16 @@ auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
 
+- **Fixed: the Edit/Delete/Share buttons showing as tall, oddly-shaped ovals on
+  mobile.** An earlier mobile fix forced buttons in this row to equal widths, which
+  worked fine back when there were only two short buttons (Edit/Delete). Once the
+  much longer "📤 Կիսվել..." share button was added, forcing it into that same equal
+  width squeezed its text down to almost nothing, wrapping it onto several lines and
+  stretching the pill-shaped button into a tall oval — exactly what showed up.
+  Buttons now size to their own content and wrap onto a new line when needed instead
+  of being forced equal-width, and the two share buttons specifically get their own
+  full-width row for a clean, intentional look given how much longer that label is.
+
 - **New: a 👁️ eye icon on every password field**, across admin sign-in/sign-up and
   the parent/teacher portal's sign-in/sign-up. Click it to reveal what was actually
   typed instead of guessing behind masked dots, click again to hide it.

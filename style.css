@@ -181,7 +181,7 @@ nav.main a:hover{background:var(--paper-dim); color:var(--ink);}
      so more content fits without feeling cramped, full-width controls */
   .portal-announcement{ padding:14px; }
   .portal-announcement .a-actions{ flex-wrap:wrap; }
-  .portal-announcement .a-actions .btn{ flex:1; justify-content:center; }
+  .portal-announcement .a-actions [data-shareann], .portal-announcement .a-actions [data-sharenote]{ flex:1 1 100%; justify-content:center; }
 
   /* Header login buttons: stack everything in its own full-width column
      on narrow screens — simpler and more predictable than trying to wrap
