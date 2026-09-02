@@ -829,8 +829,11 @@ document.getElementById("editRegForm")?.addEventListener("submit", async (e)=>{
   };
 
   try{
-    const { error } = await supabase.from("registrations").update(payload).eq("id", id);
+    const { data, error } = await supabase.from("registrations").update(payload).eq("id", id).select();
     if (error) throw error;
+    if (!data || !data.length){
+      throw new Error("Փոփոխությունը չհաջողվեց պահպանել (հնարավոր է՝ թույլտվության խնդիր)։");
+    }
     msg.textContent = "Պահպանվեց ✔"; msg.classList.add("show","ok");
     loadRegistrations();
     setTimeout(()=>{ document.getElementById("editRegBackdrop").classList.remove("open"); }, 700);

@@ -89,6 +89,9 @@ supabase/migrations/0024_schedule_day_of_week.sql  adds a day-of-week to schedul
                                           entries, so a class can be on Saturday or Sunday
 supabase/migrations/0025_class_notes.sql  adds private teacher-only class notes,
                                           shareable with a substitute teacher via WhatsApp
+supabase/migrations/0026_registrations_admin_update.sql  fixes a missing permission —
+                                          admin editing a registration silently did
+                                          nothing until now, despite showing "Saved"
 preview.html                    single self-contained file (CSS+JS inlined) of the PUBLIC site only,
                                  for quick viewing — admin.html is a separate file and isn't included
                                  in this preview, since it needs admin.js alongside it to work
@@ -192,8 +195,11 @@ all succeeded).
 26. New query again → paste `supabase/migrations/0025_class_notes.sql` → **Run**.
     Adds private, teacher-only class notes that can be shared with a substitute
     teacher via WhatsApp.
+27. New query again → paste `supabase/migrations/0026_registrations_admin_update.sql`
+    → **Run**. **Critical** — without this, editing a registration in the admin
+    dashboard silently does nothing at all, despite showing "Saved ✔".
 
-All twenty-five files are safe to re-run if needed.
+All twenty-six files are safe to re-run if needed.
 
 ## 3. Configure email/password sign-in
 
@@ -309,6 +315,18 @@ Netlify or Vercel work just as well and both connect directly to your GitHub rep
 auto-deploys on every push, if you'd prefer either of those instead.
 
 ## Notes & next steps
+
+- **🚨 Critical fix — editing a registration never actually saved anything.** The
+  `registrations` table has only ever had permissions for insert (public), select
+  (admin), and delete (admin) — an UPDATE permission was never added, including when
+  the admin "edit a registration" feature itself was built. The database was
+  silently accepting every save attempt and matching zero rows, rather than showing
+  an error — which is exactly why it displayed "Պահպանվեց ✔" while nothing in the
+  database ever changed. **Migration `0026_registrations_admin_update.sql` must be
+  run** for saving an edited registration to work at all. The save button also now
+  double-checks that a row actually came back from the update before claiming
+  success, so if a permission gap like this ever happens again on any table, it'll
+  show a clear error instead of a false "Saved."
 
 - **Fixed: the Edit/Delete/Share buttons showing as tall, oddly-shaped ovals on
   mobile.** An earlier mobile fix forced buttons in this row to equal widths, which
