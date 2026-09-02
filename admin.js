@@ -708,7 +708,8 @@ async function loadRegistrations(){
       const dob = isChild ? r.child_dob : r.dob;
       const contact = isChild
         ? `Մայր՝ ${escapeHtml(r.mother||"")}<br>Հայր՝ ${escapeHtml(r.father||"")}`
-        : `${escapeHtml(r.phone||"")}<br>${escapeHtml(r.email||"")}`;
+        : `${escapeHtml(r.phone||"")}`;
+      const email = escapeHtml(r.email||"");
       const courses = (r.courses||[]).join(", ");
       const submitted = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "";
       return `<tr>
@@ -716,6 +717,7 @@ async function loadRegistrations(){
         <td>${escapeHtml(name||"")}</td>
         <td>${dob||""}</td>
         <td>${contact}</td>
+        <td>${email}</td>
         <td>${escapeHtml(courses)}</td>
         <td>${submitted}</td>
         <td style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -723,7 +725,7 @@ async function loadRegistrations(){
           <button class="btn danger small" data-delreg="${r.id}">Ջնջել</button>
         </td>
       </tr>`;
-    }).join("") : `<tr><td colspan="7">Դեռ գրանցումներ չկան։</td></tr>`;
+    }).join("") : `<tr><td colspan="8">Դեռ գրանցումներ չկան։</td></tr>`;
     renderRegistrationSummary();
 
     body.querySelectorAll("[data-delreg]").forEach(b=>{
@@ -745,7 +747,7 @@ async function loadRegistrations(){
       });
     });
   }catch(err){
-    body.innerHTML = `<tr><td colspan="7">Սխալ՝ ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="8">Սխալ՝ ${err.message}</td></tr>`;
   }
 }
 
